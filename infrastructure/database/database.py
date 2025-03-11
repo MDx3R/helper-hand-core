@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from .models import Base
 
 def create_engine(url) -> AsyncEngine:
-    return create_async_engine(url, echo=True)
+    return create_async_engine(url, echo=False) # флаг echo для подробных логов
 
 def create_async_session_factory(engine) -> sessionmaker:
     return sessionmaker(
@@ -13,5 +13,10 @@ def create_async_session_factory(engine) -> sessionmaker:
         expire_on_commit=False
     )
 
-def create_database(engine) -> None:
-    Base.metadata.create_all(engine)
+async def drop_database(engine: AsyncEngine) -> None:
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+
+async def create_database(engine: AsyncEngine) -> None:
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
