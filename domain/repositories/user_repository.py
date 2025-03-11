@@ -128,23 +128,6 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_pending_users_with_roles_by_page(self, page: int = 1, size: int = None) -> List[User]:
-        """
-        Получает список пользователей, ждущих подтверждение регистрации.
-        
-        Args:
-            page (int): номер страницы.
-            size (int): количество элементов на возврат.
-            
-        Returns:
-            List[User]: Список моделей роли, расширяющих User.
-            
-        Raises:
-            RepositoryException: При всех непредвиденных ошибках.
-        """
-        pass
-
-    @abstractmethod
     async def save_contractee(self, contractee: Contractee) -> Contractee:
         """
         Сохраняет данные исполнителя.
