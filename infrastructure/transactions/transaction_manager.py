@@ -52,7 +52,7 @@ class SQLAlchemyTransactionManager(TransactionManager):
             return match.group(1), match.group(2)
         return "unknown_field", "unknown_value"
 
-    async def _handle_exception(self, exception):
+    def _handle_exception(self, exception):
         if isinstance(exception, ApplicationException):
             raise exception
         
