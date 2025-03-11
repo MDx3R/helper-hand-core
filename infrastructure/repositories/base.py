@@ -23,6 +23,6 @@ class SQLAlchemyRepository():
         return (await self._execute(statement)).all()
         
     async def _execute(self, statement: Select[Tuple[O]] | Insert[Tuple[O]] | Update[Tuple[O]] | Delete[Tuple[O]]) -> Result[O]:
-        async with await self.transaction_manager.get_session() as session:
+        async with self.transaction_manager.get_session() as session:
             result = await session.execute(statement)
             return result

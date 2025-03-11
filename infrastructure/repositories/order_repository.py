@@ -279,7 +279,7 @@ class SQLAlchemyOrderRepository(OrderRepository, SQLAlchemyRepository):
         return self._map_base_to_order(order_base)
 
     async def _insert_order(self, order: Order) -> OrderBase:
-        async with await self.transaction_manager.get_session() as session:
+        async with self.transaction_manager.get_session() as session:
             order_base = self._map_order_to_base(order)
             session.add(order_base)
             await session.flush()
@@ -287,7 +287,7 @@ class SQLAlchemyOrderRepository(OrderRepository, SQLAlchemyRepository):
             return order_base
         
     async def _merge_order(self, order: Order) -> OrderBase:
-        async with await self.transaction_manager.get_session() as session:
+        async with self.transaction_manager.get_session() as session:
             merged_order: OrderBase = await session.merge(self._map_order_to_base(order))
             await session.flush()
 

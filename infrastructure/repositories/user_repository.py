@@ -103,7 +103,7 @@ class SQLAlchemyUserRepository(UserRepository, SQLAlchemyRepository):
         return user_base_to_model(user_base, role_base, type(user))
 
     async def _insert_user(self, user: Contractee | Contractor | Admin) -> Tuple[UserBase, ContracteeBase | ContractorBase | AdminBase]:
-        async with await self.transaction_manager.get_session() as session:
+        async with self.transaction_manager.get_session() as session:
             user_base = self._map_user_to_base(user)
             session.add(user_base)
             await session.flush()
@@ -117,7 +117,7 @@ class SQLAlchemyUserRepository(UserRepository, SQLAlchemyRepository):
             return user_base, role_base
         
     async def _merge_user(self, user: Contractee | Contractor | Admin) -> Tuple[UserBase, ContracteeBase | ContractorBase | AdminBase]:
-        async with await self.transaction_manager.get_session() as session:
+        async with self.transaction_manager.get_session() as session:
             merged_user: UserBase = await session.merge(self._map_user_to_base(user))
             await session.flush()
 

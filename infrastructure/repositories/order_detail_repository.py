@@ -45,21 +45,21 @@ class SQLAlchemyOrderDetailRepository(OrderDetailRepository, SQLAlchemyRepositor
         return [self._map_base_to_detail(detail) for detail in details]
 
     async def _insert_detail(self, detail: OrderDetail) -> OrderDetailBase:
-        async with await self.transaction_manager.get_session() as session:
+        async with self.transaction_manager.get_session() as session:
             detail_base = self._map_detail_to_base(detail)
             session.add(detail_base)
             await session.flush()
             return detail_base
         
     async def _insert_details(self, details: List[OrderDetail]) -> OrderDetailBase:
-        async with await self.transaction_manager.get_session() as session:
+        async with self.transaction_manager.get_session() as session:
             detail_bases = [self._map_detail_to_base(detail) for detail in details]
             session.add_all(detail_bases)
             await session.flush()
             return detail_bases
 
     async def _merge_detail(self, detail: OrderDetail) -> OrderDetailBase:
-        async with await self.transaction_manager.get_session() as session:
+        async with self.transaction_manager.get_session() as session:
             merged_detail: OrderDetailBase = await session.merge(self._map_detail_to_base(detail))
             await session.flush()
             return merged_detail
