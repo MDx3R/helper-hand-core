@@ -14,3 +14,6 @@ class NotificationService(ABC):
 
     async def send_admin_contact_notification(self, user: User, admin: Admin):
         pass
+
+    async def send_user_banned_notification(self, user: User):
+        pass
