@@ -1,4 +1,5 @@
 from .user_dto import UserOutputDTO
+from .admin_dto import AdminOutputDTO
 from .contractee_dto import ContracteeOutputDTO
 from .contractor_dto import ContractorOutputDTO
 from .order_dto import OrderOutputDTO
