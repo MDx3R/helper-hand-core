@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from datetime import datetime
+from contextlib import asynccontextmanager
 
 from domain.models import User, Admin, Contractee, Contractor
 from domain.models.enums import RoleEnum, UserStatusEnum, GenderEnum, CitizenshipEnum, PositionEnum
@@ -14,12 +15,12 @@ from application.transactions import TransactionManager
 def transaction_manager_mock():
     mock = AsyncMock(spec=TransactionManager)
     
-    # Мок для асинхронного контекстного менеджера
     session_mock = AsyncMock(spec=AsyncSession)
-    mock.get_session.return_value = AsyncMock(
-        __aenter__=AsyncMock(return_value=session_mock),
-        __aexit__=AsyncMock(return_value=None)
-    )
+
+    mock.get_session = MagicMock()
+    mock.get_session.return_value.__aenter__ = AsyncMock(return_value=session_mock)
+    mock.get_session.return_value.__aexit__ = AsyncMock(return_value=None)
+
     return mock
 
 @pytest.fixture
