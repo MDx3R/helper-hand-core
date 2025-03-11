@@ -48,7 +48,7 @@ class OrderDetailRepository(ABC):
             OrderDetail: Созданные сведения о заказе.
 
         Raises:
-            IntegrityException: Возникает при нарушении целостности данных при сохранении данных: Если произошло нарушение целостности данных.
+            IntegrityException: Возникает при нарушении целостности данных при сохранении данных.
             RepositoryException: При всех непредвиденных ошибках.
         """
         pass
@@ -65,7 +65,7 @@ class OrderDetailRepository(ABC):
             List[OrderDetail]: Список созданных сведений о заказе.
 
         Raises:
-            IntegrityException: Возникает при нарушении целостности данных при сохранении данных: Если произошло нарушение целостности данных.
+            IntegrityException: Возникает при нарушении целостности данных при сохранении данных.
             RepositoryException: При всех непредвиденных ошибках.
         """
         pass
@@ -83,7 +83,7 @@ class OrderDetailRepository(ABC):
             List[OrderDetail]: Список созданных сведений о заказе.
 
         Raises:
-            IntegrityException: Возникает при нарушении целостности данных при сохранении данных: Если произошло нарушение целостности данных.
+            IntegrityException: Возникает при нарушении целостности данных при сохранении данных.
             RepositoryException: При всех непредвиденных ошибках.
         """
         pass
