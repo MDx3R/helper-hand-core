@@ -1,0 +1,2 @@
+from .contractee_registration_service import ContracteeRegistrationServiceImpl
+from .contractor_registration_service import ContractorRegistrationServiceImpl
