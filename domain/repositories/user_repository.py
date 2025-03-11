@@ -2,6 +2,7 @@ from typing import List
 from abc import ABC, abstractmethod
 
 from domain.models import User, Admin, Contractee, Contractor
+from domain.models.enums import UserStatusEnum
 
 class UserRepository(ABC):
     @abstractmethod
@@ -155,7 +156,7 @@ class UserRepository(ABC):
             Contractee: Сохраненная модель исполнителя.
             
         Raises:
-            IntegrityException: Возникает при нарушении целостности данных при сохранении данных: Если произошло нарушение целостности данных.
+            IntegrityException: Возникает при нарушении целостности данных при сохранении данных.
             DuplicateEntryException: Возникает, если уникальные значения повторяются: Если произошел конфликт уникальности поля.
             RepositoryException: При всех непредвиденных ошибках.
         """
@@ -173,12 +174,30 @@ class UserRepository(ABC):
             Contractor: Сохраненная модель заказчика.
             
         Raises:
-            IntegrityException: Возникает при нарушении целостности данных при сохранении данных: Если произошло нарушение целостности данных.
+            IntegrityException: Возникает при нарушении целостности данных при сохранении данных.
             DuplicateEntryException: Возникает, если уникальные значения повторяются: Если произошел конфликт уникальности поля.
             RepositoryException: При всех непредвиденных ошибках.
         """
         pass
     
+    @abstractmethod
+    async def change_user_status(self, user_id: int, status: UserStatusEnum) -> User:
+        """
+        Изменяет статус пользователя.
+        
+        Args:
+            user_id (int): ID пользователя.
+            status (UserStatusEnum): новый статус пользователя.
+            
+        Returns:
+            User: Изменённый пользователь.
+
+        Raises:
+            IntegrityException: Возникает при нарушении целостности данных при сохранении данных.
+            RepositoryException: При всех непредвиденных ошибках.
+        """
+        pass
+
     @abstractmethod
     async def user_exists_by_phone_number(self, phone_number: str) -> bool:
         """
