@@ -37,6 +37,22 @@ class UserRepository(ABC):
         pass
     
     @abstractmethod
+    async def get_user_with_role(self, user_id: int) -> User | None:
+        """
+        Получает роль пользователя по его ID.
+        
+        Args:
+            user_id (int): ID пользователя.
+            
+        Returns:
+            User: Модель роли, расширяющая User.
+            
+        Raises:
+            RepositoryException: При всех непредвиденных ошибках.
+        """
+        pass
+
+    @abstractmethod
     async def get_admin_by_id(self, admin_id: int) -> Admin | None:
         """
         Получает администратора по его ID.
