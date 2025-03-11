@@ -1,6 +1,16 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
-from domain.repositories import UserRepository
+from domain.models import User, Admin
 
 class NotificationService(ABC):
-    pass
+    async def send_registration_approved_notification(self, user: User):
+        pass
+
+    async def send_registration_disapproved_notification(self, user: User):
+        pass
+
+    async def send_registration_dropped_notification(self, user: User):
+        pass
+
+    async def send_admin_contact_notification(self, user: User, admin: Admin):
+        pass
