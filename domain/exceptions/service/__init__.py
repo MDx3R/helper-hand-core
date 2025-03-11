@@ -2,3 +2,4 @@ from .auth import PermissionDeniedException, AlreadyAuthenticatedException, User
 from .orders import MissingOrderDetailsException, OrderStatusChangeNotAllowedException, OrderActionNotAllowedException
 from .common import NotFoundException
 from .replies import InvalidReplyException, DetailFullException, ReplyStatusChangeNotAllowedException, ReplySubmitNotAllowedException
+from .users import UserStatusChangeNotAllowedException
