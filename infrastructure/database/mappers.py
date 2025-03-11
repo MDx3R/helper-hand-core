@@ -4,6 +4,7 @@ from domain.models import (
     User, Admin, Contractee, Contractor,
     Order, OrderDetail, DetailedOrder
 )
+from domain.models.enums import RoleEnum
 from infrastructure.database.models import (
     Base, 
     UserBase, AdminBase, ContracteeBase, ContractorBase,
@@ -27,6 +28,17 @@ def user_base_to_model(
 
     role_data = {k: v for k, v in role.__dict__.items() if k not in {"created_at", "updated_at"}}
     return model(**user_model.model_dump(), **role_data)
+
+def role_base_to_model(
+    user: UserBase,
+    role: AdminBase | ContracteeBase | ContractorBase
+) -> User:
+    mapping = {
+        RoleEnum.contractee: Contractee,
+        RoleEnum.contractor: Contractor,
+        RoleEnum.admin: Admin,
+    }
+    return user_base_to_model(user, role, mapping.get(user.role))
 
 def detailed_order_base_to_model(
     order: OrderBase, 

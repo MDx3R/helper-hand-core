@@ -1,10 +1,10 @@
 from typing import Any, Tuple, List, TypeVar, Type
-from sqlalchemy import select, exists, and_, Select
+from sqlalchemy import select, update, exists, and_, Select
 from sqlalchemy.engine import Result
 
 from domain.repositories import UserRepository
 from domain.models import ApplicationModel, User, Admin, Contractee, Contractor
-from domain.models.enums import RoleEnum
+from domain.models.enums import RoleEnum, UserStatusEnum
 from domain.exceptions import ApplicationException
 
 from application.transactions import TransactionManager
@@ -22,7 +22,8 @@ from infrastructure.database.mappers import (
     user_to_base,
     contractee_to_base,
     contractor_to_base,
-    admin_to_base
+    admin_to_base,
+    role_base_to_model
 )
 
 from infrastructure.repositories.base import SQLAlchemyRepository
@@ -40,6 +41,39 @@ class SQLAlchemyUserRepository(UserRepository, SQLAlchemyRepository):
         statement = select(UserBase).where(UserBase.telegram_id == telegram_id)
         user = await self._execute_scalar_one(statement)
         return self._map_base_to_user(user)
+
+    async def get_user_with_role(self, user_id: int) -> Contractee | Contractor | Admin | None:
+        statement = (
+            self._get_user_with_role_statement()
+            .where(UserBase.user_id == user_id)
+        )
+
+        user, role = await self._execute_user_unmapped_role(statement)
+        
+        return self._map_base_to_role(user, role)
+
+    async def get_first_pending_user_with_role(self) -> Contractee | Contractor | Admin | None:
+        statement = (
+            self._get_user_with_role_statement()
+            .where(UserBase.status == UserStatusEnum.pending).limit(1)
+        )
+        
+        user, role = await self._execute_user_unmapped_role(statement)
+
+        return self._map_base_to_role(user, role)
+
+    def _get_user_with_role_statement(self):
+        return (
+            select(
+                UserBase,  
+                AdminBase,  
+                ContracteeBase,  
+                ContractorBase  
+            )
+            .outerjoin(AdminBase, UserBase.user_id == AdminBase.admin_id)
+            .outerjoin(ContracteeBase, UserBase.user_id == ContracteeBase.contractee_id)
+            .outerjoin(ContractorBase, UserBase.user_id == ContractorBase.contractor_id)
+        )
 
     async def get_admin_by_id(self, admin_id: int) -> Admin | None:
         statement = select(UserBase, AdminBase).join(
@@ -75,6 +109,26 @@ class SQLAlchemyUserRepository(UserRepository, SQLAlchemyRepository):
             return None, None
 
         user, related_instance = row
+        return user, related_instance
+    
+    async def _execute_user_unmapped_role(
+        self, 
+        statement: Select[Tuple[UserBase, AdminBase, ContracteeBase, ContractorBase]], 
+    ) -> Tuple[UserBase, ContracteeBase | ContractorBase | AdminBase] | Tuple[None, None]:
+        row = (await self._execute(statement)).first()
+        if not row:
+            return None, None
+
+        user, admin, contractee, contractor = row
+        related_instance = {
+            RoleEnum.admin: admin,
+            RoleEnum.contractee: contractee,
+            RoleEnum.contractor: contractor
+        }.get(user.role)
+
+        if related_instance is None:
+            return None, None
+        
         return user, related_instance
 
     async def get_admins(self) -> List[Admin]:
@@ -128,6 +182,14 @@ class SQLAlchemyUserRepository(UserRepository, SQLAlchemyRepository):
 
             return merged_user, merged_role
         
+    async def change_user_status(self, user_id: int, status: UserStatusEnum) -> User:
+        statement = update(UserBase).where(
+            UserBase.user_id == user_id
+        ).values(status=status).returning(UserBase)
+        
+        user = (await self._execute(statement)).fetchone()
+        return self._map_base_to_user(user)
+
     def _map_base_to_user(self, base: UserBase) -> User | None:
         return base_to_model(base, User) if base else None
 
@@ -139,6 +201,9 @@ class SQLAlchemyUserRepository(UserRepository, SQLAlchemyRepository):
 
     def _map_base_to_contractor(self, user: UserBase, contractor: ContractorBase) -> Contractor | None:
         return user_base_to_model(user, contractor, Contractor) if user else None
+    
+    def _map_base_to_role(self, user: UserBase, role: AdminBase | ContracteeBase | ContractorBase) -> User:
+        return role_base_to_model(user, role)
     
     def _map_user_to_base(self, user: User) -> UserBase:
         return user_to_base(user)
