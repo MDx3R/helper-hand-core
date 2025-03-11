@@ -9,10 +9,10 @@ class NotificationService(ABC):
     async def send_registration_disapproved_notification(self, user: User):
         pass
 
-    async def send_registration_dropped_notification(self, user: User):
+    async def send_admin_contact_notification(self, user: User, admin: Admin):
         pass
 
-    async def send_admin_contact_notification(self, user: User, admin: Admin):
+    async def send_user_dropped_notification(self, user: User):
         pass
 
     async def send_user_banned_notification(self, user: User):
