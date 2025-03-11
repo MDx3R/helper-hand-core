@@ -24,7 +24,9 @@ def user_base_to_model(
 ) -> A:
     """Конвертирует SQLAlchemy-модель пользователя и его подтип (`AdminBase`, `ContracteeBase`, `ContractorBase`) в модель приложения."""
     user_model = User(**user.__dict__)
-    return model(**user_model.model_dump(), **role.__dict__)
+
+    role_data = {k: v for k, v in role.__dict__.items() if k not in {"created_at", "updated_at"}}
+    return model(**user_model.model_dump(), **role_data)
 
 def detailed_order_base_to_model(
     order: OrderBase, 
