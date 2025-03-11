@@ -79,7 +79,7 @@ class SQLAlchemyTransactionManager(TransactionManager):
         
         raise exception
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> AsyncSession:
         session = self._create_session()
         self._set_session(session)
         return session
