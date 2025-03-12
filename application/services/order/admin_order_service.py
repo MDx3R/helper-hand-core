@@ -1,7 +1,7 @@
 from typing import List
 
-from domain.models import Order, Admin
-from domain.models.enums import OrderStatusEnum
+from domain.models import Order, Admin, OrderDetail, Contractee, DetailedOrder
+from domain.models.enums import OrderStatusEnum, RoleEnum, UserStatusEnum, GenderEnum
 
 from domain.services.order import AdminOrderService
 from domain.repositories import (
@@ -61,11 +61,34 @@ class AdminOrderServiceImpl(AdminOrderService):
                 det.to_order_detail(order.order_id) for det in details_input
             ]) 
 
-        # todo: получать список исполнителей для заказа
-        # await self.contractee_notification_service.send_new_order_notification()
+        await self._notify_contractees_on_new_order(order, details)
 
         return DetailedOrderOutputDTO.from_order_and_details(order, details)
     
+    async def _notify_contractees_on_new_order(self, order: Order, details: List[OrderDetail]):
+        contractees = await self._get_suitable_contractees_for_order(order, details)
+        await self.contractee_notification_service.send_new_order_notification(contractees, order)
+
+    async def _get_suitable_contractees_for_order(self, order: Order, details: List[OrderDetail]) -> List[Contractee]:
+        contractees = await self.user_repository.filter_users_by(
+            role=RoleEnum.contractee, 
+            status=UserStatusEnum.registered, 
+            gender=self._determine_required_gender_for_order(details)
+        )
+        return contractees
+
+    def _determine_required_gender_for_order(self, details: List[OrderDetail]) -> GenderEnum | None:
+        gender = details[0].gender
+        for i in details:
+            # если запрашивается хотя бы 2 каких либо отличных пола: 
+            # GenderEnum.male и GenderEnum.female, GenderEnum.male и None, GenderEnum.female и None 
+            # - все сочетания по 2 элемента из значений доступных для OrderDetail.gender
+            # то возвращаем None (любой пол)
+            if gender != i.gender:
+                return None
+
+        return gender
+
     async def get_order(self, order_id: int, admin: Admin) -> OrderOutputDTO | None:
         order = await self.order_repository.get_order_by_id(order_id)
         if order is None:
@@ -90,27 +113,27 @@ class AdminOrderServiceImpl(AdminOrderService):
 
             order = await self.order_repository.save_order(order)
 
-        contractor = self.user_repository.get_contractor_by_id(order.contractor_id)
+        contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
         await self.contractor_notification_service.send_admin_assigned_for_order_notification(contractor, order)
 
         return OrderOutputDTO.from_order(order)
 
     async def approve_order(self, order_id: int, admin: Admin) -> OrderOutputDTO:
         async with self.transaction_manager:
-            order = await self.order_repository.get_order_by_id(order_id)
+            order = await self.order_repository.get_detailed_order_by_id(order_id)
             if order is None:
                 raise NotFoundException(order_id)
 
             if order.status != OrderStatusEnum.created:
                 raise OrderStatusChangeNotAllowedException(order_id, OrderStatusEnum.open, "Заказ не может быть подтвержден")
 
-            order = await self.order_repository.change_order_status(order_id, OrderStatusEnum.open)
+            await self.order_repository.change_order_status(order_id, OrderStatusEnum.open)
+            order.status = OrderStatusEnum.open
 
-        contractor = self.user_repository.get_contractor_by_id(order.contractor_id)
+        contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
         await self.contractor_notification_service.send_order_approved_notification(contractor, order)
 
-        # todo: получать список исполнителей для заказа
-        # await self.contractee_notification_service.send_new_order_notification()
+        await self._notify_contractees_on_new_order(order, order.details)
 
         return OrderOutputDTO.from_order(order)
 
@@ -133,7 +156,7 @@ class AdminOrderServiceImpl(AdminOrderService):
             if old_status != OrderStatusEnum.created:
                 dropped_contractees = await self.reply_repository.drop_order_replies_by_order_id(order_id)
 
-        contractor = self.user_repository.get_contractor_by_id(order.contractor_id)
+        contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
         await self.contractor_notification_service.send_order_cancelled_notification(contractor, order)
         
         if old_status != OrderStatusEnum.created:
@@ -155,7 +178,7 @@ class AdminOrderServiceImpl(AdminOrderService):
 
             order = await self.order_repository.change_order_status(order_id, OrderStatusEnum.closed)
 
-        contractor = self.user_repository.get_contractor_by_id(order.contractor_id)
+        contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
         await self.contractor_notification_service.send_order_closed_notification(contractor, order)
 
         return OrderOutputDTO.from_order(order)
@@ -174,7 +197,7 @@ class AdminOrderServiceImpl(AdminOrderService):
 
             order = await self.order_repository.change_order_status(order_id, OrderStatusEnum.open)
 
-        contractor = self.user_repository.get_contractor_by_id(order.contractor_id)
+        contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
         await self.contractor_notification_service.send_order_opened_notification(contractor, order)
 
         return OrderOutputDTO.from_order(order)
@@ -193,7 +216,7 @@ class AdminOrderServiceImpl(AdminOrderService):
 
             order = await self.order_repository.change_order_status(order_id, OrderStatusEnum.fulfilled)
 
-        contractor = self.user_repository.get_contractor_by_id(order.contractor_id)
+        contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
         await self.contractor_notification_service.send_order_fulfilled_notification(contractor, order)
 
         return OrderOutputDTO.from_order(order)

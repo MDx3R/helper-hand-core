@@ -33,6 +33,10 @@ class ContracteeNotificationService(ABC):
         pass
 
     @abstractmethod
+    async def send_new_order_notification_many(self, contractees: List[Contractee], order: Order):
+        pass
+
+    @abstractmethod
     async def send_order_set_active_notification_many(self, contractees: List[Contractee], order: Order):
         pass
 

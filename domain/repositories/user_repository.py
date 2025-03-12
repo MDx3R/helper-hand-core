@@ -2,7 +2,7 @@ from typing import List
 from abc import ABC, abstractmethod
 
 from domain.models import User, Admin, Contractee, Contractor
-from domain.models.enums import UserStatusEnum
+from domain.models.enums import UserStatusEnum, RoleEnum, GenderEnum
 
 class UserRepository(ABC):
     @abstractmethod
@@ -195,4 +195,15 @@ class UserRepository(ABC):
         Raises:
             RepositoryException: При всех непредвиденных ошибках.
         """
+        pass
+
+    @abstractmethod
+    async def filter_users_by(self, role: RoleEnum = None, status: UserStatusEnum = None, gender: GenderEnum = None) -> List[User]:
+        """
+        Возвращает отфильтрованный список пользователей.
+        
+        Returns:
+            List[User]
+        """
+        # todo: реализовать батчевый подход к сбору данных
         pass
