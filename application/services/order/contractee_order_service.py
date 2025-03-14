@@ -51,7 +51,7 @@ class ContracteeOrderServiceImpl(ContracteeOrderService):
         return None
 
     async def get_one_open_order(self, contractee: Contractee, last_order_id: int = None) -> DetailedOrderOutputDTO | None:
-        detailed_order = await self.order_repository.get_detailed_open_orders_by_last_order_id(last_order_id, 1)[0]
+        detailed_order = (await self.order_repository.get_detailed_open_orders_by_last_order_id(last_order_id, 1))[0]
         return DetailedOrderOutputDTO.from_order(detailed_order)
     
     async def get_open_orders(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[OrderOutputDTO]:
