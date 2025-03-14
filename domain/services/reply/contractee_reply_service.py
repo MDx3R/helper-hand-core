@@ -55,7 +55,7 @@ class ContracteeReplyService(ABC):
         pass
 
     @abstractmethod
-    async def get_replies(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[DetailedReplyOutputDTO]:
+    async def get_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyOutputDTO]:
         """
         Получает список откликов исполнителя по его ID.
         
@@ -70,7 +70,7 @@ class ContracteeReplyService(ABC):
         pass
 
     @abstractmethod
-    async def get_approved_replies(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[DetailedReplyOutputDTO]:
+    async def get_approved_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyOutputDTO]:
         """
         Получает список неподтвержденных откликов исполнителя по его ID.
         
@@ -85,7 +85,7 @@ class ContracteeReplyService(ABC):
         pass
 
     @abstractmethod
-    async def get_unapproved_replies(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[DetailedReplyOutputDTO]:
+    async def get_unapproved_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyOutputDTO]:
         """
         Получает список неподтвержденных откликов исполнителя по его ID.
         

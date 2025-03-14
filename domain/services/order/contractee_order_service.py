@@ -59,7 +59,7 @@ class ContracteeOrderService(ABC):
 
         Args:
             contractee (Contractee): Объект исполнителя.
-            page (int): Номер страницы. По умолчанию номер страницы равен 1.
+            page (int): Номер страницы.
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
@@ -77,7 +77,7 @@ class ContracteeOrderService(ABC):
 
         Args:
             contractee (Contractee): Объект исполнителя.
-            page (int): Номер страницы. По умолчанию номер страницы равен 1.
+            page (int): Номер страницы.
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:

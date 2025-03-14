@@ -34,8 +34,6 @@ class ContractorOrderService(ABC):
         Raises:
             MissingOrderDetailsException: Возникает, если отсутствуют сведения заказа.
             IntegrityException: Возникает при нарушении целостности данных.
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках в процессе создания заказа.
         """
         pass
     
@@ -52,10 +50,6 @@ class ContractorOrderService(ABC):
 
         Returns:
             OrderOutputDTO: DTO с данными заказа или `None`, если заказ не найден.
-
-        Raises:
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках.
         """
         pass
 
@@ -72,10 +66,6 @@ class ContractorOrderService(ABC):
 
         Returns:
             DetailedOrderOutputDTO: DTO с данными созданного заказа вместе с его сведениями или `None`, если заказ не найден.
-
-        Raises:
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках.
         """
         pass
 
@@ -138,15 +128,11 @@ class ContractorOrderService(ABC):
 
         Args:
             contractor (Contractor): Объект заказчика. Используется для ограничения доступа заказчика к не принадлежащим ему заказам.
-            page (int): Номер страницы. По умолчанию номер страницы равен 1.
+            page (int): Номер страницы.
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
             List[OrderOutputDTO]: Список DTO с заказами заказчика.
-
-        Raises:
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках.
         """
         pass
 
@@ -159,14 +145,10 @@ class ContractorOrderService(ABC):
 
         Args:
             contractor (Contractor): Объект заказчика. Используется для ограничения доступа заказчика к не принадлежащим ему заказам.
-            page (int): Номер страницы. По умолчанию номер страницы равен 1.
+            page (int): Номер страницы.
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
             List[DetailedOrderOutputDTO]: Список DTO с подробными данными заказов заказчика.
-
-        Raises:
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках.
         """
         pass

@@ -28,8 +28,6 @@ class AdminOrderService(ABC):
         Raises:
             MissingOrderDetailsException: Возникает, если отсутствуют сведения заказа.
             IntegrityException: Возникает при нарушении целостности данных.
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках в процессе создания заказа.
         """
         pass
     
@@ -46,10 +44,6 @@ class AdminOrderService(ABC):
 
         Returns:
             OrderOutputDTO: DTO с данными заказа или `None`, если заказ не найден.
-
-        Raises:
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках.
         """
         pass
 
@@ -66,10 +60,6 @@ class AdminOrderService(ABC):
 
         Returns:
             DetailedOrderOutputDTO: DTO с данными созданного заказа вместе с его сведениями или `None`, если заказ не найден.
-
-        Raises:
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках.
         """
         pass
 
@@ -222,15 +212,11 @@ class AdminOrderService(ABC):
 
         Args:
             admin (Admin): Объект администратора.
-            page (int): Номер страницы. По умолчанию номер страницы равен 1.
+            page (int): Номер страницы.
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
             List[OrderOutputDTO]: Список DTO с заказами.
-
-        Raises:
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках.
         """
         pass
 
@@ -241,15 +227,11 @@ class AdminOrderService(ABC):
 
         Args:
             admin (Admin): Объект администратора.
-            page (int): Номер страницы. По умолчанию номер страницы равен 1.
+            page (int): Номер страницы.
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
             List[DetailedOrderOutputDTO]: Список DTO с подробными данными заказов.
-
-        Raises:
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках.
         """
         pass
 
@@ -266,10 +248,6 @@ class AdminOrderService(ABC):
 
         Returns:
             DetailedOrderOutputDTO: DTO с данными заказа вместе с его сведениями.
-
-        Raises:
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках.
         """
         pass
 
@@ -280,15 +258,11 @@ class AdminOrderService(ABC):
 
         Args:
             admin (Admin): Объект администратора.
-            page (int): Номер страницы. По умолчанию номер страницы равен 1.
+            page (int): Номер страницы.
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
             List[DetailedOrderOutputDTO]: Список DTO с данными заказов вместе с их сведениями.
-
-        Raises:
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках.
         """
         pass
 
@@ -299,15 +273,11 @@ class AdminOrderService(ABC):
 
         Args:
             admin (Admin): Объект администратора.
-            page (int): Номер страницы. По умолчанию номер страницы равен 1.
+            page (int): Номер страницы.
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
             List[DetailedOrderOutputDTO]: Список DTO с данными заказов вместе с их сведениями.
-
-        Raises:
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках.
         """
         pass
 
@@ -318,15 +288,11 @@ class AdminOrderService(ABC):
 
         Args:
             admin (Admin): Объект администратора.
-            page (int): Номер страницы. По умолчанию номер страницы равен 1.
+            page (int): Номер страницы.
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
             List[DetailedOrderOutputDTO]: Список DTO с данными заказов вместе с их сведениями.
-
-        Raises:
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках.
         """
         pass
 
@@ -338,15 +304,11 @@ class AdminOrderService(ABC):
         Args:
             contractee_id (int): ID исполнителя.
             admin (Admin): Объект администратора.
-            page (int): Номер страницы. По умолчанию номер страницы равен 1.
+            page (int): Номер страницы.
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
             List[DetailedOrderOutputDTO]: Список DTO с данными заказов вместе с их сведениями.
-
-        Raises:
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках.
         """
         pass
 
@@ -358,15 +320,11 @@ class AdminOrderService(ABC):
         Args:
             contractor_id (int): ID заказчика.
             admin (Admin): Объект администратора.
-            page (int): Номер страницы. По умолчанию номер страницы равен 1.
+            page (int): Номер страницы.
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
             List[DetailedOrderOutputDTO]: Список DTO с данными заказов вместе с их сведениями.
-
-        Raises:
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках.
         """
         pass
 
@@ -378,14 +336,10 @@ class AdminOrderService(ABC):
         Args:
             admin_id (int): ID запрашиваемого администратора.
             admin (Admin): Объект администратора, запрашивающего список заказов.
-            page (int): Номер страницы. По умолчанию номер страницы равен 1.
+            page (int): Номер страницы.
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
             List[DetailedOrderOutputDTO]: Список DTO с данными заказов вместе с их сведениями.
-
-        Raises:
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках.
         """
         pass
