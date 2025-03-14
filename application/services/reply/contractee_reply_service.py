@@ -124,14 +124,14 @@ class ContracteeReplyServiceImpl(ContracteeReplyService):
         
         return DetailedReplyOutputDTO.from_reply(reply)
 
-    async def get_replies(self, contractee: Contractee) -> List[DetailedReplyOutputDTO]:
-        replies = await self.reply_repository.get_replies_by_contractee_id(contractee.contractee_id)
+    async def get_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyOutputDTO]:
+        replies = await self.reply_repository.get_detailed_replies_by_contractee_id_by_page(contractee.contractee_id, page, size)
         return [DetailedReplyOutputDTO.from_reply(reply) for reply in replies]
 
-    async def get_approved_replies(self, contractee: Contractee) -> List[DetailedReplyOutputDTO]:
-        replies = await self.reply_repository.get_approved_replies_by_contractee_id(contractee.contractee_id)
+    async def get_approved_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyOutputDTO]:
+        replies = await self.reply_repository.get_approved_detailed_replies_by_contractee_id_by_page(contractee.contractee_id, page, size)
         return [DetailedReplyOutputDTO.from_reply(reply) for reply in replies]
 
-    async def get_unapproved_replies(self, contractee: Contractee) -> List[DetailedReplyOutputDTO]:
-        replies = await self.reply_repository.get_unapproved_replies_by_contractee_id(contractee.contractee_id)
+    async def get_unapproved_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyOutputDTO]:
+        replies = await self.reply_repository.get_unapproved_detailed_replies_by_contractee_id_by_page(contractee.contractee_id, page, size)
         return [DetailedReplyOutputDTO.from_reply(reply) for reply in replies]

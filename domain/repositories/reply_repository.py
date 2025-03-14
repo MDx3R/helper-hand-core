@@ -44,12 +44,14 @@ class ReplyRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_replies_by_contractee_id(self, contractee_id: int) -> List[DetailedReply]:
+    async def get_detailed_replies_by_contractee_id_by_page(self, contractee_id: int, page: int = 1, size: int = None) -> List[DetailedReply]: 
         """
         Получает список откликов исполнителя по его ID.
 
         Args:
             contractee_id (int): ID исполнителя.
+            page (int): номер страницы.
+            size (int): количество элементов на странице.
         
         Returns:
             List[DetailedReply]: Список откликов. Может быть пустым, если отклики не найдены.
@@ -60,12 +62,14 @@ class ReplyRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_approved_replies_by_contractee_id(self, contractee_id: int) -> List[DetailedReply]:
+    async def get_approved_detailed_replies_by_contractee_id_by_page(self, contractee_id: int, page: int = 1, size: int = None) -> List[DetailedReply]: 
         """
         Получает список подтвержденных откликов исполнителя по его ID.
 
         Args:
             contractee_id (int): ID исполнителя.
+            page (int): номер страницы.
+            size (int): количество элементов на странице.
         
         Returns:
             List[DetailedReply]: Список откликов. Может быть пустым, если отклики не найдены.
@@ -76,13 +80,15 @@ class ReplyRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_unapproved_replies_by_contractee_id(self, contractee_id: int) -> List[DetailedReply]:
+    async def get_unapproved_detailed_replies_by_contractee_id_by_page(self, contractee_id: int, page: int = 1, size: int = None) -> List[DetailedReply]: 
         """
         Получает список неподтвержденных откликов исполнителя по его ID.
 
         Args:
             contractee_id (int): ID исполнителя.
-        
+            page (int): номер страницы.
+            size (int): количество элементов на странице.        
+            
         Returns:
             List[DetailedReply]: Список откликов. Может быть пустым, если отклики не найдены.
             
@@ -180,9 +186,7 @@ class ReplyRepository(ABC):
             order_id (int): ID заказа
         
         Returns:
-            List[AvailableRepliesForDetail]: Список объектов, каждый из которых содержит:
-                - detail_id (int): ID сведений о заказе.
-                - quantity (int): Количество свободных мест.
+            List[AvailableRepliesForDetail]
             
         Raises:
             RepositoryException: При всех непредвиденных ошибках.
@@ -354,9 +358,6 @@ class ReplyRepository(ABC):
     async def get_unapproved_replies_by_order_id_by_page(self, order_id: int, page: int = 1, size: int = None) -> List[DetailedReply]:
         """
         Получает список неподтвержденных откликов на заказ по его ID постранично. 
-        На основе параметров `page` и `size` рассчитывается `offset` (`offset = (page-1)*size`) и `limit` (`limit = size`).
-        Если параметр `page` равен 1, то элементы берутся с начала. 
-        Если параметр `size` равен `None`, то возвращаются все элементы после отступа.
 
         Args:
             order_id (int): ID заказа.
@@ -377,9 +378,6 @@ class ReplyRepository(ABC):
     async def get_unapproved_replies_by_order_id_and_contractor_id_by_page(self, order_id: int, contractor_id: int, page: int = 1, size: int = None) -> List[DetailedReply]:
         """
         Получает список неподтвержденных откликов на заказ по его ID и ID заказчика постранично. 
-        На основе параметров `page` и `size` рассчитывается `offset` (`offset = (page-1)*size`) и `limit` (`limit = size`).
-        Если параметр `page` равен 1, то элементы берутся с начала. 
-        Если параметр `size` равен `None`, то возвращаются все элементы после отступа.
 
         Args:
             order_id (int): ID заказа.
@@ -401,9 +399,6 @@ class ReplyRepository(ABC):
     async def get_approved_replies_by_order_id_by_page(self, order_id: int, page: int = 1, size: int = None) -> List[DetailedReply]:
         """
         Получает список подтвержденных откликов на заказ по его ID постранично. 
-        На основе параметров `page` и `size` рассчитывается `offset` (`offset = (page-1)*size`) и `limit` (`limit = size`).
-        Если параметр `page` равен 1, то элементы берутся с начала. 
-        Если параметр `size` равен `None`, то возвращаются все элементы после отступа.
 
         Args:
             order_id (int): ID заказа.
@@ -424,9 +419,6 @@ class ReplyRepository(ABC):
     async def get_approved_replies_by_order_id_and_contractor_id_by_page(self, order_id: int, contractor_id: int, page: int = 1, size: int = None) -> List[DetailedReply]:
         """
         Получает список подтвержденных откликов на заказ по его ID и ID заказчика постранично. 
-        На основе параметров `page` и `size` рассчитывается `offset` (`offset = (page-1)*size`) и `limit` (`limit = size`).
-        Если параметр `page` равен 1, то элементы берутся с начала. 
-        Если параметр `size` равен `None`, то возвращаются все элементы после отступа.
 
         Args:
             order_id (int): ID заказа.

@@ -62,7 +62,7 @@ class ContracteeReplyService(ABC):
         Args:
             contractee (Contractee): Объект исполнителя.
             page (int): Номер страницы.
-            size (int): Размер страницы. По умолчанию размер страницы равен 15.
+            size (int): Размер страницы. По умолчанию размер страницы равен 10.
 
         Returns:
             List[DetailedReplyOutputDTO]: Список DTO с данными откликов.
@@ -77,7 +77,7 @@ class ContracteeReplyService(ABC):
         Args:
             contractee (Contractee): Объект исполнителя.
             page (int): Номер страницы.
-            size (int): Размер страницы. По умолчанию размер страницы равен 15.
+            size (int): Размер страницы. По умолчанию размер страницы равен 10.
 
         Returns:
             List[DetailedReplyOutputDTO]: Список DTO с данными откликов.
@@ -92,7 +92,7 @@ class ContracteeReplyService(ABC):
         Args:
             contractee (Contractee): Объект исполнителя.
             page (int): Номер страницы.
-            size (int): Размер страницы. По умолчанию размер страницы равен 15.
+            size (int): Размер страницы. По умолчанию размер страницы равен 10.
 
         Returns:
             List[DetailedReplyOutputDTO]: Список DTO с данными откликов.
