@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 from datetime import timedelta
 
-from domain.models import Contractee, OrderDetail
+from domain.models import Contractee, OrderDetail, Order
 from domain.models.enums import OrderStatusEnum
 
 from domain.repositories import OrderRepository, OrderDetailRepository, UserRepository, ReplyRepository
@@ -12,8 +12,8 @@ from application.dtos.input import OrderInputDTO, OrderDetailInputDTO
 from application.dtos.output import DetailedOrderOutputDTO, OrderOutputDTO, OrderDetailOutputDTO
 from application.transactions import TransactionManager, transactional
 
-from domain.time import get_current_time, is_current_time_valid_for_reply
 from domain.services.order import ContracteeOrderService
+from domain.services.domain import OrderDetailDomainService, OrderDomainService
 
 class ContracteeOrderServiceImpl(ContracteeOrderService):
     """
@@ -43,18 +43,24 @@ class ContracteeOrderServiceImpl(ContracteeOrderService):
     
     async def get_order(self, order_id: int, contractee: Contractee) -> DetailedOrderOutputDTO | None:
         detailed_order = await self.order_repository.get_detailed_order_by_id(order_id)
-        if detailed_order.status == OrderStatusEnum.open:
+        if OrderDomainService.is_available(detailed_order):
             return DetailedOrderOutputDTO.from_order(detailed_order)
-        if await self.reply_repository.has_contractee_replied_to_order(order_id, contractee.contractee_id):
+        
+        if await self._has_contractee_replied(detailed_order, contractee):
             return DetailedOrderOutputDTO.from_order(detailed_order)
 
         return None
 
+    async def _has_contractee_replied(self, order: Order, contractee: Contractee) -> bool:
+        return await self.reply_repository.has_contractee_replied_to_order(order.order_id, contractee.contractee_id)
+
     async def get_one_open_order(self, contractee: Contractee, last_order_id: int = None) -> DetailedOrderOutputDTO | None:
+        # todo: добавить фильтрацию заказов для конкретного исполнителя по профилю
         detailed_order = (await self.order_repository.get_detailed_open_orders_by_last_order_id(last_order_id, 1))[0]
         return DetailedOrderOutputDTO.from_order(detailed_order)
     
     async def get_open_orders(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[OrderOutputDTO]:
+        # todo: добавить фильтрацию заказов для конкретного исполнителя по профилю
         detailed_orders = await self.order_repository.get_detailed_open_orders_by_page(page, size)
         return [DetailedOrderOutputDTO.from_order(order) for order in detailed_orders]
 
@@ -65,23 +71,27 @@ class ContracteeOrderServiceImpl(ContracteeOrderService):
     async def get_available_details(self, order_id: int, contractee: Contractee) -> List[OrderDetailInputDTO]:
         async with self.transaction_manager:
             order = await self.order_repository.get_order_by_id(order_id)
-            if order.status != OrderStatusEnum.open:
+            if not OrderDomainService.is_available(order):
                 return []
 
-            unfiltered_details = await self.order_detail_repository.get_available_details_by_order_id(order_id)
-            details = await self._filter_available_details_for_contractee(contractee, unfiltered_details)
-
+            details = await self._get_available_details(order, contractee)
+            
         return [OrderDetailInputDTO.to_order_detail(detail) for detail in details]
     
+    async def _get_available_details(self, order: Order, contractee: Contractee) -> List[OrderDetail]:
+        unfiltered_details = await self.order_detail_repository.get_available_details_by_order_id(order.order_id)
+        details = await self._filter_available_details_for_contractee(contractee, unfiltered_details)
+        return details
+
     async def _filter_available_details_for_contractee(self, contractee: Contractee, details: List[OrderDetail]) -> List[OrderDetail]:
         busy_dates = await self.reply_repository.get_contractee_approved_future_busy_dates(contractee.contractee_id)
         taken_details = [reply.detail_id for reply in await self.reply_repository.get_contractee_future_replies(contractee.contractee_id)]
 
         filtered_details = []
         for detail in details:
-            if not is_current_time_valid_for_reply(detail.start_date):
+            if not OrderDetailDomainService.is_relevant_at_current_time(detail):
                 continue
-            if detail.gender and detail.gender != contractee.gender:
+            if not OrderDetailDomainService.is_suitable(detail, contractee):
                 continue
             if detail.detail_id in taken_details:
                 continue
