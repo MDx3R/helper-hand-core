@@ -4,7 +4,7 @@ from sqlalchemy.engine import Result
 
 from domain.repositories import UserRepository
 from domain.models import ApplicationModel, User, Admin, Contractee, Contractor
-from domain.models.enums import RoleEnum, UserStatusEnum
+from domain.models.enums import RoleEnum, UserStatusEnum, GenderEnum
 from domain.exceptions import ApplicationException
 
 from application.transactions import TransactionManager
@@ -189,6 +189,22 @@ class SQLAlchemyUserRepository(UserRepository, SQLAlchemyRepository):
         
         user = (await self._execute(statement)).fetchone()
         return self._map_base_to_user(user)
+
+    async def filter_users_by(self, role: RoleEnum = None, status: UserStatusEnum = None, gender: GenderEnum = None) -> List[User]:
+        statement = select(UserBase)
+        if gender:
+            statement = (
+                statement
+                .join(ContracteeBase, UserBase.user_id == ContracteeBase.contractee_id)
+                .where(ContracteeBase.gender == gender)
+            )
+        if role:
+            statement = statement.where(UserBase.role == role)
+        if status:
+            statement = statement.where(UserBase.status == status)
+
+        users = await self._execute_scalar_many(statement)
+        return [self._map_base_to_user(user) for user in users]
 
     def _map_base_to_user(self, base: UserBase) -> User | None:
         return base_to_model(base, User) if base else None
