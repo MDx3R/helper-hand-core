@@ -198,12 +198,12 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-    async def filter_users_by(self, role: RoleEnum = None, status: UserStatusEnum = None, gender: GenderEnum = None) -> List[User]:
+    async def filter_contractees_by(self, status: UserStatusEnum = None, gender: GenderEnum = None) -> List[Contractee]:
         """
-        Возвращает отфильтрованный список пользователей.
+        Возвращает отфильтрованный список исполнителей.
         
         Returns:
-            List[User]
+            List[Contractee]
         """
         # todo: реализовать батчевый подход к сбору данных
         pass
