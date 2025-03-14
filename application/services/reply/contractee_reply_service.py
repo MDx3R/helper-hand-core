@@ -20,7 +20,6 @@ class ContracteeReplyServiceImpl(ContracteeReplyService):
     Класс реализации интерфейса `ContracteeReplyService` для управления откликами исполнителя.
     
     Attributes:
-        user_repository (UserRepository): Репозиторий с данными пользователей.
         order_repository (OrderRepository): Репозиторий с данными заказов.
         order_detail_repository (OrderDetailRepository): Репозиторий с данными сведений заказов.
         reply_repository (ReplyRepository): Репозиторий с данными откликов.
@@ -83,7 +82,7 @@ class ContracteeReplyServiceImpl(ContracteeReplyService):
         if not self._is_contractee_suitable_for_detail():
             raise ReplySubmitNotAllowedException("Отклик на позицию недопустим для конкретного исполнителя")
 
-        if not self._is_time_valid_for_reply(detail): # нужно ли?
+        if not self._is_time_valid_for_reply(detail):
             raise ReplySubmitNotAllowedException("Позиция больше не является допустимой для отклика")
         
         if await self._is_contractee_busy_on_date(contractee, detail.date):
@@ -111,7 +110,6 @@ class ContracteeReplyServiceImpl(ContracteeReplyService):
         detail_availability = await self.reply_repository.get_available_replies_count_by_detail_id(detail.detail_id)
         return detail_availability.is_full()
 
-    
     async def _notify_contractor_on_new_reply(self, order: Order, detail: OrderDetail, contractee: Contractee):
         contractor = await self.order_repository.get_contractor_by_order_id(detail.order_id)
         await self.contractor_notification_service.send_new_reply_notification(contractor)
