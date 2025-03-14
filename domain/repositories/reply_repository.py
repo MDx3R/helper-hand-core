@@ -140,7 +140,7 @@ class ReplyRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_available_replies_count_by_detail_id(self, detail_id: int) -> int:
+    async def get_available_replies_count_by_detail_id(self, detail_id: int) -> AvailableRepliesForDetail:
         """
         Считает **количество** свободных мест на сведения о заказе по его ID.
         
@@ -148,7 +148,7 @@ class ReplyRepository(ABC):
             detail_id (int): ID сведений о заказе.
         
         Returns:
-            int: Количество свободных мест. Принимает неотрицательные значения.
+            AvailableRepliesForDetail
             
         Raises:
             RepositoryException: При всех непредвиденных ошибках.
@@ -505,6 +505,23 @@ class ReplyRepository(ABC):
 
         Returns:
             bool: `True`, если у исполнителя есть отклик на заказ, иначе `False`.
+
+        Raises:
+            RepositoryException: При всех непредвиденных ошибках.
+        """
+        pass
+
+    @abstractmethod
+    async def has_contractee_replied_to_detail(self, detail_id: int, contractee_id: int) -> bool:
+        """
+        Проверяет, есть ли у исполнителя отклик на позицию.
+
+        Args:
+            detail_id (int): ID позиции.
+            contractee_id (int): ID исполнителя.
+
+        Returns:
+            bool: `True`, если у исполнителя есть отклик на позицию, иначе `False`.
 
         Raises:
             RepositoryException: При всех непредвиденных ошибках.
