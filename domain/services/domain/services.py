@@ -1,5 +1,10 @@
-from domain.models import Order
+from domain.models import Order, Admin
 from domain.models.enums import OrderStatusEnum
+
+class AdminDomainService:
+    @staticmethod
+    def is_contractor(admin: Admin) -> bool:
+        return admin.contractor_id is not None
 
 class OrderDomainService:
     @staticmethod
