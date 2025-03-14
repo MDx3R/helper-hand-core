@@ -1,5 +1,7 @@
-from domain.models import Order, Admin
-from domain.models.enums import OrderStatusEnum
+from domain.models import Order, OrderDetail, Admin, Contractee
+from domain.models.enums import OrderStatusEnum, GenderEnum
+
+from domain.time import is_current_time_valid_for_reply
 
 class AdminDomainService:
     @staticmethod
@@ -18,6 +20,10 @@ class OrderDomainService:
     @staticmethod
     def has_supervisor(order: Order) -> bool:
         return order.supervisor_id is not None
+
+    @staticmethod
+    def is_available(order: Order) -> bool:
+        return order.status == OrderStatusEnum.open
 
     @staticmethod
     def can_be_assigned(order: Order) -> bool:
@@ -42,3 +48,12 @@ class OrderDomainService:
     @staticmethod
     def can_be_fulfilled(order: Order) -> bool:
         return order.status == OrderStatusEnum.closed
+    
+class OrderDetailDomainService:
+    @staticmethod
+    def is_suitable(detail: OrderDetail, contractee: Contractee) -> bool:
+        return not detail.gender or detail.gender == contractee.gender
+    
+    @staticmethod
+    def is_relevant_at_current_time(detail: OrderDetail) -> bool:
+        return is_current_time_valid_for_reply(detail.date)
