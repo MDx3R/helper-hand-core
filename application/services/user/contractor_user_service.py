@@ -16,6 +16,9 @@ class ContractorUserServiceImpl(ContractorUserService):
         self.transaction_manager = transaction_manager
 
     async def get_user(self, user_id: int, contractor: Contractor) -> User | None:
+        if user_id == contractor.contractor_id:
+            return self.get_profile(contractor)
+        
         user = self.user_repository.get_contractee_by_id(user_id)
         if not user:
             return None
