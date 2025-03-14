@@ -123,12 +123,7 @@ class ContractorOrderServiceImpl(ContractorOrderService):
 
             order, dropped_contractees = await self._cancel_order_and_drop_replies(order)
 
-        # отправляем уведомление о отмене заказа привязанному администраторам 
-        admin = await self.user_repository.get_admin_by_id(order.admin_id)
-        await self.admin_notification_service.send_order_cancelled_notification(admin, order)
-        
-        if dropped_contractees:
-            self.contractee_notification_service.send_order_cancelled_notification_many(dropped_contractees, order)
+        await self._send_notifications_on_order_cancel(order, dropped_contractees)
 
         return OrderOutputDTO.from_order(order)
 
