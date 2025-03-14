@@ -194,11 +194,11 @@ class ContractorOrderServiceImpl(ContractorOrderService):
 
         return OrderOutputDTO.from_order(order)
 
-    def _check_order_can_be_set_active(self, order: Order):
+    async def _check_order_can_be_set_active(self, order: Order):
         if order.status != OrderStatusEnum.open or order.status != OrderStatusEnum.closed:
             raise OrderStatusChangeNotAllowedException(order.order_id, OrderStatusEnum.active, "Заказ не может быть перемещен в активное состояние")
         
-        approved_contractees = self._get_approved_contractees(order)
+        approved_contractees = await self._get_approved_contractees(order)
         if not approved_contractees:
             raise OrderStatusChangeNotAllowedException(order.order_id, OrderStatusEnum.active, "Отсутствуют подтвержденные отклики")
 
