@@ -174,7 +174,7 @@ class AdminOrderServiceImpl(AdminOrderService):
         return OrderOutputDTO.from_order(order)
 
     def _check_order_can_be_approved(self, order: Order, admin: Admin):
-        is_supervised = OrderDomainService.has_supervisor(order) and not OrderDomainService.is_supervised_by(admin.admin_id)
+        is_supervised = OrderDomainService.has_supervisor(order) and not OrderDomainService.is_supervised_by(order, admin.admin_id)
         if not is_supervised:
             raise UnauthorizedAccessException("Невозможно подтвердить чужой заказ.")
 
@@ -212,7 +212,7 @@ class AdminOrderServiceImpl(AdminOrderService):
         return OrderOutputDTO.from_order(order)
 
     def _check_order_can_be_cancelled(self, order: Order, admin: Admin):
-        is_supervised = OrderDomainService.has_supervisor(order) and not OrderDomainService.is_supervised_by(admin.admin_id)
+        is_supervised = OrderDomainService.has_supervisor(order) and not OrderDomainService.is_supervised_by(order, admin.admin_id)
         if is_supervised:
             raise UnauthorizedAccessException("Невозможно отменить чужой заказ.")
         
@@ -255,7 +255,7 @@ class AdminOrderServiceImpl(AdminOrderService):
         return OrderOutputDTO.from_order(order)
 
     def _check_order_can_be_closed(self, order: Order, admin: Admin):
-        if not OrderDomainService.is_supervised_by(admin.admin_id):
+        if not OrderDomainService.is_supervised_by(order, admin.admin_id):
             raise UnauthorizedAccessException("Невозможно закрыть чужой заказ.")
         
         if not OrderDomainService.can_be_closed(order):
@@ -279,7 +279,7 @@ class AdminOrderServiceImpl(AdminOrderService):
         return OrderOutputDTO.from_order(order)
 
     def _check_order_can_be_opened(self, order: Order, admin: Admin):
-        if not OrderDomainService.is_supervised_by(admin.admin_id):
+        if not OrderDomainService.is_supervised_by(order, admin.admin_id):
             raise UnauthorizedAccessException("Невозможно открыть чужой заказ.")
         
         if not OrderDomainService.can_be_opened(order):
@@ -303,7 +303,7 @@ class AdminOrderServiceImpl(AdminOrderService):
         return OrderOutputDTO.from_order(order)
 
     def _check_order_can_be_fulfilled(self, order: Order, admin: Admin):
-        if not OrderDomainService.is_supervised_by(admin.admin_id):
+        if not OrderDomainService.is_supervised_by(order, admin.admin_id):
             raise UnauthorizedAccessException("Невозможно завершить чужой заказ.")
         
         if not OrderDomainService.can_be_fulfilled(order):

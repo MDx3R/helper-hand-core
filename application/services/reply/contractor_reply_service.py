@@ -8,6 +8,7 @@ from domain.models.enums import ReplyStatusEnum, OrderStatusEnum
 from domain.services.reply import ContractorReplyService
 from domain.repositories import ReplyRepository, OrderRepository, OrderDetailRepository, UserRepository
 from application.external.notification import ContracteeNotificationService, ContractorNotificationService, AdminNotificationService
+from application.dtos.output import ReplyOutputDTO, DetailedReplyOutputDTO
 from application.transactions import TransactionManager, transactional
 from domain.exceptions.service import (
     UnauthorizedAccessException, 
@@ -16,7 +17,7 @@ from domain.exceptions.service import (
     OrderActionNotAllowedException,
     ReplyStatusChangeNotAllowedException
 )
-from application.dtos.output import ReplyOutputDTO, DetailedReplyOutputDTO
+from domain.services.domain import OrderDomainService
 
 class ContractorReplyServiceImpl(ContractorReplyService):
     """
@@ -118,7 +119,7 @@ class ContractorReplyServiceImpl(ContractorReplyService):
         if reply is None:
             raise NotFoundException()
         
-        if not reply.order.is_owner(contractor.contractor_id):
+        if not OrderDomainService.is_owned_by(reply.order, contractor.contractor_id):
             raise UnauthorizedAccessException()
         
         return reply

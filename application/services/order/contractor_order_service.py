@@ -141,7 +141,7 @@ class ContractorOrderServiceImpl(ContractorOrderService):
         if order is None:
             raise NotFoundException(order_id)
         
-        if not OrderDomainService.is_owned_by(contractor.contractor_id):
+        if not OrderDomainService.is_owned_by(order, contractor.contractor_id):
             raise UnauthorizedAccessException()
         
         return order
