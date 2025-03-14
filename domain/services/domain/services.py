@@ -8,15 +8,15 @@ class OrderDomainService:
     
     @staticmethod
     def is_supervised_by(order: Order, user_id: int) -> bool:
-        return user_id == order.admin_id
+        return user_id == order.supervisor_id
     
     @staticmethod
     def has_supervisor(order: Order) -> bool:
-        return order.admin_id is not None
+        return order.supervisor_id is not None
 
     @staticmethod
     def can_be_assigned(order: Order) -> bool:
-        return order.curator_id is None and order.status == OrderStatusEnum.created
+        return order.supervisor_id is None and order.status == OrderStatusEnum.created
 
     @staticmethod
     def can_be_approved(order: Order) -> bool:

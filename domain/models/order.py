@@ -49,11 +49,5 @@ class Order(ApplicationModel):
                 return "Отмененный"
 
     @property       
-    def curator_id(self) -> int:
+    def supervisor_id(self) -> Optional[int]:
         return self.admin_id
-
-    def is_owner(self, contractor_id: int) -> bool:
-        return contractor_id == self.contractor_id
-    
-    def is_supervisor(self, user_id: int) -> bool:
-        return user_id == self.admin_id
