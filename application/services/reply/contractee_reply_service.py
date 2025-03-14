@@ -114,6 +114,16 @@ class ContracteeReplyServiceImpl(ContracteeReplyService):
         contractor = await self.order_repository.get_contractor_by_order_id(detail.order_id)
         await self.contractor_notification_service.send_new_reply_notification(contractor)
 
+    async def get_reply(self, contractee_id: int, detail_id: int, contractee: Contractee) -> DetailedReplyOutputDTO | None:
+        if contractee_id != contractee.contractee_id:
+            return None
+        
+        reply = await self.reply_repository.get_detailed_reply(contractee_id, detail_id)
+        if not reply:
+            return None
+        
+        return DetailedReplyOutputDTO.from_reply(reply)
+
     async def get_replies(self, contractee: Contractee) -> List[DetailedReplyOutputDTO]:
         replies = await self.reply_repository.get_replies_by_contractee_id(contractee.contractee_id)
         return [DetailedReplyOutputDTO.from_reply(reply) for reply in replies]

@@ -36,42 +36,66 @@ class ContracteeReplyService(ABC):
         Raises:
             InvalidReplyException: Возникает, если отклик не может быть отправлен.
             IntegrityException: Возникает при нарушении целостности данных.
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках в процессе создания отклика.
         """
         pass
 
     @abstractmethod
-    async def get_replies(self, contractee: Contractee) -> List[DetailedReplyOutputDTO]:
+    async def get_reply(self, contractee_id: int, detail_id: int, contractee: Contractee) -> DetailedReplyOutputDTO | None:
+        """
+        Получает отклик.
+        
+        Args:
+            contractee_id (int): ID исполнителя.
+            detail_id (int): ID позиции.
+            contractee (Contractee): Объект исполнителя.
+
+        Returns:
+            DetailedReplyOutputDTO: DTO с данными отклика. Может быть `None`, если был запрошен чужой отклик или отклика не существует.
+        """
+        pass
+
+    @abstractmethod
+    async def get_replies(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[DetailedReplyOutputDTO]:
         """
         Получает список откликов исполнителя по его ID.
         
         Args:
             contractee (Contractee): Объект исполнителя.
+            page (int): Номер страницы.
+            size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
             List[DetailedReplyOutputDTO]: Список DTO с данными откликов.
-
-        Raises:
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках.
         """
         pass
 
     @abstractmethod
-    async def get_unapproved_replies(self, contractee: Contractee) -> List[DetailedReplyOutputDTO]:
+    async def get_approved_replies(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[DetailedReplyOutputDTO]:
         """
         Получает список неподтвержденных откликов исполнителя по его ID.
         
         Args:
             contractee (Contractee): Объект исполнителя.
+            page (int): Номер страницы.
+            size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
             List[DetailedReplyOutputDTO]: Список DTO с данными откликов.
+        """
+        pass
 
-        Raises:
-            RepositoryException: Возникает при ошибках в работе репозиториев.
-            ServiceException: Возникает при любых других непредвиденных ошибках.
+    @abstractmethod
+    async def get_unapproved_replies(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[DetailedReplyOutputDTO]:
+        """
+        Получает список неподтвержденных откликов исполнителя по его ID.
+        
+        Args:
+            contractee (Contractee): Объект исполнителя.
+            page (int): Номер страницы.
+            size (int): Размер страницы. По умолчанию размер страницы равен 15.
+
+        Returns:
+            List[DetailedReplyOutputDTO]: Список DTO с данными откликов.
         """
         pass
 
