@@ -15,17 +15,17 @@ class DetailedReply(Reply):
     Объект заказа является необязательным свойством.
     """
 
-    contractee: Optional[Contractee]
-    """Объект исполнителя. Может быть `None`."""
+    contractee: Contractee
+    """Объект исполнителя."""
 
     detail: OrderDetail
     """Объект сведений о заказе."""
 
-    order: Optional[Order]
-    """Объект заказа. Может быть `None`."""
+    order: Order
+    """Объект заказа."""
 
     @classmethod
-    def from_order_detail_contractee(cls, reply: Reply, contractee: Optional[Contractee], detail: OrderDetail, order: Optional[Order]) -> 'Reply':
+    def from_order_detail_contractee(cls, reply: Reply, contractee: Contractee, detail: OrderDetail, order: Order) -> 'Reply':
         """
         Преобразует `Reply`, `Contractee`, `OrderDetail` и `Order` в `Reply`.
         """
