@@ -62,10 +62,15 @@ class ContracteeReplyServiceImpl(ContracteeReplyService):
             if not is_current_time_valid_for_reply(detail.start_date): # нужно ли?
                 raise ReplySubmitNotAllowedException("Позиция больше не является допустимой для отклика")
             
-            # todo: проверить, занята ли дата у исполнителя
-            # todo: проверить, если ли такой же отклик от исполнителя на эту позицию.
-            # todo: проверить, что есть свободные места и нет подтвержденных откликов у исполнителя на этот день.
-            # todo: перенести аналогичные проверки для ContractorReplyService?
+            if await self.reply_repository.is_contractee_busy_on_date(detail.date):
+                raise ReplySubmitNotAllowedException("Отклик на выбранную дату недопустим")
+
+            if await self.reply_repository.has_contractee_replied_to_detail(detail.detail_id, contractee.contractee_id):
+                raise ReplySubmitNotAllowedException("Уже имеется отклик на выбранную позицию")
+
+            detail_availability = await self.reply_repository.get_available_replies_count_by_detail_id(detail.detail_id)
+            if detail_availability.is_full():
+                raise ReplySubmitNotAllowedException("На выбранную позицию не осталось свободных мест")
 
             wager = calculate_wager(detail.wager)
 
