@@ -47,7 +47,11 @@ class Order(ApplicationModel):
                 return "Завершенный"
             case _:
                 return "Отмененный"
-            
+
+    @property       
+    def curator_id(self) -> int:
+        return self.admin_id
+
     def is_owner(self, contractor_id: int) -> bool:
         return contractor_id == self.contractor_id
     
