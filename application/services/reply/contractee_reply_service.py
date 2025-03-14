@@ -1,6 +1,8 @@
-from typing import List
+from typing import List, Tuple
 
-from domain.models import Contractee
+from datetime import datetime
+
+from domain.models import Contractee, Order, DetailedOrder, OrderDetail, Reply
 from domain.wager import calculate_wager
 from domain.models.enums import OrderStatusEnum
 from domain.services.reply import ContracteeReplyService
@@ -40,64 +42,88 @@ class ContracteeReplyServiceImpl(ContracteeReplyService):
         self.contractor_notification_service = contractor_notification_service
 
     async def submit_reply_to_order(self, reply_input: ReplyInputDTO, contractee: Contractee) -> ReplyOutputDTO:
-        """
-        Реализация метода `submit_reply_to_order` из `ContracteeReplyService`.
-        """
-        # объявляем транзакцию
         async with self.transaction_manager:
 
-            detail = await self.order_detail_repository.get_detail_by_id(reply_input.detail_id)
-            if detail is None: 
-                raise NotFoundException(reply_input.detail_id)
-            
-            order = await self.order_repository.get_order_by_detail_id(reply_input.detail_id)
-            # нет необходимости проверять заказ на существование, 
-            # так как проверка detail уже обеспечила его существование
-            if order.status != OrderStatusEnum.open:
-                raise ReplySubmitNotAllowedException("Заказ не является открытым")
-            
-            if detail.gender and detail.gender != contractee.gender:
-                raise ReplySubmitNotAllowedException("Отклик на позицию недопустим для конкретного исполнителя")
+            order, detail = await self._get_order_and_detail_and_check_access(reply_input.detail_id)
 
-            if not is_current_time_valid_for_reply(detail.start_date): # нужно ли?
-                raise ReplySubmitNotAllowedException("Позиция больше не является допустимой для отклика")
-            
-            if await self.reply_repository.is_contractee_busy_on_date(detail.date):
-                raise ReplySubmitNotAllowedException("Отклик на выбранную дату недопустим")
+            await self._check_reply_can_be_submitted(order, detail, contractee)
 
-            if await self.reply_repository.has_contractee_replied_to_detail(detail.detail_id, contractee.contractee_id):
-                raise ReplySubmitNotAllowedException("Уже имеется отклик на выбранную позицию")
+            reply = await self._save_reply(detail, contractee)
 
-            detail_availability = await self.reply_repository.get_available_replies_count_by_detail_id(detail.detail_id)
-            if detail_availability.is_full():
-                raise ReplySubmitNotAllowedException("На выбранную позицию не осталось свободных мест")
-
-            wager = calculate_wager(detail.wager)
-
-            reply = await self.reply_repository.save_reply(reply_input.to_reply(wager))
-
-        contractor = await self.order_repository.get_contractor_by_order_id(detail.order_id)
-        await self.contractor_notification_service.send_new_reply_notification(contractor)
+        await self._notify_contractor_on_new_reply(order, detail, contractee)
 
         return ReplyOutputDTO.from_reply(reply)
 
+    async def _save_reply(self, detail: OrderDetail, contractee: Contractee) -> Reply:
+        wager = calculate_wager(detail.wager)
+        reply = await self.reply_repository.save_reply(
+            Reply(
+                contractee_id=contractee.contractee_id,
+                detail_id=detail.detail_id,
+                wager=wager
+            )
+        )
+        return reply
+
+    async def _get_order_and_detail_and_check_access(self, detail_id: int) -> Tuple[Order, OrderDetail]:
+        detail = await self.order_detail_repository.get_detail_by_id(detail_id)
+        if detail is None: 
+            raise NotFoundException(detail_id)
+        
+        # нет необходимости проверять заказ на существование, 
+        # так как проверка detail уже обеспечила его существование
+        order = await self.order_repository.get_order_by_detail_id(detail_id)
+
+        return order, detail
+
+    async def _check_reply_can_be_submitted(self, order: Order, detail: OrderDetail, contractee: Contractee):
+        if order.status != OrderStatusEnum.open:    
+            raise ReplySubmitNotAllowedException("Заказ не является открытым")
+        
+        if not self._is_contractee_suitable_for_detail():
+            raise ReplySubmitNotAllowedException("Отклик на позицию недопустим для конкретного исполнителя")
+
+        if not self._is_time_valid_for_reply(detail): # нужно ли?
+            raise ReplySubmitNotAllowedException("Позиция больше не является допустимой для отклика")
+        
+        if await self._is_contractee_busy_on_date(contractee, detail.date):
+            raise ReplySubmitNotAllowedException("Отклик на выбранную дату недопустим")
+
+        if await self._has_contractee_replied_to_detail(contractee, detail):
+            raise ReplySubmitNotAllowedException("Уже имеется отклик на выбранную позицию")
+
+        if await self._is_detail_full(detail):
+            raise ReplySubmitNotAllowedException("На выбранную позицию не осталось свободных мест")
+
+    def _is_contractee_suitable_for_detail(self, contractee: Contractee, detail: OrderDetail):
+        return detail.gender is None or detail.gender == contractee.gender
+
+    def _is_time_valid_for_reply(self, detail: OrderDetail) -> bool:
+        return is_current_time_valid_for_reply(detail.start_date)
+
+    async def _is_contractee_busy_on_date(self, contractee: Contractee, date: datetime) -> bool:
+        return await self.reply_repository.is_contractee_busy_on_date(contractee.contractee_id, date)
+
+    async def _has_contractee_replied_to_detail(self, contractee: Contractee, detail: OrderDetail) -> bool:
+        return await self.reply_repository.has_contractee_replied_to_detail(detail.detail_id, contractee.contractee_id)
+
+    async def _is_detail_full(self, detail: OrderDetail) -> bool:
+        detail_availability = await self.reply_repository.get_available_replies_count_by_detail_id(detail.detail_id)
+        return detail_availability.is_full()
+
+    
+    async def _notify_contractor_on_new_reply(self, order: Order, detail: OrderDetail, contractee: Contractee):
+        contractor = await self.order_repository.get_contractor_by_order_id(detail.order_id)
+        await self.contractor_notification_service.send_new_reply_notification(contractor)
+
     async def get_replies(self, contractee: Contractee) -> List[DetailedReplyOutputDTO]:
-        """
-        Реализация метода `get_replies` из `ContracteeReplyService`.
-        """
         replies = await self.reply_repository.get_replies_by_contractee_id(contractee.contractee_id)
         return [DetailedReplyOutputDTO.from_reply(reply) for reply in replies]
 
     async def get_approved_replies(self, contractee: Contractee) -> List[DetailedReplyOutputDTO]:
-        """
-        Реализация метода `get_approved_replies` из `ContracteeReplyService`.
-        """
         replies = await self.reply_repository.get_approved_replies_by_contractee_id(contractee.contractee_id)
         return [DetailedReplyOutputDTO.from_reply(reply) for reply in replies]
 
     async def get_unapproved_replies(self, contractee: Contractee) -> List[DetailedReplyOutputDTO]:
-        """
-        Реализация метода `get_unapproved_replies` из `ContracteeReplyService`.
-        """
         replies = await self.reply_repository.get_unapproved_replies_by_contractee_id(contractee.contractee_id)
         return [DetailedReplyOutputDTO.from_reply(reply) for reply in replies]
