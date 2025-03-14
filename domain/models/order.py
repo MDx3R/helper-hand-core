@@ -27,7 +27,7 @@ class Order(ApplicationModel):
     """Статус заказа. По умолчанию `OrderStatusEnum.created`."""
 
     admin_id: Optional[int] = None
-    """Идентификатор администратора, привязанного к заказу. Может отсутствовать"""
+    """Идентификатор администратора, привязанного к заказу. Может отсутствовать."""
 
     @property
     def literal_status(self) -> str:
@@ -51,5 +51,5 @@ class Order(ApplicationModel):
     def is_owner(self, contractor_id: int) -> bool:
         return contractor_id == self.contractor_id
     
-    def is_supervisor(self, admin_id: int) -> bool:
-        return admin_id == self.admin_id
+    def is_supervisor(self, user_id: int) -> bool:
+        return user_id == self.admin_id
