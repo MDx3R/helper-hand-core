@@ -23,6 +23,7 @@ from domain.exceptions.service import (
     UnauthorizedAccessException, 
     NotFoundException
 )
+from domain.services.domain import OrderDomainService
 
 class ContractorOrderServiceImpl(ContractorOrderService):
     """
@@ -140,7 +141,7 @@ class ContractorOrderServiceImpl(ContractorOrderService):
         if order is None:
             raise NotFoundException(order_id)
         
-        if not order.is_owner(contractor.contractor_id):
+        if not OrderDomainService.is_owned_by(contractor.contractor_id):
             raise UnauthorizedAccessException()
         
         return order
