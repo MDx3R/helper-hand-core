@@ -15,6 +15,8 @@ from application.transactions import TransactionManager, transactional
 from application.dtos.input import ReplyInputDTO
 from application.dtos.output import ReplyOutputDTO, DetailedReplyOutputDTO
 
+from domain.services.domain import OrderDomainService, OrderDetailDomainService, AvailabilityDomainService
+
 class ContracteeReplyServiceImpl(ContracteeReplyService):
     """
     Класс реализации интерфейса `ContracteeReplyService` для управления откликами исполнителя.
@@ -79,10 +81,10 @@ class ContracteeReplyServiceImpl(ContracteeReplyService):
         if order.status != OrderStatusEnum.open:    
             raise ReplySubmitNotAllowedException("Заказ не является открытым")
         
-        if not self._is_contractee_suitable_for_detail():
+        if not OrderDetailDomainService.is_suitable(detail, contractee):
             raise ReplySubmitNotAllowedException("Отклик на позицию недопустим для конкретного исполнителя")
 
-        if not self._is_time_valid_for_reply(detail):
+        if not OrderDetailDomainService.is_relevant_at_current_time(detail):
             raise ReplySubmitNotAllowedException("Позиция больше не является допустимой для отклика")
         
         if await self._is_contractee_busy_on_date(contractee, detail.date):
@@ -94,12 +96,6 @@ class ContracteeReplyServiceImpl(ContracteeReplyService):
         if await self._is_detail_full(detail):
             raise ReplySubmitNotAllowedException("На выбранную позицию не осталось свободных мест")
 
-    def _is_contractee_suitable_for_detail(self, contractee: Contractee, detail: OrderDetail):
-        return detail.gender is None or detail.gender == contractee.gender
-
-    def _is_time_valid_for_reply(self, detail: OrderDetail) -> bool:
-        return is_current_time_valid_for_reply(detail.start_date)
-
     async def _is_contractee_busy_on_date(self, contractee: Contractee, date: datetime) -> bool:
         return await self.reply_repository.is_contractee_busy_on_date(contractee.contractee_id, date)
 
@@ -108,7 +104,7 @@ class ContracteeReplyServiceImpl(ContracteeReplyService):
 
     async def _is_detail_full(self, detail: OrderDetail) -> bool:
         detail_availability = await self.reply_repository.get_available_replies_count_by_detail_id(detail.detail_id)
-        return detail_availability.is_full()
+        return AvailabilityDomainService.is_full(detail_availability)
 
     async def _notify_contractor_on_new_reply(self, order: Order, detail: OrderDetail, contractee: Contractee):
         contractor = await self.order_repository.get_contractor_by_order_id(detail.order_id)
