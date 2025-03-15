@@ -1,7 +1,7 @@
 from typing import overload, List, Union
 
-from domain.models import Order, OrderDetail, Admin, Contractee, AvailableRepliesForDetail
-from domain.models.enums import OrderStatusEnum, GenderEnum
+from domain.models import Order, OrderDetail, Reply, Admin, Contractee, AvailableRepliesForDetail
+from domain.models.enums import OrderStatusEnum, GenderEnum, ReplyStatusEnum
 
 from domain.time import is_current_time_valid_for_reply
 
@@ -48,40 +48,40 @@ class OrderDomainService:
         return order.status == OrderStatusEnum.fulfilled
 
     @classmethod
-    def is_available(order: Order) -> bool:
-        return OrderDomainService.is_open(order)
+    def is_available(cls, order: Order) -> bool:
+        return cls.is_open(order)
 
     @classmethod
-    def can_be_assigned(order: Order) -> bool:
-        return not OrderDomainService.has_supervisor(order) and OrderDomainService.is_created(order)
+    def can_be_assigned(cls, order: Order) -> bool:
+        return not cls.has_supervisor(order) and cls.is_created(order)
 
     @classmethod
-    def can_be_approved(order: Order) -> bool:
-        return OrderDomainService.is_created(order)
+    def can_be_approved(cls, order: Order) -> bool:
+        return cls.is_created(order)
 
     @classmethod
-    def can_be_cancelled(order: Order) -> bool:
-        return not OrderDomainService.is_fulfilled(order) and not OrderDomainService.is_cancelled(order)
+    def can_be_cancelled(cls, order: Order) -> bool:
+        return not cls.is_fulfilled(order) and not cls.is_cancelled(order)
     
     @classmethod
-    def can_be_closed(order: Order) -> bool:
-        return OrderDomainService.is_open(order)
+    def can_be_closed(cls, order: Order) -> bool:
+        return cls.is_open(order)
     
     @classmethod
-    def can_be_opened(order: Order) -> bool:
-        return OrderDomainService.is_closed(order)
+    def can_be_opened(cls, order: Order) -> bool:
+        return cls.is_closed(order)
     
     @classmethod
-    def can_be_set_active(order: Order) -> bool:
-        return OrderDomainService.is_open(order) or OrderDomainService.is_closed(order)
+    def can_be_set_active(cls, order: Order) -> bool:
+        return cls.is_open(order) or cls.is_closed(order)
 
     @classmethod
-    def can_be_fulfilled(order: Order) -> bool:
-        return OrderDomainService.is_active(order)
+    def can_be_fulfilled(cls, order: Order) -> bool:
+        return cls.is_active(order)
     
     @classmethod
-    def can_have_replies(order: Order) -> bool:
-        return OrderDomainService.is_open(order)
+    def can_have_replies(cls, order: Order) -> bool:
+        return cls.is_open(order)
     
 class OrderDetailDomainService:
     @staticmethod
@@ -92,6 +92,31 @@ class OrderDetailDomainService:
     def is_relevant_at_current_time(detail: OrderDetail) -> bool:
         return is_current_time_valid_for_reply(detail.date)
     
+class ReplyDomainService:
+    @staticmethod
+    def is_created(reply: Reply) -> bool:
+        return reply.status == ReplyStatusEnum.created
+
+    @staticmethod
+    def is_accepted(reply: Reply) -> bool:
+        return reply.status == ReplyStatusEnum.accepted
+    
+    @staticmethod
+    def is_dropped(reply: Reply) -> bool:
+        return reply.status == ReplyStatusEnum.dropped
+    
+    @staticmethod
+    def is_paid(reply: Reply) -> bool:
+        return reply.status == ReplyStatusEnum.paid
+    
+    @classmethod
+    def can_be_approved(cls, reply: Reply) -> bool:
+        return cls.is_created(reply)
+    
+    @classmethod
+    def can_be_dropped(cls, reply: Reply) -> bool:
+        return cls.is_created(reply)
+
 class AvailabilityDomainService:
     @staticmethod
     def is_full(availability: AvailableRepliesForDetail) -> bool:
