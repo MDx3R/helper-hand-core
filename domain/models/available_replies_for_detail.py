@@ -6,6 +6,3 @@ class AvailableRepliesForDetail(ApplicationModel):
 
     quantity: int
     """Количество свободных мест на позицию."""
-
-    def is_full(self) -> bool:
-        return self.quantity <= 0
