@@ -204,10 +204,7 @@ class AdminOrderServiceImpl(AdminOrderService):
             self._check_order_can_be_cancelled(order, admin)
             order, dropped_contractees = await self._cancel_order_and_drop_replies(order)
         
-        await self._notify_contractor_on_order_cancelled(order)
-
-        if dropped_contractees:
-            await self._notify_contractees_on_order_cancelled(order, dropped_contractees)
+        await self._send_notifications_on_order_cancelled(order, dropped_contractees)
 
         return OrderOutputDTO.from_order(order)
 
@@ -236,6 +233,12 @@ class AdminOrderServiceImpl(AdminOrderService):
 
     async def _drop_order_replies(self, order: Order) -> List[Contractee]:
         return await self.reply_repository.drop_order_replies_by_order_id(order.order_id)
+
+    async def _send_notifications_on_order_cancelled(self, order: Order, dropped_contractees: List[Contractee]):
+        await self._notify_contractor_on_order_cancelled(order)
+
+        if dropped_contractees:
+            await self._notify_contractees_on_order_cancelled(order, dropped_contractees)
 
     async def _notify_contractor_on_order_cancelled(self, order: Order):
         contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
