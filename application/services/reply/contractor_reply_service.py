@@ -17,7 +17,7 @@ from domain.exceptions.service import (
     OrderActionNotAllowedException,
     ReplyStatusChangeNotAllowedException
 )
-from domain.services.domain import OrderDomainService
+from domain.services.domain import OrderDomainService, AvailabilityDomainService
 
 class ContractorReplyServiceImpl(ContractorReplyService):
     """
@@ -157,7 +157,7 @@ class ContractorReplyServiceImpl(ContractorReplyService):
         order_availability = await self._get_order_availability(order.order_id)
         detail_availability = await self._get_detail_availability(detail.detail_id, order_availability)
 
-        if detail_availability.is_full():
+        if AvailabilityDomainService.is_full(detail_availability):
             raise DetailFullException()
 
         return detail_availability, order_availability
@@ -190,16 +190,13 @@ class ContractorReplyServiceImpl(ContractorReplyService):
             Tuple[Order, List[DetailedReply]]: Пара из заказа и списка отмененных откликов. Список отмененных откликов может быть пустым
         """
         
-        if self._is_order_full(order_availability):
+        if AvailabilityDomainService.are_all_full(order_availability):
             return await self._close_order_and_drop_unapproved_replies(order)
-        elif detail_availability.is_full():
+        elif AvailabilityDomainService.is_full(detail_availability):
             dropped_contractees = await self._drop_unapproved_replies_for_detail(detail)
             return order, dropped_contractees
 
         return order, []
-
-    def _is_order_full(self, order_availability: List[AvailableRepliesForDetail]) -> bool:
-        return all(availability.is_full() for availability in order_availability)
 
     async def _send_notifications_on_reply_approval(self, contractor: Contractor, detailed_reply: DetailedReply, dropped_contractees: List[Contractee]):
         """
