@@ -1,1 +1,1 @@
-from services import AdminDomainService, OrderDomainService, OrderDetailDomainService, ReplyDomainService, AvailabilityDomainService
+from services import UserDomainService, AdminDomainService, OrderDomainService, OrderDetailDomainService, ReplyDomainService, AvailabilityDomainService
