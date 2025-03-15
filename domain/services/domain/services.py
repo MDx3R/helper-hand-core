@@ -62,15 +62,9 @@ class OrderDetailDomainService:
     
 class AvailabilityDomainService:
     @staticmethod
-    @overload
-    def is_full(availability: AvailableRepliesForDetail) -> bool: ...
-    
-    @staticmethod
-    @overload
-    def is_full(order_availability: List[AvailableRepliesForDetail]) -> bool: ...
-    
-    @staticmethod
-    def is_full(availability: Union[AvailableRepliesForDetail, List[AvailableRepliesForDetail]]) -> bool:
-        if isinstance(availability, list):
-            return all(av.quantity <= 0 for av in availability)
+    def is_full(availability: AvailableRepliesForDetail) -> bool:
         return availability.quantity <= 0
+    
+    @staticmethod
+    def are_all_full(availabilities: List[AvailableRepliesForDetail]) -> bool:
+        return all(AvailabilityDomainService.is_full(av) for av in availabilities)
