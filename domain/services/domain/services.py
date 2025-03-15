@@ -33,6 +33,14 @@ class UserDomainService:
     @staticmethod
     def is_admin(user: User) -> bool:
         return user.role == RoleEnum.admin 
+    
+    @classmethod
+    def can_be_registered(cls, user: User) -> bool:
+        return cls.is_dropped(user)
+    
+    @classmethod
+    def is_editable_by_others(cls, user: User) -> bool:
+        return not cls.is_admin(user)
 
 class AdminDomainService:
     @staticmethod
