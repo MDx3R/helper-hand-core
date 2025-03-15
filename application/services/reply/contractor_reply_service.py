@@ -17,7 +17,7 @@ from domain.exceptions.service import (
     OrderActionNotAllowedException,
     ReplyStatusChangeNotAllowedException
 )
-from domain.services.domain import OrderDomainService, AvailabilityDomainService
+from domain.services.domain import OrderDomainService, ReplyDomainService, AvailabilityDomainService
 
 class ContractorReplyServiceImpl(ContractorReplyService):
     """
@@ -139,10 +139,10 @@ class ContractorReplyServiceImpl(ContractorReplyService):
             OrderActionNotAllowedException: Возникает, если невозможно поменять статус отклика из-за статуса заказа.
             ReplyStatusChangeNotAllowedException: Возникает, если невозможно поменять статус отклика из-за его исходного статуса.
         """
-        if order.status != OrderStatusEnum.open:
+        if not OrderDomainService.can_have_replies(order):
             raise OrderActionNotAllowedException(order.order_id, order.status, "Подтверждение отклика")
 
-        if reply.status != ReplyStatusEnum.created:
+        if not ReplyDomainService.can_be_approved(reply):
             raise ReplyStatusChangeNotAllowedException(reply.contractee_id, reply.detail_id, reply.status, "Подтверждение отклика")
 
     async def _get_order_and_detail_availability_and_check_if_full(self, order: Order, detail: OrderDetail) -> Tuple[AvailableRepliesForDetail, List[AvailableRepliesForDetail]]:
@@ -210,7 +210,7 @@ class ContractorReplyServiceImpl(ContractorReplyService):
         if dropped_contractees:
             await self._notify_dropped_contractees(dropped_contractees, order, detailed_reply.detail)
 
-        if order.status == OrderStatusEnum.closed:
+        if OrderDomainService.is_closed(order):
             await self._notify_contractor_and_admin_on_order_closed(contractor, order)
 
         # отправляется позже всего, чтобы первым сообщением в ленте было уведомление о подтверждении, 
@@ -224,7 +224,7 @@ class ContractorReplyServiceImpl(ContractorReplyService):
         await self.contractee_notification_service.send_reply_disapproved_notification(detailed_reply.contractee, detailed_reply.order, detailed_reply.detail)
 
     async def _notify_dropped_contractees(self, dropped_contractees: List[Contractee], order: Order, detail: OrderDetail):
-        if order.status == OrderStatusEnum.closed:
+        if OrderDomainService.is_closed(order):
             await self.contractee_notification_service.send_order_full_notification_many(dropped_contractees, order)
         else:
             await self.contractee_notification_service.send_order_detail_full_notification_many(dropped_contractees, order, detail)

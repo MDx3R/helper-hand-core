@@ -14,7 +14,7 @@ from application.transactions import TransactionManager, transactional
 from application.dtos.input import ReplyInputDTO
 from application.dtos.output import ReplyOutputDTO, DetailedReplyOutputDTO
 
-from domain.services.domain import OrderDetailDomainService, AvailabilityDomainService
+from domain.services.domain import OrderDomainService, OrderDetailDomainService, AvailabilityDomainService
 
 class ContracteeReplyServiceImpl(ContracteeReplyService):
     """
@@ -77,7 +77,7 @@ class ContracteeReplyServiceImpl(ContracteeReplyService):
         return order, detail
 
     async def _check_reply_can_be_submitted(self, order: Order, detail: OrderDetail, contractee: Contractee):
-        if order.status != OrderStatusEnum.open:    
+        if not OrderDomainService.can_have_replies(order):
             raise ReplySubmitNotAllowedException("Заказ не является открытым")
         
         if not OrderDetailDomainService.is_suitable(detail, contractee):
