@@ -1,4 +1,6 @@
-from domain.models import Order, OrderDetail, Admin, Contractee
+from typing import overload, List, Union
+
+from domain.models import Order, OrderDetail, Admin, Contractee, AvailableRepliesForDetail
 from domain.models.enums import OrderStatusEnum, GenderEnum
 
 from domain.time import is_current_time_valid_for_reply
@@ -57,3 +59,18 @@ class OrderDetailDomainService:
     @staticmethod
     def is_relevant_at_current_time(detail: OrderDetail) -> bool:
         return is_current_time_valid_for_reply(detail.date)
+    
+class AvailabilityDomainService:
+    @staticmethod
+    @overload
+    def is_full(availability: AvailableRepliesForDetail) -> bool: ...
+    
+    @staticmethod
+    @overload
+    def is_full(order_availability: List[AvailableRepliesForDetail]) -> bool: ...
+    
+    @staticmethod
+    def is_full(availability: Union[AvailableRepliesForDetail, List[AvailableRepliesForDetail]]) -> bool:
+        if isinstance(availability, list):
+            return all(av.quantity <= 0 for av in availability)
+        return availability.quantity <= 0
