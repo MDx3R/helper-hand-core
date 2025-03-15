@@ -1,9 +1,38 @@
 from typing import overload, List, Union
 
-from domain.models import Order, OrderDetail, Reply, Admin, Contractee, AvailableRepliesForDetail
-from domain.models.enums import OrderStatusEnum, GenderEnum, ReplyStatusEnum
+from domain.models import Order, OrderDetail, Reply, User, Admin, Contractee, AvailableRepliesForDetail
+from domain.models.enums import RoleEnum, UserStatusEnum, OrderStatusEnum, GenderEnum, ReplyStatusEnum
 
 from domain.time import is_current_time_valid_for_reply
+
+class UserDomainService:
+    @staticmethod
+    def is_pending(user: User) -> bool:
+        return user.status == UserStatusEnum.pending
+    
+    @staticmethod
+    def is_registered(user: User) -> bool:
+        return user.status == UserStatusEnum.registered
+    
+    @staticmethod
+    def is_dropped(user: User) -> bool:
+        return user.status == UserStatusEnum.dropped
+    
+    @staticmethod
+    def is_banned(user: User) -> bool:
+        return user.status == UserStatusEnum.banned
+
+    @staticmethod
+    def is_contractee(user: User) -> bool:
+        return user.role == RoleEnum.contractee 
+
+    @staticmethod
+    def is_contractor(user: User) -> bool:
+        return user.role == RoleEnum.contractor 
+    
+    @staticmethod
+    def is_admin(user: User) -> bool:
+        return user.role == RoleEnum.admin 
 
 class AdminDomainService:
     @staticmethod
