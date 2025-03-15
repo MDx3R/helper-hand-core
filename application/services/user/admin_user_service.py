@@ -3,6 +3,7 @@ from domain.models.enums import RoleEnum, UserStatusEnum
 from domain.services.user import AdminUserService
 from domain.repositories import UserRepository
 from domain.exceptions.service import UserStatusChangeNotAllowedException, NotFoundException
+from domain.services.domain import UserDomainService
 
 from application.transactions import TransactionManager
 from application.external.notification import NotificationService
@@ -62,9 +63,9 @@ class AdminUserServiceImpl(AdminUserService):
         return self._map_user_to_dto(user)
 
     async def _send_notifications_on_registration_approval(self, user: User):
-        if user.status == UserStatusEnum.registered:
+        if UserDomainService.is_registered(user):
             await self._notify_registration_approved(user)
-        else:
+        elif UserDomainService.is_dropped(user):
             await self._notify_registration_disapproved(user)
 
     async def _notify_registration_approved(self, user: User):
@@ -110,11 +111,11 @@ class AdminUserServiceImpl(AdminUserService):
         return user
 
     async def _check_user_registration_can_be_approved(self, user: User, status: UserStatusEnum):
-        if user.status != UserStatusEnum.pending:
+        if not UserDomainService.is_pending(user):
             raise UserStatusChangeNotAllowedException(user.user_id, status, "Пользователь не требует подтверждения регистрации")
 
     async def _check_user_status_can_be_changed(self, user: User, status: UserStatusEnum):
-        if user.role == RoleEnum.admin:
+        if not UserDomainService.is_editable_by_others(user):
             raise UserStatusChangeNotAllowedException(
                 user.user_id, status, 
                 "Регистрация пользователя не может быть сброшена" if status == UserStatusEnum.dropped

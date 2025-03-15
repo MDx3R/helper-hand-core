@@ -6,9 +6,11 @@ from domain.models import Contractee, User
 from domain.models.enums import RoleEnum, UserStatusEnum
 
 from domain.repositories import UserRepository
+from domain.exceptions.service import AlreadyAuthenticatedException, UserBlockedException
+from domain.services.domain import UserDomainService
+
 from application.external.notification import AdminNotificationService
 from application.transactions import TransactionManager, transactional
-from domain.exceptions.service import AlreadyAuthenticatedException, UserBlockedException
 
 class ContracteeRegistrationServiceImpl(ContracteeRegistrationService):
     """
@@ -46,9 +48,9 @@ class ContracteeRegistrationServiceImpl(ContracteeRegistrationService):
         if not user:
             return None
 
-        if user.status == UserStatusEnum.banned:
+        if UserDomainService.is_banned(user):
             raise UserBlockedException("Пользователь заблокирован.")
-        elif user.status != UserStatusEnum.dropped:
+        elif not UserDomainService.can_be_registered(user):
             raise AlreadyAuthenticatedException("Пользователь уже зарегистрирован.")
         
         return user
