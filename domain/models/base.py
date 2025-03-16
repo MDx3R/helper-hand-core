@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 from pydantic import BaseModel
 
 from datetime import datetime
@@ -15,3 +15,6 @@ class ApplicationModel(BaseModel):
 
     updated_at: Optional[datetime] = None
     """Дата создания сущности"""
+
+    def get_fields(self) -> dict[str, Any]:
+        return self.model_dump()
