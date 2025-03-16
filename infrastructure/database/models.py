@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from datetime import datetime, time
 
@@ -36,6 +36,21 @@ class Base(DeclarativeBase):
 
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
+
+    def get_fields(self) -> dict[str, Any]:
+        return {column: getattr(self, column) for column in self._get_column_names()}
+
+    @classmethod
+    def _get_column_names(cls) -> set[str]:
+        return {column.name for column in cls.__table__.columns}
+
+    @classmethod
+    def _filter_fields(cls, data: dict[str, Any]) -> dict[str, Any]:
+        return {k: v for k, v in data.items() if k in cls._get_column_names()}
+
+    @classmethod
+    def base_validate(cls, data: dict[str, Any]) -> 'Base':
+        return cls(**cls._filter_fields(data))
 
 class UserBase(Base):
     __tablename__ = "User"
