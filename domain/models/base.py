@@ -17,4 +17,4 @@ class ApplicationModel(BaseModel):
     """Дата создания сущности"""
 
     def get_fields(self) -> dict[str, Any]:
-        return self.model_dump()
+        return self.model_dump(by_alias=True)
