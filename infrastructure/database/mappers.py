@@ -22,7 +22,7 @@ UB = TypeVar("UB", ContracteeBase, ContractorBase, AdminBase)
 UM = TypeVar("UM", Contractee, Contractor, Admin)
 
 class MapperRegistry:
-    def __init__(self, mapping: dict[type[Base], type[ApplicationModel]]):
+    def __init__(self, mapping: dict[type[Base], type[ApplicationModel]] = {}):
         self.mapping = mapping
 
     def get_model(self, base_type: type[Base]) -> type[ApplicationModel]:
