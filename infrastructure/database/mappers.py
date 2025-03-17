@@ -28,13 +28,13 @@ class MapperRegistry:
     def get_model(self, base_type: type[Base]) -> type[ApplicationModel]:
         model_type = self.mapping.get(base_type)
         if not model_type:
-            raise TypeError(f"Отсутствует соответствие между `{base_type}` и моделью")
+            raise TypeError(f"Отсутствует соответствие между `{base_type.__name__}` и моделью")
         return model_type
 
     def get_base(self, model_type: type[ApplicationModel]) -> type[Base]:
         base_type = next((k for k, v in self.mapping.items() if v == model_type), None)
         if not base_type:
-            raise TypeError(f"Отсутствует соответствие между `{model_type}` и моделью SQLAlchemy")
+            raise TypeError(f"Отсутствует соответствие между `{model_type.__name__}` и моделью SQLAlchemy")
         return base_type
 
 
@@ -55,14 +55,14 @@ class Mapper(ABC):
 
     @classmethod
     def _base_to_model(cls, base: Base) -> ApplicationModel:
-        data = base.get_fields()
         model = cls._map_base_type_to_model(type(base))
+        data = base.get_fields()
         return model.model_validate(data) # Pydantic-модели позволяют передавать лишние аргументы
 
     @classmethod
     def _model_to_base(cls, model: ApplicationModel) -> Base:
-        data = model.get_fields()
         base_type = cls._map_model_type_to_base(type(model))
+        data = model.get_fields()
         return base_type.base_validate(data) # Base-модели позволяют передавать лишние аргументы
 
 
