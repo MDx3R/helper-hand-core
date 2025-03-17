@@ -3,16 +3,25 @@ from domain.models import ApplicationModel
 from infrastructure.database.models import Base
 from infrastructure.database.mappers import ApplicationModelMapper
 
-from .generators import UserMapperTestCasesGenerator, OrderMapperTestCasesGenerator, OrderDetailMapperTestCasesGenerator, ReplyMapperTestCasesGenerator
+from .generators import MapperTestCasesGenerator, UserMapperTestCasesGenerator, OrderMapperTestCasesGenerator, OrderDetailMapperTestCasesGenerator, ReplyMapperTestCasesGenerator
 
 # Список тестовых случаев
-test_cases = [
-    *UserMapperTestCasesGenerator.generate_all(),
-    *OrderMapperTestCasesGenerator.generate_all(),
-    *OrderDetailMapperTestCasesGenerator.generate_all(),
-    *ReplyMapperTestCasesGenerator.generate_all(),
+generators: list[type[MapperTestCasesGenerator]] = [
+    UserMapperTestCasesGenerator,
+    OrderMapperTestCasesGenerator,
+    OrderDetailMapperTestCasesGenerator,
+    ReplyMapperTestCasesGenerator
 ]
 
+def generate_test_cases():
+    test_cases = []
+    for result in [generator.generate_all() for generator in generators]:
+        for case in result:
+            test_cases.append((case.mapper, case.base, case.model))
+
+    return test_cases
+
+test_cases = generate_test_cases()
 
 class TestToModelApplicationModelMapper:
     @pytest.mark.parametrize("mapper, base_instance, expected_model", test_cases)
@@ -30,6 +39,7 @@ class TestToModelApplicationModelMapper:
         model = mapper.to_model(base_instance)
         assert model.created_at == expected_model.created_at
         assert model.updated_at == expected_model.updated_at
+
 
 class TestToBaseApplicationModelMapper:
     @pytest.mark.parametrize("mapper, expected_base, model_instance", test_cases)

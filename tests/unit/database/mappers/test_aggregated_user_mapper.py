@@ -2,14 +2,24 @@ import pytest
 from infrastructure.database.models import UserBase
 from infrastructure.database.mappers import AggregatedUserMapper
 
-from .generators import ContracteeMapperTestCasesGenerator, ContractorMapperTestCasesGenerator, AdminMapperTestCasesGenerator
+from .generators import AggregatedUserMapperTestCasesGenerator, ContracteeMapperTestCasesGenerator, ContractorMapperTestCasesGenerator, AdminMapperTestCasesGenerator
 
 # Список тестовых случаев
-test_cases = [
-    *ContracteeMapperTestCasesGenerator.generate_all(),
-    *ContractorMapperTestCasesGenerator.generate_all(),
-    *AdminMapperTestCasesGenerator.generate_all(),
+generators: list[type[AggregatedUserMapperTestCasesGenerator]] = [
+    ContracteeMapperTestCasesGenerator,
+    ContractorMapperTestCasesGenerator,
+    AdminMapperTestCasesGenerator,
 ]
+
+def generate_test_cases():
+    test_cases = []
+    for result in [generator.generate_all() for generator in generators]:
+        for case in result:
+            test_cases.append((case.mapper, case.user_base, case.role_base, case.model))
+
+    return test_cases
+
+test_cases = generate_test_cases()
 
 # Тесты
 class TestToModelAggregatedUserMapper:
@@ -28,6 +38,7 @@ class TestToModelAggregatedUserMapper:
         model = mapper.to_model(user_base, role_base)
         assert model.created_at == expected_model.created_at
         assert model.updated_at == expected_model.updated_at
+
 
 class TestToBaseAggregatedUserMapper:
     @pytest.mark.parametrize("mapper, user_base, expected_base, model_instance", test_cases)

@@ -1,5 +1,6 @@
-from typing import Generic, TypeVar, Tuple, List
+from typing import Generic
 from datetime import datetime, time
+
 from domain.models import (
     ApplicationModel,
     User, Order, OrderDetail, Reply,
@@ -21,24 +22,25 @@ from infrastructure.database.models import (
     ContracteeBase, ContractorBase, AdminBase
 )
 from infrastructure.database.mappers import (
-    BaseMapper, 
+    Mapper, 
     ApplicationModelMapper, UserMapper, OrderMapper, OrderDetailMapper, ReplyMapper,
     AggregatedUserMapper, ContracteeMapper, ContractorMapper, AdminMapper
 )
 
 from tests.creators import (
-    BaseCreator, 
+    ModelBaseCreator, 
     UserCreator, OrderCreator, OrderDetailCreator, ReplyCreator, 
     AggregatedUserCreator, ContracteeCreator, ContractorCreator, AdminCreator
 )
-from tests.base_generators import ApplicationModelTestCasesGenerator
+from tests.generators.base import (
+    ApplicationModelTestCasesGenerator, BaseTestCasesGenerator
+)
 
-M = TypeVar("B", bound=BaseMapper)
-B = TypeVar("B", bound=Base)
-AM = TypeVar("AM", bound=ApplicationModel)
-UM = TypeVar("UM", ContracteeMapper, ContractorMapper, AdminMapper)
-UB = TypeVar("UB", ContracteeBase, ContractorBase, AdminBase)
-UAM = TypeVar("UAM", Contractee, Contractor, Admin)
+from .test_cases import (
+    MAP, B, M,
+    MapperTestCase,
+    AggregatedUserMapperTestCase
+)
 
 user_data = {
     "user_id": 1,
@@ -60,7 +62,7 @@ order_data = {
     "contractor_id": 1,
     "about": "Требуются помощники",
     "address": "Москва, ул. Ленина",
-    "admin_id": None,
+    "admin_id": 3,
     "status": OrderStatusEnum.created,
     "created_at": datetime(2024, 3, 16, 12, 0, 0),
     "updated_at": datetime(2024, 3, 16, 12, 30, 0),
@@ -75,7 +77,7 @@ order_detail_data = {
     "position": PositionEnum.helper,
     "count": 5,
     "wager": 500,
-    "gender": None,
+    "gender": GenderEnum.male,
     "created_at": datetime(2024, 3, 16, 12, 0, 0),
     "updated_at": datetime(2024, 3, 16, 12, 30, 0),
 }
@@ -85,7 +87,7 @@ reply_data = {
     "detail_id": 1,
     "wager": 450,
     "status": ReplyStatusEnum.created,
-    "paid": None,
+    "paid": datetime(2024, 3, 16, 16, 30, 0),
     "created_at": datetime(2024, 3, 16, 12, 0, 0),
     "updated_at": datetime(2024, 3, 16, 12, 30, 0),
 }
@@ -108,91 +110,163 @@ admin_data = user_data | {
     "role": RoleEnum.admin,
     "about": "Опытный администратор",
     "contractor_id": None,
-}
-    
-class MapperTestCasesGenerator(ApplicationModelTestCasesGenerator[AM], Generic[AM, M, B]):
-    data = {}
-    mapper: type[BaseMapper] = BaseMapper
-    creator: type[BaseCreator] = BaseCreator
-    
+} 
+
+class MapperTestCasesGenerator(
+    ApplicationModelTestCasesGenerator[MapperTestCase, M], 
+    BaseTestCasesGenerator[MapperTestCase, B], 
+    Generic[MAP, B, M]
+):
+    mapper: type[Mapper] = Mapper
+    creator: type[ModelBaseCreator] = ModelBaseCreator
+
     @classmethod
-    def _get_mapper(cls) -> M:
-        return cls.mapper
-    
+    def _create_test_case(cls, data) -> MapperTestCase:
+        return MapperTestCase(cls._get_mapper(), cls._create_base(data), cls._create_model(data))
+
     @classmethod
-    def _create_base(cls, data) -> AM:
-        return cls.creator.create_base(data)
+    def _get_mapper(cls) -> MAP:
+        return cls.mapper  
     
-    @classmethod
-    def create_default(cls, data=None, **kwargs) -> Tuple[M, B, AM]:
-        if not data:
-            data = cls.data
-        data = cls._concat_data(data, kwargs)
-        return cls._get_mapper(), cls._create_base(data), cls._create_model(data)   
-    
+
 class UserMapperTestCasesGenerator(MapperTestCasesGenerator[UserMapper, UserBase, User]):
-    data = user_data
+    presets = {
+        "default": user_data,
+        "no_id": user_data | {"user_id": None},
+        "no_patronymic": user_data | {"patronymic": None},
+        "no_photos": user_data | {"photos": []}
+    }
     mapper = UserMapper
     creator = UserCreator
 
     @classmethod
     def create_no_id(cls):
-        return cls.create_default(**{"user_id": None})
+        return cls.create("no_id")
 
     @classmethod
     def create_no_patronymic(cls):
-        return cls.create_default(**{"patronymic": None})
+        return cls.create("no_patronymic")
 
     @classmethod
     def create_no_photos(cls):
-        return cls.create_default(**{"photos": []})
+        return cls.create("no_photos")
+
 
 class OrderMapperTestCasesGenerator(MapperTestCasesGenerator[OrderMapper, OrderBase, Order]):
-    data = order_data
+    presets = {
+        "default": order_data,
+        "no_id": order_data | {"order_id": None},
+        "no_admin_id": order_data | {"admin_id": None},
+    }
     mapper = OrderMapper
     creator = OrderCreator
 
+    @classmethod
+    def create_no_id(cls):
+        return cls.create("no_id")
+
+    @classmethod
+    def create_no_admin_id(cls):
+        return cls.create("no_admin_id")
+
+
 class OrderDetailMapperTestCasesGenerator(MapperTestCasesGenerator[OrderDetailMapper, OrderDetailBase, OrderDetail]):
-    data = order_detail_data
+    presets = {
+        "default": order_detail_data,
+        "no_id": order_detail_data | {"detail_id": None},
+        "no_gender": order_detail_data | {"gender": None},
+    }
     mapper = OrderDetailMapper
     creator = OrderDetailCreator
 
+    @classmethod
+    def create_no_id(cls):
+        return cls.create("no_id")
+
+    @classmethod
+    def create_no_gender(cls):
+        return cls.create("no_gender")
+
+
 class ReplyMapperTestCasesGenerator(MapperTestCasesGenerator[ReplyMapper, ReplyBase, Reply]):
-    data = reply_data
+    presets = {
+        "default": reply_data,
+        "no_paid": reply_data | {"paid": None},
+    }
     mapper = ReplyMapper
     creator = ReplyCreator
 
-class AggregatedUserMapperTestCasesGenerator(MapperTestCasesGenerator[UM, UB, UAM]):
+    @classmethod
+    def create_no_paid(cls):
+        return cls.create("no_paid")
+
+
+class AggregatedUserMapperTestCasesGenerator(
+    ApplicationModelTestCasesGenerator[AggregatedUserMapperTestCase, M], 
+    BaseTestCasesGenerator[AggregatedUserMapperTestCase, B], 
+    Generic[MAP, B, M]
+):
     mapper: type[AggregatedUserMapper] = AggregatedUserMapper
     creator: type[AggregatedUserCreator] = AggregatedUserCreator
 
+    @classmethod
+    def _create_test_case(cls, data) -> AggregatedUserMapperTestCase:
+        return AggregatedUserMapperTestCase(
+            cls._get_mapper(), cls._create_user_base(data), cls._create_base(data), cls._create_model(data)
+        )
+
+    @classmethod
+    def create_different_update_time(cls) -> AggregatedUserMapperTestCase:
+        data = cls.get_preset_data()
+        altered_data = cls._concat_data(data, {"updated_at": datetime(2024, 3, 16, 13, 30, 0)})
+        return cls._create_test_case_for_each(data, altered_data, altered_data)
+    
+    @classmethod
+    def _create_test_case_for_each(cls, user_base, base, model) -> AggregatedUserMapperTestCase:
+        return AggregatedUserMapperTestCase(
+            cls._get_mapper(), cls._create_user_base(user_base), cls._create_base(base), cls._create_model(model)
+        )
+
+    @classmethod
+    def create_no_id(cls):
+        return cls.create("no_id")
+
+    @classmethod
+    def _get_mapper(cls) -> MAP:
+        return cls.mapper 
+    
     @staticmethod
-    def _create_user_base(data) ->UB:
+    def _create_user_base(data) -> UserBase:
         return UserCreator.create_base(data)
 
-    @classmethod
-    def create_default(cls, data=None, **kwargs) -> Tuple[M, B, AM]:
-        if not data:
-            data = cls.data
-        data = cls._concat_data(data, kwargs)
-        return cls._get_mapper(), cls._create_user_base(data), cls._create_base(data), cls._create_model(data)
-
-    @classmethod
-    def create_different_update_time(cls) -> Tuple[M, B, AM]:
-        data = cls._concat_data(cls.data, {"updated_at": datetime(2024, 3, 16, 13, 30, 0)})
-        return cls._get_mapper(), cls._create_user_base(cls.data), cls._create_base(data), cls._create_model(data)
 
 class ContracteeMapperTestCasesGenerator(AggregatedUserMapperTestCasesGenerator[ContracteeMapper, ContracteeBase, Contractee]):
-    data = contractee_data
+    presets = {
+        "default": contractee_data,
+        "no_id": contractee_data | {"contractee_id": None},
+    }
     mapper = ContracteeMapper
     creator = ContracteeCreator
 
+
 class ContractorMapperTestCasesGenerator(AggregatedUserMapperTestCasesGenerator[ContractorMapper, ContractorBase, Contractor]):
-    data = contractor_data
+    presets = {
+        "default": contractor_data,
+        "no_id": contractor_data | {"contractor_id": None},
+    }
     mapper = ContractorMapper
     creator = ContractorCreator
 
+
 class AdminMapperTestCasesGenerator(AggregatedUserMapperTestCasesGenerator[AdminMapper, AdminBase, Admin]):
-    data = admin_data
+    presets = {
+        "default": admin_data,
+        "no_id": admin_data | {"admin_id": None},
+        "no_contractor_id": admin_data | {"contractor_id": None},
+    }
     mapper = AdminMapper
     creator = AdminCreator
+
+    @classmethod
+    def create_no_contractor_id(cls):
+        return cls.create("no_contractor_id")

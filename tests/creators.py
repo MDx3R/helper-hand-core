@@ -4,10 +4,8 @@ from infrastructure.database.models import Base, UserBase, OrderBase, OrderDetai
 
 B = TypeVar("B", bound=Base)
 M = TypeVar("M", bound=ApplicationModel)
-UB = TypeVar("UB", ContracteeBase, ContractorBase, AdminBase)
-UM = TypeVar("UM", Contractee, Contractor, Admin)
 
-class BaseCreator(Generic[B, M]):
+class ModelBaseCreator(Generic[B, M]):
     model: type[ApplicationModel] = ApplicationModel
     base: type[Base] = Base
 
@@ -19,23 +17,28 @@ class BaseCreator(Generic[B, M]):
     def create_base(cls, data) -> B:
         return cls.base.base_validate(data)
 
-class UserCreator(BaseCreator[UserBase, User]):
+
+class UserCreator(ModelBaseCreator[UserBase, User]):
     model = User
     base = UserBase
 
-class OrderCreator(BaseCreator[OrderBase, Order]):
+
+class OrderCreator(ModelBaseCreator[OrderBase, Order]):
     model = Order
     base = OrderBase
 
-class OrderDetailCreator(BaseCreator[OrderDetailBase, OrderDetail]):
+
+class OrderDetailCreator(ModelBaseCreator[OrderDetailBase, OrderDetail]):
     model = OrderDetail
     base = OrderDetailBase
 
-class ReplyCreator(BaseCreator[ReplyBase, Reply]):
+
+class ReplyCreator(ModelBaseCreator[ReplyBase, Reply]):
     model = Reply
     base = ReplyBase
 
-class AggregatedUserCreator(BaseCreator[UB, UM]):
+
+class AggregatedUserCreator(ModelBaseCreator[B, M]):
     role_id_field: str = "user_id"
 
     @classmethod
@@ -52,15 +55,18 @@ class AggregatedUserCreator(BaseCreator[UB, UM]):
         cls._assign_user_id_to_role_id_field(data)
         return cls.base.base_validate(data)
 
+
 class ContracteeCreator(AggregatedUserCreator[ContracteeBase, Contractee]):
     role_id_field: str = "contractee_id"
     model = Contractee
     base = ContracteeBase
 
+
 class ContractorCreator(AggregatedUserCreator[ContractorBase, Contractor]):
     role_id_field: str = "contractor_id"
     model = Contractor
     base = ContractorBase
+
 
 class AdminCreator(AggregatedUserCreator[AdminBase, Admin]):
     role_id_field: str = "admin_id"
