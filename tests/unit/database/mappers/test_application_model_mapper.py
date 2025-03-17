@@ -1,10 +1,7 @@
-from typing import Generic, TypeVar, Tuple
 import pytest
-from datetime import datetime, time
-from domain.models import ApplicationModel, User, Order, OrderDetail, Reply
-from domain.models.enums import OrderStatusEnum, PositionEnum, GenderEnum, ReplyStatusEnum, RoleEnum, UserStatusEnum
-from infrastructure.database.models import Base, UserBase, OrderBase, OrderDetailBase, ReplyBase
-from infrastructure.database.mappers import BaseMapper, ApplicationModelMapper, UserMapper, OrderMapper, OrderDetailMapper, ReplyMapper
+from domain.models import ApplicationModel
+from infrastructure.database.models import Base
+from infrastructure.database.mappers import ApplicationModelMapper
 
 from .generators import UserTestCasesGenerator, OrderTestCasesGenerator, OrderDetailTestCasesGenerator, ReplyTestCasesGenerator
 

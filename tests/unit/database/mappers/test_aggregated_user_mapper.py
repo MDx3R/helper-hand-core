@@ -1,11 +1,6 @@
 import pytest
-from datetime import datetime
-from domain.models import Contractor, Admin, Contractee
-from domain.models.enums import (
-    RoleEnum, UserStatusEnum, GenderEnum, CitizenshipEnum, PositionEnum
-)
-from infrastructure.database.models import UserBase, ContractorBase, AdminBase, ContracteeBase
-from infrastructure.database.mappers import AggregatedUserMapper, ContractorMapper, AdminMapper, ContracteeMapper
+from infrastructure.database.models import UserBase
+from infrastructure.database.mappers import AggregatedUserMapper
 
 from .generators import ContracteeTestCasesGenerator, ContractorTestCasesGenerator, AdminTestCasesGenerator
 
