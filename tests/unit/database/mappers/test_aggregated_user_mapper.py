@@ -25,7 +25,14 @@ def generate_test_cases():
             test_cases.append((case.mapper, case.user_base, case.role_base, case.model))
     return test_cases
 
-test_cases = generate_test_cases()
+def generate_random_test_cases():
+    test_cases = []
+    for result in [generator.generate_all(random=True) for generator in generators]:
+        for case in result:
+            test_cases.append((case.mapper, case.user_base, case.role_base, case.model))
+    return test_cases
+
+test_cases = generate_test_cases() + generate_random_test_cases()
 
 def generate_list_test_cases() -> List[Tuple[AggregatedUserMapper, List[Tuple[UserBase, Base]], List[ApplicationModel]]]:
     """Генерирует тестовые случаи для списков, возвращая tuples из user_base и role_base, а также models."""
