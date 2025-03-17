@@ -26,20 +26,28 @@ class ModelBaseCreator(ABC, Generic[B, M]):
     fixed_data = {}
 
     @classmethod
-    def create_model(cls, data: Dict[str, Any]) -> M:
+    def _create_model(cls, data: Dict[str, Any]) -> M:
         return cls.model.model_validate(data)
 
     @classmethod
-    def create_base(cls, data: Dict[str, Any]) -> B:
+    def _create_base(cls, data: Dict[str, Any]) -> B:
         return cls.base.base_validate(data)
 
     @classmethod
+    def create_model(cls, **kwargs) -> M:
+        return cls._create_model(cls.fixed_data | kwargs)
+
+    @classmethod
+    def create_base(cls, **kwargs) -> B:
+        return cls._create_base(cls.fixed_data | kwargs)
+
+    @classmethod
     def create_random_model(cls, **kwargs) -> M:
-        return cls.create_model(cls.get_random_data(**kwargs))
+        return cls._create_model(cls.get_random_data(**kwargs))
 
     @classmethod
     def create_random_base(cls, **kwargs) -> B:
-        return cls.create_base(cls.get_random_data(**kwargs))
+        return cls._create_base(cls.get_random_data(**kwargs))
 
     @classmethod
     def get_random_model_list(cls, _count: int = 3, **kwargs) -> List[M]:
@@ -56,20 +64,20 @@ class ModelBaseCreator(ABC, Generic[B, M]):
 
     @classmethod
     def get_default_pair(cls, **kwargs) -> Tuple[B, M]:
-        data = cls.get_fixed_data(**kwargs)
-        base = cls.create_base(data)
-        model = cls.create_model(data)
+        data = cls.get_default_data(**kwargs)
+        base = cls._create_base(data)
+        model = cls._create_model(data)
         return base, model
 
     @classmethod
     def get_random_pair(cls, **kwargs) -> Tuple[B, M]:
         data = cls.get_random_data(**kwargs)
-        base = cls.create_base(data)
-        model = cls.create_model(data)
+        base = cls._create_base(data)
+        model = cls._create_model(data)
         return base, model
 
     @classmethod
-    def get_fixed_data(cls, **kwargs) -> Dict[str, Any]:
+    def get_default_data(cls, **kwargs) -> Dict[str, Any]:
         return cls.fixed_data | kwargs
 
     @classmethod
@@ -207,14 +215,23 @@ class AggregatedUserCreator(ModelBaseCreator[B, M]):
         data[cls.role_id_field] = data.get("user_id")
 
     @classmethod
-    def create_model(cls, data) -> M:
+    def _create_model(cls, data: Dict[str, Any]) -> M:
         cls._assign_user_id_to_role_id_field(data)
         return cls.model.model_validate(data)
 
     @classmethod
-    def create_base(cls, data) -> B:
+    def _create_base(cls, data: Dict[str, Any]) -> B:
         cls._assign_user_id_to_role_id_field(data)
         return cls.base.base_validate(data)
+    
+    @classmethod
+    def _create_user_base(cls, data: Dict[str, Any]) -> UserBase:
+        cls._assign_user_id_to_role_id_field(data)
+        return UserCreator._create_base(data)
+    
+    @classmethod
+    def create_user_base(cls, **kwargs) -> UserBase:
+        return cls._create_user_base(cls.fixed_data | kwargs)
 
 class ContracteeCreator(AggregatedUserCreator[ContracteeBase, Contractee]):
     role_id_field: str = "contractee_id"
