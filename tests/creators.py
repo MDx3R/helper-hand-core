@@ -1,5 +1,5 @@
 from typing import Generic, TypeVar, List, Tuple, Dict, Any
-from datetime import datetime, time
+from datetime import datetime, time, date
 from abc import ABC, abstractmethod
 from faker import Faker
 from domain.models import ApplicationModel, User, Order, OrderDetail, Reply, Contractee, Contractor, Admin
@@ -154,7 +154,7 @@ class OrderDetailCreator(ModelBaseCreator[OrderDetailBase, OrderDetail]):
     fixed_data = {
         "detail_id": 1,
         "order_id": 1,
-        "date": datetime(2024, 3, 20, 0, 0, 0),
+        "date": date(2024, 3, 20),
         "start_at": time(10, 0),
         "end_at": time(18, 0),
         "position": PositionEnum.helper,
@@ -170,7 +170,7 @@ class OrderDetailCreator(ModelBaseCreator[OrderDetailBase, OrderDetail]):
         return {
             "detail_id": fk.unique.random_int(min=1, max=1000),
             "order_id": fk.random_int(min=1, max=100),
-            "date": fk.date_time_this_month(),
+            "date": fk.date_this_year(),
             "start_at": fk.time_object(),
             "end_at": fk.time_object(),
             "position": fk.random_element(elements=[e for e in PositionEnum]),
@@ -239,7 +239,7 @@ class ContracteeCreator(AggregatedUserCreator[ContracteeBase, Contractee]):
     base = ContracteeBase
     fixed_data = UserCreator.fixed_data | {
         "role": RoleEnum.contractee,
-        "birthday": datetime(1990, 5, 21),
+        "birthday": date(1990, 5, 21),
         "height": 180,
         "gender": GenderEnum.male,
         "citizenship": CitizenshipEnum.russia,
