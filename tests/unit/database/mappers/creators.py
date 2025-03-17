@@ -58,7 +58,7 @@ class ContracteeCreator(AggregatedUserCreator[ContracteeBase, Contractee]):
     base = ContracteeBase
 
 class ContractorCreator(AggregatedUserCreator[ContractorBase, Contractor]):
-    role_id_field: str = "contractee_id"
+    role_id_field: str = "contractor_id"
     model = Contractor
     base = ContractorBase
 
