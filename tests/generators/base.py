@@ -14,7 +14,7 @@ class TestCasesGenerator(ABC, Generic[T]):
     @classmethod
     def create(cls, preset_name="default", **kwargs) -> T:
         data = cls._concat_data(cls.get_preset_data(preset_name), kwargs)
-        return cls._create_test_case(data)
+        return cls._create_test_case(**data)
 
     @classmethod
     def get_preset_data(cls, preset_name="default"):
@@ -27,7 +27,7 @@ class TestCasesGenerator(ABC, Generic[T]):
 
     @classmethod
     @abstractmethod
-    def _create_test_case(cls, data) -> T:
+    def _create_test_case(cls, **kwargs) -> T:
         pass
 
     @classmethod
