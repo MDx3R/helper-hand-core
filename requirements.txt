@@ -5,3 +5,4 @@ pytest-asyncio==0.25.3
 SQLAlchemy==2.0.38
 psycopg2==2.9.10
 asyncpg==0.30.0
+faker==37.0.0
