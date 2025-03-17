@@ -10,13 +10,10 @@ from .generators import UserTestCasesGenerator, OrderTestCasesGenerator, OrderDe
 
 # Список тестовых случаев
 test_cases = [
-    UserTestCasesGenerator.create_default(),
-    UserTestCasesGenerator.create_no_id(),
-    UserTestCasesGenerator.create_no_patronymic(),
-    UserTestCasesGenerator.create_no_photos(),
-    OrderTestCasesGenerator.create_default(),
-    OrderDetailTestCasesGenerator.create_default(),
-    ReplyTestCasesGenerator.create_default(),
+    *UserTestCasesGenerator.generate_all(),
+    *OrderTestCasesGenerator.generate_all(),
+    *OrderDetailTestCasesGenerator.generate_all(),
+    *ReplyTestCasesGenerator.generate_all(),
 ]
 
 

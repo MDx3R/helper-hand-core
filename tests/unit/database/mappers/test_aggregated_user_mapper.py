@@ -14,12 +14,6 @@ test_cases = [
     *ContracteeTestCasesGenerator.generate_all(),
     *ContractorTestCasesGenerator.generate_all(),
     *AdminTestCasesGenerator.generate_all(),
-    # ContracteeTestCasesGenerator.create_default(),
-    # ContracteeTestCasesGenerator.create_different_update_time(),
-    # ContractorTestCasesGenerator.create_default(),
-    # ContractorTestCasesGenerator.create_different_update_time(),
-    # AdminTestCasesGenerator.create_default(),
-    # AdminTestCasesGenerator.create_different_update_time(),
 ]
 
 # Тесты
