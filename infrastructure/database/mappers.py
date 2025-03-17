@@ -51,7 +51,7 @@ class BaseMapper(ABC):
 
     @classmethod
     def _filter_fields(cls, data: dict[str, Any], exclude: set[str]) -> dict[str, Any]:
-        return {k: v for k, v in data.items() if k in exclude}
+        return {k: v for k, v in data.items() if k not in exclude}
 
     @classmethod
     def _base_to_model(cls, base: Base) -> ApplicationModel:
@@ -110,8 +110,8 @@ class AggregatedUserMapper(BaseMapper, Generic[UB, UM]):
 
     @classmethod
     def to_model(cls, user: UserBase, role: UB) -> UM:
-        user_data = user.get_fields()
-        role_data = cls._filter_fields(role.get_fields(), {"created_at", "updated_at"})
+        user_data = cls._filter_fields(user.get_fields(), {"created_at", "updated_at"})
+        role_data = role.get_fields()
 
         model = cls.registry.get_model(type(role))
         return model(**user_data, **role_data)
