@@ -117,13 +117,17 @@ class AggregatedUserMapper(BaseMapper, Generic[UB, UM]):
         return model(**user_data, **role_data)
     
     @classmethod
-    def to_base(cls, model: UM) -> UB:
-        return cls._model_to_base(model)
+    def to_base(cls, model: UM) -> Tuple[UserBase, UB]:
+        return cls.to_user_base(model), cls.to_role_base(model)
     
     @classmethod
-    def to_user_base(cls, model: UM) -> UB:
-        user = User(model.get_fields())
+    def to_user_base(cls, model: UM) -> UserBase:
+        user = User.model_validate(model.get_fields())
         return UserMapper.to_base(user)
+    
+    @classmethod
+    def to_role_base(cls, model: UM) -> UB:
+        return cls._model_to_base(model)
 
 
 class ContracteeMapper(AggregatedUserMapper[ContracteeBase, Contractee]):
@@ -156,7 +160,7 @@ class DetailedOrderMapper(BaseMapper):
     
     @classmethod
     def to_order_base(cls, model: DetailedOrder) -> OrderBase:
-        order = Order(model.get_fields())
+        order = Order.model_validate(model.get_fields())
         return OrderMapper.to_base(order)
     
 
@@ -192,5 +196,5 @@ class DetailedReplyMapper(BaseMapper):
     
     @classmethod
     def to_reply_base(cls, model: DetailedReply) -> ReplyBase:
-        reply = Reply(model.get_fields())
+        reply = Reply.model_validate(model.get_fields())
         return OrderMapper.to_base(reply)
