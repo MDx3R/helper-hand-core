@@ -38,7 +38,7 @@ class MapperRegistry:
         return base_type
 
 
-class BaseMapper(ABC):
+class Mapper(ABC):
     registry = MapperRegistry()
 
     @classmethod
@@ -66,7 +66,7 @@ class BaseMapper(ABC):
         return base_type.base_validate(data) # Base-модели позволяют передавать лишние аргументы
 
 
-class ApplicationModelMapper(BaseMapper, Generic[B, M]):
+class ApplicationModelMapper(Mapper, Generic[B, M]):
     registry = MapperRegistry({
         UserBase: User,
         OrderBase: Order,
@@ -84,6 +84,15 @@ class ApplicationModelMapper(BaseMapper, Generic[B, M]):
         """Конвертирует модель приложения в SQLAlchemy-модель."""
         return cls._model_to_base(model)
 
+    @classmethod
+    def to_model_list(cls, bases: List[B]) -> List[M]:
+        """Конвертирует список SQLAlchemy-моделей в список моделей приложения."""
+        return [cls.to_model(base) for base in bases]
+
+    @classmethod
+    def to_base_list(cls, models: List[M]) -> List[B]:
+        """Конвертирует список моделей приложения в список SQLAlchemy-моделей."""
+        return [cls.to_base(model) for model in models]
 
 class UserMapper(ApplicationModelMapper[UserBase, User]):
     pass
@@ -101,7 +110,7 @@ class ReplyMapper(ApplicationModelMapper[ReplyBase, Reply]):
     pass
 
 
-class AggregatedUserMapper(BaseMapper, Generic[UB, UM]):
+class AggregatedUserMapper(Mapper, Generic[UB, UM]):
     registry = MapperRegistry({
         ContracteeBase: Contractee,
         ContractorBase: Contractor,
@@ -110,6 +119,7 @@ class AggregatedUserMapper(BaseMapper, Generic[UB, UM]):
 
     @classmethod
     def to_model(cls, user: UserBase, role: UB) -> UM:
+        """Конвертирует SQLAlchemy-модель пользователя и его роли в модель приложения."""
         user_data = cls._filter_fields(user.get_fields(), {"created_at", "updated_at"})
         role_data = role.get_fields()
 
@@ -118,16 +128,29 @@ class AggregatedUserMapper(BaseMapper, Generic[UB, UM]):
     
     @classmethod
     def to_base(cls, model: UM) -> Tuple[UserBase, UB]:
+        """Конвертирует модель приложения в SQLAlchemy-модель пользователя и его роли."""
         return cls.to_user_base(model), cls.to_role_base(model)
     
     @classmethod
     def to_user_base(cls, model: UM) -> UserBase:
+        """Конвертирует модель приложения в SQLAlchemy-модель пользователя."""
         user = User.model_validate(model.get_fields())
         return UserMapper.to_base(user)
     
     @classmethod
     def to_role_base(cls, model: UM) -> UB:
+        """Конвертирует модель приложения в SQLAlchemy-модель роли пользователя."""
         return cls._model_to_base(model)
+    
+    @classmethod
+    def to_model_list(cls, bases: List[Tuple[UserBase, UB]]) -> List[UM]:
+        """Конвертирует список SQLAlchemy-моделей пользователя и его роли в список моделей приложения."""
+        return [cls.to_model(user, role) for user, role in bases]
+
+    @classmethod
+    def to_base_list(cls, models: List[UM]) -> List[Tuple[UserBase, UB]]:
+        """Конвертирует список моделей приложения в список SQLAlchemy-моделей пользователя и его роли."""
+        return [cls.to_base(model) for model in models]
 
 
 class ContracteeMapper(AggregatedUserMapper[ContracteeBase, Contractee]):
@@ -142,9 +165,10 @@ class AdminMapper(AggregatedUserMapper[AdminBase, Admin]):
     pass
 
 
-class DetailedOrderMapper(BaseMapper):
+class DetailedOrderMapper(Mapper):
     @classmethod
     def to_model(cls, order: OrderBase, details: List[OrderDetailBase]) -> DetailedOrder:
+        """Конвертирует SQLAlchemy-модель заказа и его сведений в модель приложения."""
         order_data = OrderMapper.to_model(order).get_fields()
         return DetailedOrder(
             **order_data, 
@@ -153,6 +177,7 @@ class DetailedOrderMapper(BaseMapper):
     
     @classmethod
     def to_base(cls, detailed_order: DetailedOrder) -> Tuple[OrderBase, List[OrderDetailBase]]:
+        """Конвертирует модель приложения в SQLAlchemy-модель заказа и его сведений."""
         return (
             cls.to_order_base(detailed_order), 
             [OrderDetailMapper.to_base(detail) for detail in detailed_order]
@@ -160,11 +185,22 @@ class DetailedOrderMapper(BaseMapper):
     
     @classmethod
     def to_order_base(cls, model: DetailedOrder) -> OrderBase:
+        """Конвертирует модель приложения в SQLAlchemy-модель заказа."""
         order = Order.model_validate(model.get_fields())
         return OrderMapper.to_base(order)
     
+    @classmethod
+    def to_model_list(cls, bases: List[Tuple[OrderBase, List[OrderDetailBase]]]) -> List[DetailedOrder]:
+        """Конвертирует список SQLAlchemy-моделей заказа и его сведений в список моделей приложения."""
+        return [cls.to_model(order, details) for order, details in bases]
 
-class DetailedReplyMapper(BaseMapper):
+    @classmethod
+    def to_base_list(cls, models: List[DetailedOrder]) -> List[Tuple[OrderBase, List[OrderDetailBase]]]:
+        """Конвертирует список моделей приложения в список SQLAlchemy-моделей пользователя и его роли."""
+        return [cls.to_base(model) for model in models]
+    
+
+class DetailedReplyMapper(Mapper):
     @classmethod
     def to_model(
         cls, 
@@ -174,6 +210,7 @@ class DetailedReplyMapper(BaseMapper):
         detail: OrderDetailBase, 
         order: OrderBase
     ) -> DetailedReply:
+        """Конвертирует SQLAlchemy-модель отклика, пользователя и исполнителя, сведений и заказа и его сведений в модель приложения."""
         reply_data = ReplyMapper.to_model(reply).get_fields()
         return DetailedReply(
             **reply_data,
@@ -186,6 +223,7 @@ class DetailedReplyMapper(BaseMapper):
     def to_base(
         cls, detailed_reply: DetailedReply
     ) -> Tuple[ReplyBase, UserBase, ContracteeBase, OrderDetailBase, OrderBase]:
+        """Конвертирует модель приложения в SQLAlchemy-модель отклика, пользователя и исполнителя, сведений и заказа."""
         return (
             cls.to_reply_base(detailed_reply),
             ContracteeMapper.to_user_base(detailed_reply.contractee),
@@ -196,5 +234,16 @@ class DetailedReplyMapper(BaseMapper):
     
     @classmethod
     def to_reply_base(cls, model: DetailedReply) -> ReplyBase:
+        """Конвертирует модель приложения в SQLAlchemy-модель отклика."""
         reply = Reply.model_validate(model.get_fields())
         return OrderMapper.to_base(reply)
+    
+    @classmethod
+    def to_model_list(cls, bases: List[Tuple[ReplyBase, UserBase, ContracteeBase, OrderDetailBase, OrderBase]]) -> List[DetailedReply]:
+        """Конвертирует список SQLAlchemy-моделей заказа и его сведений в список моделей приложения."""
+        return [cls.to_model(*base) for base in bases]
+
+    @classmethod
+    def to_base_list(cls, models: List[DetailedReply]) -> List[Tuple[ReplyBase, UserBase, ContracteeBase, OrderDetailBase, OrderBase]]:
+        """Конвертирует список моделей приложения в список SQLAlchemy-моделей пользователя и его роли."""
+        return [cls.to_base(model) for model in models]
