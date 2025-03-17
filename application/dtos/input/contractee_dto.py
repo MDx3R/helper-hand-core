@@ -1,5 +1,5 @@
 from typing import List
-from datetime import datetime
+from datetime import date
 
 from domain.models import Contractee 
 from domain.models.enums import RoleEnum, GenderEnum, CitizenshipEnum, PositionEnum
@@ -14,7 +14,7 @@ class ContracteeInputDTO(UserInputDTO):
     Он предназначен для валидации входных данных перед передачей в бизнес-логику.
     """
 
-    birthday: datetime
+    birthday: date
     height: int
     gender: GenderEnum
     citizenship: CitizenshipEnum

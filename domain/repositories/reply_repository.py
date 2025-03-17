@@ -1,7 +1,7 @@
 from typing import List
 from abc import ABC, abstractmethod
 
-from datetime import datetime
+from datetime import datetime, date
 
 from domain.models import Reply, DetailedReply, AvailableRepliesForDetail, Contractee
 from domain.models.enums import ReplyStatusEnum
@@ -287,7 +287,7 @@ class ReplyRepository(ABC):
         pass
 
     @abstractmethod
-    async def drop_contractee_unapproved_replies_by_date(self, contractor_id: int, date: datetime) -> None:
+    async def drop_contractee_unapproved_replies_by_date(self, contractor_id: int, date: date) -> None:
         """
         Отклоняет все неподтвержденные отклики исполнителя для указанной даты.
         
@@ -437,7 +437,7 @@ class ReplyRepository(ABC):
         pass
 
     @abstractmethod
-    async def is_contractee_busy_on_date(self, contractee_id: int, date: datetime) -> bool:
+    async def is_contractee_busy_on_date(self, contractee_id: int, date: date) -> bool:
         """
         Проверяет, есть ли у исполнителя отклик на указанную дату.
 

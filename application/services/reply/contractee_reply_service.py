@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from datetime import datetime
+from datetime import date
 
 from domain.models import Contractee, Order, DetailedOrder, OrderDetail, Reply
 from domain.wager import calculate_wager
@@ -95,7 +95,7 @@ class ContracteeReplyServiceImpl(ContracteeReplyService):
         if await self._is_detail_full(detail):
             raise ReplySubmitNotAllowedException("На выбранную позицию не осталось свободных мест")
 
-    async def _is_contractee_busy_on_date(self, contractee: Contractee, date: datetime) -> bool:
+    async def _is_contractee_busy_on_date(self, contractee: Contractee, date: date) -> bool:
         return await self.reply_repository.is_contractee_busy_on_date(contractee.contractee_id, date)
 
     async def _has_contractee_replied_to_detail(self, contractee: Contractee, detail: OrderDetail) -> bool:

@@ -1,5 +1,5 @@
 from typing import Optional, List
-from datetime import datetime
+from datetime import date
 from pydantic import Field
 
 from .enums import RoleEnum, GenderEnum, CitizenshipEnum, PositionEnum
@@ -20,7 +20,7 @@ class Contractee(User):
     Может быть `None` при создании нового исполнителя.
     """
 
-    birthday: datetime
+    birthday: date
     """Дата рождения исполнителя."""
 
     height: int

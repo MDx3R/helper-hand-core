@@ -1,6 +1,6 @@
 from typing import List, Optional, Any
 
-from datetime import datetime, time
+from datetime import datetime, time, date
 
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -80,7 +80,7 @@ class ContracteeBase(Base):
     __tablename__ = "Contractee"
     
     contractee_id: Mapped[int] = mapped_column(ForeignKey("User.user_id"), primary_key=True)
-    birthday: Mapped[datetime]
+    birthday: Mapped[date]
     height: Mapped[int]
     gender: Mapped[GenderEnum]
     citizenship: Mapped[CitizenshipEnum]
@@ -107,7 +107,7 @@ class OrderDetailBase(Base):
     
     detail_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     order_id: Mapped[int] = mapped_column(ForeignKey("Order.order_id"))
-    date: Mapped[datetime]
+    date: Mapped[date]
     start_at: Mapped[time]
     end_at: Mapped[time]
     position: Mapped[PositionEnum]

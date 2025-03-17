@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from datetime import datetime
+from datetime import date
 
 from domain.models import Contractor, Reply, DetailedReply, Order, OrderDetail, AvailableRepliesForDetail, Contractee
 from domain.models.enums import ReplyStatusEnum, OrderStatusEnum
@@ -235,5 +235,5 @@ class ContractorReplyServiceImpl(ContractorReplyService):
         admin = await self.user_repository.get_admin_by_id(order.admin_id)
         await self.admin_notification_service.send_order_closed_automatically_notification(admin, order)
 
-    async def _drop_unapproved_replies_by_date(self, contractee_id: int, date: datetime):
+    async def _drop_unapproved_replies_by_date(self, contractee_id: int, date: date):
         await self.reply_repository.drop_contractee_unapproved_replies_by_date(contractee_id, date)

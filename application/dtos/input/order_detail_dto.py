@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel
 
-from datetime import datetime, time
+from datetime import date, time
 
 from domain.models import OrderDetail 
 from domain.models.enums import PositionEnum, GenderEnum
@@ -14,7 +14,7 @@ class OrderDetailInputDTO(BaseModel):
     Он предназначен для валидации входных данных перед передачей в бизнес-логику.
     """
 
-    date: datetime
+    date: date
     start_at: time
     end_at: time
     position: PositionEnum

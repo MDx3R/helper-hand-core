@@ -1,7 +1,7 @@
 from typing import Optional
 from .base import ApplicationModel
 
-from datetime import datetime, time, timedelta
+from datetime import datetime, time, timedelta, date
 
 from .enums import PositionEnum, GenderEnum
 
@@ -19,7 +19,7 @@ class OrderDetail(ApplicationModel):
     order_id: int
     """Идентификатор заказа, к которому относится эти сведения."""
 
-    date: datetime
+    date: date
     """Дата проведения заказа."""
 
     start_at: time
@@ -42,7 +42,7 @@ class OrderDetail(ApplicationModel):
 
     @property
     def start_date(self):
-        return datetime.combine(self.date.date(), self.start_at)
+        return datetime.combine(self.date, self.start_at)
     
     @property
     def end_date(self):
@@ -51,4 +51,4 @@ class OrderDetail(ApplicationModel):
         if self.start_at > self.end_at:
             dt += timedelta(days=1)
         
-        return datetime.combine(dt.date(), self.end_at)
+        return datetime.combine(dt, self.end_at)

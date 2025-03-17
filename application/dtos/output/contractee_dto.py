@@ -1,5 +1,5 @@
 from typing import List
-from datetime import datetime
+from datetime import date
 
 from .user_dto import UserOutputDTO
 
@@ -13,7 +13,7 @@ class ContracteeOutputDTO(UserOutputDTO):
     Этот класс используется для представления данных исполнителя на уровень представления.
     """
 
-    birthday: datetime
+    birthday: date
     height: int
     gender: GenderEnum
     citizenship: CitizenshipEnum
