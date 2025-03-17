@@ -2,7 +2,13 @@ import pytest
 from typing import List, Tuple
 from domain.models import ApplicationModel
 from infrastructure.database.models import Base
-from infrastructure.database.mappers import ApplicationModelMapper
+from infrastructure.database.mappers import (
+    ApplicationModelMapper, 
+    UserMapper, 
+    OrderMapper,
+    OrderDetailMapper,
+    ReplyMapper
+)
 
 from .test_cases import MapperTestCase
 from .generators import MapperTestCasesGenerator, UserMapperTestCasesGenerator, OrderMapperTestCasesGenerator, OrderDetailMapperTestCasesGenerator, ReplyMapperTestCasesGenerator
@@ -122,3 +128,42 @@ class TestToBaseListApplicationModelMapper:
         for base, exp in zip(result, expected):
             assert base.created_at == exp.created_at
             assert base.updated_at == exp.updated_at
+
+all_mappers = [UserMapper, OrderMapper, OrderDetailMapper, ReplyMapper]
+
+class TestApplicationModelMapperEdgeCases:
+    @pytest.mark.parametrize("mapper", all_mappers)
+    def test_to_model_list_with_empty_list(self, mapper: ApplicationModelMapper) -> None:
+        """Проверка, что to_model_list корректно обрабатывает пустой список."""
+        result: List[ApplicationModel] = mapper.to_model_list([])
+        assert result == []
+        assert isinstance(result, list)
+        assert len(result) == 0
+
+    @pytest.mark.parametrize("mapper", all_mappers)
+    def test_to_base_list_with_empty_list(self, mapper: ApplicationModelMapper) -> None:
+        """Проверка, что to_base_list корректно обрабатывает пустой список."""
+        result: List[Base] = mapper.to_base_list([])
+        assert result == []
+        assert isinstance(result, list)
+        assert len(result) == 0
+
+    def test_to_model_with_missing_mapping(self) -> None:
+        """Проверка, что to_model выбрасывает исключение при отсутствии маппинга в реестре."""
+        class UnmappedBase:
+            def get_fields(self):
+                return {"id": 1, "name": "test"}
+
+        unmapped_base = UnmappedBase()
+        with pytest.raises(TypeError, match="Отсутствует соответствие между `UnmappedBase` и моделью"):
+            ApplicationModelMapper.to_model(unmapped_base)
+
+    def test_to_base_with_missing_mapping(self) -> None:
+        """Проверка, что to_base выбрасывает исключение при отсутствии маппинга в реестре."""
+        class UnmappedModel(ApplicationModel):
+            def get_fields(self):
+                return {"id": 1, "name": "test"}
+
+        unmapped_model = UnmappedModel()
+        with pytest.raises(TypeError, match="Отсутствует соответствие между `UnmappedModel` и моделью SQLAlchemy"):
+            ApplicationModelMapper.to_base(unmapped_model)
