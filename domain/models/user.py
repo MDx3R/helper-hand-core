@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Any
 from .base import ApplicationModel
 
 from .enums import RoleEnum, UserStatusEnum
@@ -41,3 +41,10 @@ class User(ApplicationModel):
 
     photos: List[str]
     """Доступ к фотографии пользователя. Фотография может быть не установлена."""
+
+    def get_fields(self) -> dict[str, Any]:
+        data = super().get_fields()
+        # добавляем user_id, 
+        # так как для производных моделей пользователя используется alias для user_id
+        data["user_id"] = self.user_id
+        return data
