@@ -19,6 +19,9 @@ class SQLAlchemyRepository():
     async def _execute_scalar_many(self, statement: Select[Tuple[O]] | Insert[Tuple[O]] | Update[Tuple[O]] | Delete[Tuple[O]]) -> List[O]:
         return (await self._execute(statement)).scalars().all()
 
+    async def _execute_one(self, statement: Select[Tuple[O]] | Insert[Tuple[O]] | Update[Tuple[O]] | Delete[Tuple[O]]) -> Row[O]:
+        return (await self._execute(statement)).one_or_none()
+
     async def _execute_many(self, statement: Select[Tuple[O]] | Insert[Tuple[O]] | Update[Tuple[O]] | Delete[Tuple[O]]) -> Sequence[Row[O]]:
         return (await self._execute(statement)).all()
         

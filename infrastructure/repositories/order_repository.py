@@ -17,12 +17,7 @@ from infrastructure.database.models import (
     OrderDetailBase,
     ReplyBase
 )
-from infrastructure.database.mappers import (
-    base_to_model, 
-    user_base_to_model,
-    detailed_order_base_to_model,
-    order_to_base
-)
+from infrastructure.database.mappers import OrderMapper, DetailedOrderMapper, ContractorMapper
 
 from infrastructure.repositories.base import SQLAlchemyRepository
 
@@ -33,7 +28,7 @@ class SQLAlchemyOrderRepository(OrderRepository, SQLAlchemyRepository):
         statement = select(OrderBase).where(OrderBase.order_id == order_id)
 
         order = await self._execute_scalar_one(statement)
-        return self._map_base_to_order(order)
+        return OrderMapper.to_model(order)
     
     async def get_order_by_detail_id(self, detail_id: int) -> Order | None:
         statement = select(OrderBase).join(
@@ -41,7 +36,7 @@ class SQLAlchemyOrderRepository(OrderRepository, SQLAlchemyRepository):
         )
 
         order = await self._execute_scalar_one(statement)
-        return self._map_base_to_order(order)
+        return OrderMapper.to_model(order)
     
     async def get_order_by_id_and_contractor_id(self, order_id: int, contractor_id: int) -> Order | None:
         statement = select(OrderBase).where(
@@ -49,7 +44,7 @@ class SQLAlchemyOrderRepository(OrderRepository, SQLAlchemyRepository):
         )
 
         order = await self._execute_scalar_one(statement)
-        return self._map_base_to_order(order)
+        return OrderMapper.to_model(order)
     
     async def get_detailed_order_by_id(self, order_id: int) -> DetailedOrder | None:
         statement = select(OrderBase, OrderDetailBase).join(
@@ -57,7 +52,7 @@ class SQLAlchemyOrderRepository(OrderRepository, SQLAlchemyRepository):
         )
 
         order, details = await self._execute_detailed_order_one(statement)    
-        return self._map_order_and_details_base_to_detailed_order(order, details)
+        return DetailedOrderMapper.to_model(order, details)
 
     async def get_detailed_order_by_id_and_contractor_id(self, order_id: int, contractor_id: int) -> DetailedOrder | None:
         statement = select(OrderBase, OrderDetailBase).join(
@@ -70,7 +65,7 @@ class SQLAlchemyOrderRepository(OrderRepository, SQLAlchemyRepository):
         )
 
         order, details = await self._execute_detailed_order_one(statement)
-        return self._map_order_and_details_base_to_detailed_order(order, details)
+        return DetailedOrderMapper.to_model(order, details)
 
     async def get_detailed_open_orders_by_page(self, page: int = 1, size: int = None) -> List[DetailedOrder]:
         offset = self._calculate_offset(page, size)
@@ -95,12 +90,23 @@ class SQLAlchemyOrderRepository(OrderRepository, SQLAlchemyRepository):
         return self._map_many_order_and_details_bases_to_detailed_orders(orders)
 
     async def get_contractor_by_order_id(self, order_id: int) -> Contractor | None:
-        statement = select(ContractorBase).join(
-            Order, and_(Order.contractor_id == ContractorBase.contractor_id, Order.order_id == order_id)
+        statement = (
+            select(UserBase, ContractorBase)
+            .join(
+                UserBase, 
+                UserBase.user_id == ContractorBase.contractor_id
+            )
+            .join(
+                Order, 
+                and_(Order.contractor_id == ContractorBase.contractor_id, Order.order_id == order_id)
+            )
         )
+        row = await self._execute_one(statement)
+        if not row:
+            return None
         
-        contractor = await self._execute_scalar_one(statement)
-        return self._map_base_to_contractor(contractor)
+        user, contractor = row
+        return ContractorMapper.to_model(user, contractor)
 
     async def get_contractor_orders_by_page(self, contractor_id: int, page: int = 1, size: int = None) -> List[Order]:
         offset = self._calculate_offset(page, size)
@@ -276,11 +282,11 @@ class SQLAlchemyOrderRepository(OrderRepository, SQLAlchemyRepository):
         else:
             order_base = await self._merge_order(order)
 
-        return self._map_base_to_order(order_base)
+        return OrderMapper.to_model(order_base)
 
     async def _insert_order(self, order: Order) -> OrderBase:
         async with self.transaction_manager.get_session() as session:
-            order_base = self._map_order_to_base(order)
+            order_base = OrderMapper.to_base(order)
             session.add(order_base)
             await session.flush()
             
@@ -288,7 +294,7 @@ class SQLAlchemyOrderRepository(OrderRepository, SQLAlchemyRepository):
         
     async def _merge_order(self, order: Order) -> OrderBase:
         async with self.transaction_manager.get_session() as session:
-            merged_order: OrderBase = await session.merge(self._map_order_to_base(order))
+            merged_order: OrderBase = await session.merge(OrderMapper.to_base(order))
             await session.flush()
 
             return merged_order
@@ -299,22 +305,10 @@ class SQLAlchemyOrderRepository(OrderRepository, SQLAlchemyRepository):
         ).values(status=status).returning(OrderBase)
         
         order = (await self._execute(statement)).fetchone()
-        return self._map_base_to_order(order)
-
-    def _map_base_to_order(self, base: OrderBase) -> Order | None:
-        return base_to_model(base, Order) if base else None
+        return OrderMapper.to_model(order)
     
     def _map_many_order_bases_to_orders(self, orders: List[OrderBase]) -> List[Order]:
-        return [self._map_base_to_order(order) for order in orders]
-
-    def _map_order_and_details_base_to_detailed_order(self, order: OrderBase, details: List[OrderDetailBase]) -> DetailedOrder | None:
-        return detailed_order_base_to_model(order, details) if order else None
+        return [OrderMapper.to_model(order) for order in orders]
 
     def _map_many_order_and_details_bases_to_detailed_orders(self, orders: List[Tuple[OrderBase, List[OrderDetailBase]]]) -> List[DetailedOrder]:
-        return [self._map_order_and_details_base_to_detailed_order(order, details) for order, details in orders]
-
-    def _map_base_to_contractor(self, user: UserBase, contractor: ContractorBase) -> Contractor | None:
-        return user_base_to_model(user, contractor, Contractor) if user else None
-    
-    def _map_order_to_base(self, order: Order) -> OrderBase:
-        return order_to_base(order)
+        return [DetailedOrderMapper.to_model(order, details) for order, details in orders]

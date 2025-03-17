@@ -16,15 +16,7 @@ from infrastructure.database.models import (
     ContracteeBase,
     ContractorBase
 )
-from infrastructure.database.mappers import (
-    base_to_model, 
-    user_base_to_model,
-    user_to_base,
-    contractee_to_base,
-    contractor_to_base,
-    admin_to_base,
-    role_base_to_model
-)
+from infrastructure.database.mappers import UserMapper, AggregatedUserMapper, AdminMapper, ContracteeMapper, ContractorMapper
 
 from infrastructure.repositories.base import SQLAlchemyRepository
 
@@ -35,12 +27,12 @@ class SQLAlchemyUserRepository(UserRepository, SQLAlchemyRepository):
         statement = select(UserBase).where(UserBase.user_id == user_id)
         user = await self._execute_scalar_one(statement)
 
-        return self._map_base_to_user(user)
+        return UserMapper.to_model(user)
 
     async def get_user_by_telegram_id(self, telegram_id: int) -> User | None:
         statement = select(UserBase).where(UserBase.telegram_id == telegram_id)
         user = await self._execute_scalar_one(statement)
-        return self._map_base_to_user(user)
+        return UserMapper.to_model(user)
 
     async def get_user_with_role(self, user_id: int) -> Contractee | Contractor | Admin | None:
         statement = (
@@ -50,7 +42,7 @@ class SQLAlchemyUserRepository(UserRepository, SQLAlchemyRepository):
 
         user, role = await self._execute_user_unmapped_role(statement)
         
-        return self._map_base_to_role(user, role)
+        return AggregatedUserMapper.to_model(user, role)
 
     async def get_first_pending_user_with_role(self) -> Contractee | Contractor | Admin | None:
         statement = (
@@ -60,7 +52,7 @@ class SQLAlchemyUserRepository(UserRepository, SQLAlchemyRepository):
         
         user, role = await self._execute_user_unmapped_role(statement)
 
-        return self._map_base_to_role(user, role)
+        return AggregatedUserMapper.to_model(user, role)
 
     def _get_user_with_role_statement(self):
         return (
@@ -81,7 +73,7 @@ class SQLAlchemyUserRepository(UserRepository, SQLAlchemyRepository):
         ).where(UserBase.role == RoleEnum.admin)
 
         user, admin = await self._execute_user_role(statement)
-        return self._map_base_to_admin(user, admin)
+        return AdminMapper.to_model(user, admin)
 
     async def get_contractee_by_id(self, contractee_id: int) -> Contractee | None:
         statement = select(UserBase, ContracteeBase).join(
@@ -89,7 +81,7 @@ class SQLAlchemyUserRepository(UserRepository, SQLAlchemyRepository):
         ).where(UserBase.role == RoleEnum.contractee)
 
         user, contractee = await self._execute_user_role(statement)
-        return self._map_base_to_contractee(user, contractee)
+        return ContracteeMapper.to_model(user, contractee)
 
     async def get_contractor_by_id(self, contractor_id: int) -> Contractor | None:
         statement = select(UserBase, ContractorBase).join(
@@ -97,7 +89,7 @@ class SQLAlchemyUserRepository(UserRepository, SQLAlchemyRepository):
         ).where(UserBase.role == RoleEnum.contractor)
 
         user, contractor = await self._execute_user_role(statement)
-        return self._map_base_to_contractor(user, contractor)
+        return ContractorMapper.to_model(user, contractor)
 
     async def _execute_user_role(
         self, 
@@ -135,7 +127,7 @@ class SQLAlchemyUserRepository(UserRepository, SQLAlchemyRepository):
         statement = select(UserBase, AdminBase).join(AdminBase, UserBase.user_id == AdminBase.admin_id)
 
         records = await self._execute_many(statement)
-        return [self._map_base_to_admin(user, admin) for user, admin in records]
+        return [AdminMapper.to_model(user, admin) for user, admin in records]
 
     async def user_exists_by_phone_number(self, phone_number: str) -> bool:
         statement = select(1).where(UserBase.phone_number == phone_number).limit(1)
@@ -154,17 +146,18 @@ class SQLAlchemyUserRepository(UserRepository, SQLAlchemyRepository):
         else:
             user_base, role_base = await self._merge_user(user)
 
-        return user_base_to_model(user_base, role_base, type(user))
+        return AggregatedUserMapper.to_model(user_base, role_base)
 
     async def _insert_user(self, user: Contractee | Contractor | Admin) -> Tuple[UserBase, ContracteeBase | ContractorBase | AdminBase]:
         async with self.transaction_manager.get_session() as session:
-            user_base = self._map_user_to_base(user)
+            user_base = AggregatedUserMapper.to_user_base(user)
             session.add(user_base)
             await session.flush()
             
             user.user_id = user_base.user_id # явно устанавливаем назначенный id
 
-            role_base = self._map_role_to_base(user)
+            role_base = AggregatedUserMapper.to_role_base(user)
+
             session.add(role_base)
             await session.flush() # вносим изменения без commit
 
@@ -172,12 +165,12 @@ class SQLAlchemyUserRepository(UserRepository, SQLAlchemyRepository):
         
     async def _merge_user(self, user: Contractee | Contractor | Admin) -> Tuple[UserBase, ContracteeBase | ContractorBase | AdminBase]:
         async with self.transaction_manager.get_session() as session:
-            merged_user: UserBase = await session.merge(self._map_user_to_base(user))
+            merged_user: UserBase = await session.merge(AggregatedUserMapper.to_base(user))
             await session.flush()
 
             user.user_id = merged_user.user_id # явно устанавливаем назначенный id
 
-            merged_role = await session.merge(self._map_role_to_base(user))
+            merged_role = await session.merge(AggregatedUserMapper.to_role_base(user))
             await session.flush() # синхронизируем служебные поля
 
             return merged_user, merged_role
@@ -188,58 +181,19 @@ class SQLAlchemyUserRepository(UserRepository, SQLAlchemyRepository):
         ).values(status=status).returning(UserBase)
         
         user = (await self._execute(statement)).fetchone()
-        return self._map_base_to_user(user)
+        return UserMapper.to_model(user)
 
-    async def filter_users_by(self, role: RoleEnum = None, status: UserStatusEnum = None, gender: GenderEnum = None) -> List[User]:
-        statement = select(UserBase)
+    async def filter_contractees_by(self, status: UserStatusEnum = None, gender: GenderEnum = None) -> List[Contractee]:
+        statement = (
+            select(ContracteeBase)
+            .join(UserBase, ContracteeBase.contractee_id == UserBase.user_id)
+            .where(UserBase.role == RoleEnum.contractee)
+        )
         if gender:
             statement = (
                 statement
-                .join(ContracteeBase, UserBase.user_id == ContracteeBase.contractee_id)
                 .where(ContracteeBase.gender == gender)
             )
-        if role:
-            statement = statement.where(UserBase.role == role)
-        if status:
-            statement = statement.where(UserBase.status == status)
 
         users = await self._execute_scalar_many(statement)
-        return [self._map_base_to_user(user) for user in users]
-
-    def _map_base_to_user(self, base: UserBase) -> User | None:
-        return base_to_model(base, User) if base else None
-
-    def _map_base_to_admin(self, user: UserBase, admin: AdminBase) -> Admin | None:
-        return user_base_to_model(user, admin, Admin) if user else None
-
-    def _map_base_to_contractee(self, user: UserBase, contractee: ContracteeBase) -> Contractee | None:
-        return user_base_to_model(user, contractee, Contractee) if user else None
-
-    def _map_base_to_contractor(self, user: UserBase, contractor: ContractorBase) -> Contractor | None:
-        return user_base_to_model(user, contractor, Contractor) if user else None
-    
-    def _map_base_to_role(self, user: UserBase, role: AdminBase | ContracteeBase | ContractorBase) -> User:
-        return role_base_to_model(user, role)
-    
-    def _map_user_to_base(self, user: User) -> UserBase:
-        return user_to_base(user)
-    
-    def _map_contractee_to_base(self, contractee: Contractee) -> ContracteeBase:
-        return contractee_to_base(contractee)
-    
-    def _map_contractor_to_base(self, contractor: Contractor) -> ContractorBase:
-        return contractor_to_base(contractor)
-    
-    def _map_admin_to_base(self, admin: Admin) -> AdminBase:
-        return admin_to_base(admin)
-    
-    def _map_role_to_base(self, user: Contractee | Contractor | Admin) -> ContracteeBase | ContractorBase | AdminBase:
-        match user.role:
-            case RoleEnum.contractee:
-                return self._map_contractee_to_base(user)
-            case RoleEnum.contractor:
-                return self._map_contractor_to_base(user)
-            case RoleEnum.admin:
-                return self._map_admin_to_base(user)
-            case _:
-                raise ApplicationException(f"Неизвестная роль: {user.role}")
+        return [UserMapper.to_model(user) for user in users]
