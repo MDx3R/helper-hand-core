@@ -26,18 +26,19 @@ from infrastructure.database.mappers import (
     AggregatedUserMapper, ContracteeMapper, ContractorMapper, AdminMapper
 )
 
-from .creators import (
+from tests.creators import (
     BaseCreator, 
     UserCreator, OrderCreator, OrderDetailCreator, ReplyCreator, 
     AggregatedUserCreator, ContracteeCreator, ContractorCreator, AdminCreator
 )
+from tests.base_generators import ApplicationModelTestCasesGenerator
 
 M = TypeVar("B", bound=BaseMapper)
 B = TypeVar("B", bound=Base)
-AM = TypeVar("M", bound=ApplicationModel)
-UM = TypeVar("M", ContracteeMapper, ContractorMapper, AdminMapper)
-UB = TypeVar("B", ContracteeBase, ContractorBase, AdminBase)
-UAM = TypeVar("M", Contractee, Contractor, Admin)
+AM = TypeVar("AM", bound=ApplicationModel)
+UM = TypeVar("UM", ContracteeMapper, ContractorMapper, AdminMapper)
+UB = TypeVar("UB", ContracteeBase, ContractorBase, AdminBase)
+UAM = TypeVar("UAM", Contractee, Contractor, Admin)
 
 user_data = {
     "user_id": 1,
@@ -108,36 +109,28 @@ admin_data = user_data | {
     "about": "Опытный администратор",
     "contractor_id": None,
 }
-
-class TestCasesGenerator(Generic[M, B, AM]):
+    
+class MapperTestCasesGenerator(ApplicationModelTestCasesGenerator[AM], Generic[AM, M, B]):
     data = {}
     mapper: type[BaseMapper] = BaseMapper
     creator: type[BaseCreator] = BaseCreator
-
-    @staticmethod
-    def concat_data(d: dict, t: dict):
-        return d | t
+    
+    @classmethod
+    def _get_mapper(cls) -> M:
+        return cls.mapper
+    
+    @classmethod
+    def _create_base(cls, data) -> AM:
+        return cls.creator.create_base(data)
     
     @classmethod
     def create_default(cls, data=None, **kwargs) -> Tuple[M, B, AM]:
         if not data:
             data = cls.data
-        data = cls.concat_data(data, kwargs)
-        return cls.mapper, cls.creator.create_base(data), cls.creator.create_model(data)
+        data = cls._concat_data(data, kwargs)
+        return cls._get_mapper(), cls._create_base(data), cls._create_model(data)   
     
-    @classmethod
-    def generate_all(cls) -> List[Tuple[M, B, AM]]:
-        """Возвращает результат всех методов, начинающихся с `create_`"""
-        test_cases = []
-        for attr_name in dir(cls):
-            if attr_name.startswith("create_"):
-                method = getattr(cls, attr_name)
-                if callable(method):
-                    test_cases.append(method())
-
-        return test_cases
-    
-class UserTestCasesGenerator(TestCasesGenerator[UserMapper, UserBase, User]):
+class UserMapperTestCasesGenerator(MapperTestCasesGenerator[UserMapper, UserBase, User]):
     data = user_data
     mapper = UserMapper
     creator = UserCreator
@@ -154,48 +147,52 @@ class UserTestCasesGenerator(TestCasesGenerator[UserMapper, UserBase, User]):
     def create_no_photos(cls):
         return cls.create_default(**{"photos": []})
 
-class OrderTestCasesGenerator(TestCasesGenerator[OrderMapper, OrderBase, Order]):
+class OrderMapperTestCasesGenerator(MapperTestCasesGenerator[OrderMapper, OrderBase, Order]):
     data = order_data
     mapper = OrderMapper
     creator = OrderCreator
 
-class OrderDetailTestCasesGenerator(TestCasesGenerator[OrderDetailMapper, OrderDetailBase, OrderDetail]):
+class OrderDetailMapperTestCasesGenerator(MapperTestCasesGenerator[OrderDetailMapper, OrderDetailBase, OrderDetail]):
     data = order_detail_data
     mapper = OrderDetailMapper
     creator = OrderDetailCreator
 
-class ReplyTestCasesGenerator(TestCasesGenerator[ReplyMapper, ReplyBase, Reply]):
+class ReplyMapperTestCasesGenerator(MapperTestCasesGenerator[ReplyMapper, ReplyBase, Reply]):
     data = reply_data
     mapper = ReplyMapper
     creator = ReplyCreator
 
-class AggregatedUserTestCasesGenerator(TestCasesGenerator[UM, UB, UAM]):
+class AggregatedUserMapperTestCasesGenerator(MapperTestCasesGenerator[UM, UB, UAM]):
     mapper: type[AggregatedUserMapper] = AggregatedUserMapper
     creator: type[AggregatedUserCreator] = AggregatedUserCreator
+
+    @staticmethod
+    def _create_user_base(data) ->UB:
+        return UserCreator.create_base(data)
 
     @classmethod
     def create_default(cls, data=None, **kwargs) -> Tuple[M, B, AM]:
         if not data:
             data = cls.data
-        data = cls.concat_data(data, kwargs)
-        return cls.mapper, UserCreator.create_base(data), cls.creator.create_base(data), cls.creator.create_model(data)
+        data = cls._concat_data(data, kwargs)
+        return cls._get_mapper(), cls._create_user_base(data), cls._create_base(data), cls._create_model(data)
 
     @classmethod
     def create_different_update_time(cls) -> Tuple[M, B, AM]:
-        data = cls.concat_data(cls.data, {"updated_at": datetime(2024, 3, 16, 13, 30, 0)})
-        return cls.mapper, UserCreator.create_base(cls.data), cls.creator.create_base(data), cls.creator.create_model(data)
+        data = cls._concat_data(cls.data, {"updated_at": datetime(2024, 3, 16, 13, 30, 0)})
+        return cls._get_mapper(), cls._create_user_base(cls.data), cls._create_base(data), cls._create_model(data)
 
-class ContracteeTestCasesGenerator(AggregatedUserTestCasesGenerator[ContracteeMapper, ContracteeBase, Contractee]):
+class ContracteeMapperTestCasesGenerator(AggregatedUserMapperTestCasesGenerator[ContracteeMapper, ContracteeBase, Contractee]):
     data = contractee_data
     mapper = ContracteeMapper
     creator = ContracteeCreator
 
-class ContractorTestCasesGenerator(AggregatedUserTestCasesGenerator[ContractorMapper, ContractorBase, Contractor]):
+class ContractorMapperTestCasesGenerator(AggregatedUserMapperTestCasesGenerator[ContractorMapper, ContractorBase, Contractor]):
     data = contractor_data
     mapper = ContractorMapper
     creator = ContractorCreator
 
-class AdminTestCasesGenerator(AggregatedUserTestCasesGenerator[AdminMapper, AdminBase, Admin]):
+class AdminMapperTestCasesGenerator(AggregatedUserMapperTestCasesGenerator[AdminMapper, AdminBase, Admin]):
     data = admin_data
     mapper = AdminMapper
     creator = AdminCreator

@@ -4,8 +4,8 @@ from infrastructure.database.models import Base, UserBase, OrderBase, OrderDetai
 
 B = TypeVar("B", bound=Base)
 M = TypeVar("M", bound=ApplicationModel)
-UB = TypeVar("B", ContracteeBase, ContractorBase, AdminBase)
-UM = TypeVar("M", Contractee, Contractor, Admin)
+UB = TypeVar("UB", ContracteeBase, ContractorBase, AdminBase)
+UM = TypeVar("UM", Contractee, Contractor, Admin)
 
 class BaseCreator(Generic[B, M]):
     model: type[ApplicationModel] = ApplicationModel
@@ -39,17 +39,17 @@ class AggregatedUserCreator(BaseCreator[UB, UM]):
     role_id_field: str = "user_id"
 
     @classmethod
-    def assign_user_id_to_role_id_field(cls, data: dict):
+    def _assign_user_id_to_role_id_field(cls, data: dict):
         data[cls.role_id_field] = data.get("user_id")
 
     @classmethod
     def create_model(cls, data) -> M:
-        cls.assign_user_id_to_role_id_field(data)
+        cls._assign_user_id_to_role_id_field(data)
         return cls.model.model_validate(data)
 
     @classmethod
     def create_base(cls, data) -> B:
-        cls.assign_user_id_to_role_id_field(data)
+        cls._assign_user_id_to_role_id_field(data)
         return cls.base.base_validate(data)
 
 class ContracteeCreator(AggregatedUserCreator[ContracteeBase, Contractee]):

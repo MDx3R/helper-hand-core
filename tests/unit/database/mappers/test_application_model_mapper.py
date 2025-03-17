@@ -3,14 +3,14 @@ from domain.models import ApplicationModel
 from infrastructure.database.models import Base
 from infrastructure.database.mappers import ApplicationModelMapper
 
-from .generators import UserTestCasesGenerator, OrderTestCasesGenerator, OrderDetailTestCasesGenerator, ReplyTestCasesGenerator
+from .generators import UserMapperTestCasesGenerator, OrderMapperTestCasesGenerator, OrderDetailMapperTestCasesGenerator, ReplyMapperTestCasesGenerator
 
 # Список тестовых случаев
 test_cases = [
-    *UserTestCasesGenerator.generate_all(),
-    *OrderTestCasesGenerator.generate_all(),
-    *OrderDetailTestCasesGenerator.generate_all(),
-    *ReplyTestCasesGenerator.generate_all(),
+    *UserMapperTestCasesGenerator.generate_all(),
+    *OrderMapperTestCasesGenerator.generate_all(),
+    *OrderDetailMapperTestCasesGenerator.generate_all(),
+    *ReplyMapperTestCasesGenerator.generate_all(),
 ]
 
 

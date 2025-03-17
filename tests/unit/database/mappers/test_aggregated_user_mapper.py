@@ -2,13 +2,13 @@ import pytest
 from infrastructure.database.models import UserBase
 from infrastructure.database.mappers import AggregatedUserMapper
 
-from .generators import ContracteeTestCasesGenerator, ContractorTestCasesGenerator, AdminTestCasesGenerator
+from .generators import ContracteeMapperTestCasesGenerator, ContractorMapperTestCasesGenerator, AdminMapperTestCasesGenerator
 
 # Список тестовых случаев
 test_cases = [
-    *ContracteeTestCasesGenerator.generate_all(),
-    *ContractorTestCasesGenerator.generate_all(),
-    *AdminTestCasesGenerator.generate_all(),
+    *ContracteeMapperTestCasesGenerator.generate_all(),
+    *ContractorMapperTestCasesGenerator.generate_all(),
+    *AdminMapperTestCasesGenerator.generate_all(),
 ]
 
 # Тесты
