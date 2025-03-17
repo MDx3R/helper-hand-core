@@ -201,7 +201,7 @@ class ReplyCreator(ModelBaseCreator[ReplyBase, Reply]):
             "detail_id": fk.random_int(min=1, max=100),
             "wager": fk.random_int(min=100, max=1000),
             "status": fk.random_element(elements=[e for e in ReplyStatusEnum]),
-            "paid": fk.random_element(elements=[None, fk.random_int(min=0, max=1000)]),
+            "paid": fk.random_element(elements=[None, fk.date_time_this_year()]),
             "created_at": fk.date_time_this_year(),
             "updated_at": fk.date_time_this_year(),
         } | kwargs
