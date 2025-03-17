@@ -111,10 +111,12 @@ class AggregatedUserMapperTestCasesGenerator(
 
     @classmethod
     def _create_test_case(cls, random: bool = False, **kwargs) -> AggregatedUserMapperTestCase:
-        user_base = cls.creator.create_user_base() # без kwargs так как класс для ролей
         if random:
-            role_base, model = cls.creator.get_random_pair(**kwargs)
+            data = cls.creator.get_random_data()
+            user_base = cls.creator.create_user_base(**data)
+            role_base, model = cls.creator.get_default_pair(**(data | kwargs))
         else:
+            user_base = cls.creator.create_user_base() # без kwargs так как класс для ролей
             role_base, model = cls.creator.get_default_pair(**kwargs)
         return AggregatedUserMapperTestCase(cls._get_mapper(), user_base, role_base, model)
 
