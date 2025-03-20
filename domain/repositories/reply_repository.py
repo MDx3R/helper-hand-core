@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 
 from datetime import datetime, date
 
-from domain.models import Reply, DetailedReply, AvailableRepliesForDetail, Contractee
-from domain.models.enums import ReplyStatusEnum
+from domain.entities import Reply, DetailedReply, AvailableRepliesForDetail, Contractee
+from domain.entities.enums import ReplyStatusEnum
 
 class ReplyRepository(ABC):
     @abstractmethod

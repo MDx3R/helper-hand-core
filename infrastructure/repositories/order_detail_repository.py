@@ -1,7 +1,7 @@
 from typing import List, Tuple
 from sqlalchemy import func, select
 
-from domain.models import OrderDetail
+from domain.entities import OrderDetail
 from domain.repositories import OrderDetailRepository
 
 from infrastructure.database.models import OrderDetailBase, ReplyBase

@@ -6,8 +6,8 @@ from infrastructure.database.models import Base
 from infrastructure.database.database import create_async_session_factory, create_engine, create_database, drop_database
 from infrastructure.repositories.user_repository import SQLAlchemyUserRepository
 from infrastructure.transactions.transaction_manager import SQLAlchemyTransactionManager
-from domain.models import Contractee, Contractor
-from domain.models.enums import RoleEnum, UserStatusEnum, GenderEnum, PositionEnum, CitizenshipEnum
+from domain.entities import Contractee, Contractor
+from domain.entities.enums import RoleEnum, UserStatusEnum, GenderEnum, PositionEnum, CitizenshipEnum
 from application.transactions import TransactionManager
 from domain.repositories import UserRepository
 

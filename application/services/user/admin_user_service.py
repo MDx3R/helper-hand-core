@@ -1,5 +1,5 @@
-from domain.models import User, Admin
-from domain.models.enums import RoleEnum, UserStatusEnum
+from domain.entities import User, Admin
+from domain.entities.enums import RoleEnum, UserStatusEnum
 from domain.services.user import AdminUserService
 from domain.repositories import UserRepository
 from domain.exceptions.service import UserStatusChangeNotAllowedException, NotFoundException

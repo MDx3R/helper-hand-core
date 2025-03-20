@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from domain.models import Reply
+from domain.entities import Reply
 
 class ReplyInputDTO(BaseModel):
     """

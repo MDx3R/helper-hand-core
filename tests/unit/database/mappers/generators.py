@@ -2,7 +2,7 @@ from typing import Generic, TypeVar, List
 from dataclasses import dataclass
 from datetime import datetime
 
-from domain.models import ApplicationModel, User, Order, OrderDetail, Reply, Contractee, Contractor, Admin
+from domain.entities import ApplicationModel, User, Order, OrderDetail, Reply, Contractee, Contractor, Admin
 from infrastructure.database.models import Base, UserBase, OrderBase, OrderDetailBase, ReplyBase, ContracteeBase, ContractorBase, AdminBase
 from infrastructure.database.mappers import (
     Mapper, ApplicationModelMapper, UserMapper, OrderMapper, OrderDetailMapper, ReplyMapper,

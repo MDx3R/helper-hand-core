@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 from contextlib import asynccontextmanager
 
-from domain.models import User, Admin, Contractee, Contractor
-from domain.models.enums import RoleEnum, UserStatusEnum, GenderEnum, CitizenshipEnum, PositionEnum
+from domain.entities import User, Admin, Contractee, Contractor
+from domain.entities.enums import RoleEnum, UserStatusEnum, GenderEnum, CitizenshipEnum, PositionEnum
 from infrastructure.database.models import UserBase, AdminBase, ContracteeBase, ContractorBase
 from infrastructure.repositories.user_repository import SQLAlchemyUserRepository
 from application.transactions import TransactionManager

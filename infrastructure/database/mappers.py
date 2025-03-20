@@ -1,7 +1,7 @@
 from typing import Type, TypeVar, List, Tuple, Union, Any, Generic
 from abc import ABC, abstractmethod
 
-from domain.models import (
+from domain.entities import (
     ApplicationModel, 
     User, Admin, Contractee, Contractor,
     Order, OrderDetail, DetailedOrder,

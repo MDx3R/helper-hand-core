@@ -1,5 +1,5 @@
-from domain.models import Contractor 
-from domain.models.enums import RoleEnum
+from domain.entities import Contractor 
+from domain.entities.enums import RoleEnum
 
 from .user_dto import UserInputDTO
 

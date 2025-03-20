@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 
 from datetime import timedelta
 
-from domain.models import Contractee, OrderDetail, Order
-from domain.models.enums import OrderStatusEnum
+from domain.entities import Contractee, OrderDetail, Order
+from domain.entities.enums import OrderStatusEnum
 
 from domain.repositories import OrderRepository, OrderDetailRepository, UserRepository, ReplyRepository
 from application.external.notification import AdminNotificationService, ContracteeNotificationService

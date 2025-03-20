@@ -3,8 +3,8 @@ from sqlalchemy import select, update, exists, and_, Select, Sequence
 from sqlalchemy.engine import Result, Row
 
 from domain.repositories import OrderRepository
-from domain.models import Order, DetailedOrder, Contractor
-from domain.models.enums import OrderStatusEnum
+from domain.entities import Order, DetailedOrder, Contractor
+from domain.entities.enums import OrderStatusEnum
 from domain.exceptions import ApplicationException
 
 from application.transactions import TransactionManager

@@ -1,4 +1,4 @@
-from domain.models import User, Contractor
+from domain.entities import User, Contractor
 from domain.services.user import ContractorUserService
 
 from domain.repositories import UserRepository

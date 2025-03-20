@@ -1,7 +1,7 @@
 from .user_dto import UserOutputDTO
 
-from domain.models import Contractor
-from domain.models.enums import RoleEnum
+from domain.entities import Contractor
+from domain.entities.enums import RoleEnum
 
 class ContractorOutputDTO(UserOutputDTO):
     """

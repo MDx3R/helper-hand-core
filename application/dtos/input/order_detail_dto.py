@@ -3,8 +3,8 @@ from pydantic import BaseModel
 
 from datetime import date, time
 
-from domain.models import OrderDetail 
-from domain.models.enums import PositionEnum, GenderEnum
+from domain.entities import OrderDetail 
+from domain.entities.enums import PositionEnum, GenderEnum
 
 class OrderDetailInputDTO(BaseModel):
     """

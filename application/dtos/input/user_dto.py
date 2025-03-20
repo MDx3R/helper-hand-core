@@ -1,8 +1,8 @@
 from typing import Optional, List
 from pydantic import BaseModel
 
-from domain.models import User 
-from domain.models.enums import RoleEnum
+from domain.entities import User 
+from domain.entities.enums import RoleEnum
 
 class UserInputDTO(BaseModel):
     """

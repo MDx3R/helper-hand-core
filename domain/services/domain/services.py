@@ -1,7 +1,7 @@
 from typing import overload, List, Union
 
-from domain.models import Order, OrderDetail, Reply, User, Admin, Contractee, AvailableRepliesForDetail
-from domain.models.enums import RoleEnum, UserStatusEnum, OrderStatusEnum, GenderEnum, ReplyStatusEnum
+from domain.entities import Order, OrderDetail, Reply, User, Admin, Contractee, AvailableRepliesForDetail
+from domain.entities.enums import RoleEnum, UserStatusEnum, OrderStatusEnum, GenderEnum, ReplyStatusEnum
 
 from domain.time import is_current_time_valid_for_reply
 

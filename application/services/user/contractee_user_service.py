@@ -1,4 +1,4 @@
-from domain.models import Contractee
+from domain.entities import Contractee
 from domain.services.user import ContracteeUserService
 
 from application.dtos.output import ContracteeOutputDTO

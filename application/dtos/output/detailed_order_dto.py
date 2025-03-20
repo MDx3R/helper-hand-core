@@ -3,7 +3,7 @@ from typing import List
 from .order_dto import OrderOutputDTO
 from .order_detail_dto import OrderDetailOutputDTO
 
-from domain.models import Order, OrderDetail, DetailedOrder
+from domain.entities import Order, OrderDetail, DetailedOrder
 
 class DetailedOrderOutputDTO(OrderOutputDTO):
     """

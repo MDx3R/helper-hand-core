@@ -1,7 +1,7 @@
 from typing import List
 from abc import ABC, abstractmethod
 
-from domain.models import Contractee, DetailedReply, Order, OrderDetail
+from domain.entities import Contractee, DetailedReply, Order, OrderDetail
 
 class ContracteeNotificationService(ABC):
     @abstractmethod

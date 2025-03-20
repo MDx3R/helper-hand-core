@@ -1,8 +1,8 @@
 from typing import Optional, List
 from pydantic import BaseModel
 
-from domain.models import User 
-from domain.models.enums import RoleEnum, UserStatusEnum
+from domain.entities import User 
+from domain.entities.enums import RoleEnum, UserStatusEnum
 
 class UserOutputDTO(BaseModel):
     """

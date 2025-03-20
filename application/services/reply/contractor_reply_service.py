@@ -2,8 +2,8 @@ from typing import List, Tuple
 
 from datetime import date
 
-from domain.models import Contractor, Reply, DetailedReply, Order, OrderDetail, AvailableRepliesForDetail, Contractee
-from domain.models.enums import ReplyStatusEnum, OrderStatusEnum
+from domain.entities import Contractor, Reply, DetailedReply, Order, OrderDetail, AvailableRepliesForDetail, Contractee
+from domain.entities.enums import ReplyStatusEnum, OrderStatusEnum
 
 from domain.services.reply import ContractorReplyService
 from domain.repositories import ReplyRepository, OrderRepository, OrderDetailRepository, UserRepository

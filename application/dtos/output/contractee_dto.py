@@ -3,8 +3,8 @@ from datetime import date
 
 from .user_dto import UserOutputDTO
 
-from domain.models import Contractee
-from domain.models.enums import RoleEnum, GenderEnum, CitizenshipEnum, PositionEnum
+from domain.entities import Contractee
+from domain.entities.enums import RoleEnum, GenderEnum, CitizenshipEnum, PositionEnum
 
 class ContracteeOutputDTO(UserOutputDTO):
     """

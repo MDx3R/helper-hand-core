@@ -2,8 +2,8 @@ from domain.services.registration import ContracteeRegistrationService
 from application.dtos.input import ContracteeInputDTO
 from application.dtos.output import ContracteeOutputDTO
 
-from domain.models import Contractee, User
-from domain.models.enums import RoleEnum, UserStatusEnum
+from domain.entities import Contractee, User
+from domain.entities.enums import RoleEnum, UserStatusEnum
 
 from domain.repositories import UserRepository
 from domain.exceptions.service import AlreadyAuthenticatedException, UserBlockedException

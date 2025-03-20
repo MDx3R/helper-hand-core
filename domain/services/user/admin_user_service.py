@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from domain.models import User, Admin
+from domain.entities import User, Admin
 
 from application.dtos.output import UserOutputDTO
 

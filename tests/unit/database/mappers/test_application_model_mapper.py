@@ -1,6 +1,6 @@
 import pytest
 from typing import List, Tuple
-from domain.models import ApplicationModel
+from domain.entities import ApplicationModel
 from infrastructure.database.models import Base
 from infrastructure.database.mappers import (
     ApplicationModelMapper, 

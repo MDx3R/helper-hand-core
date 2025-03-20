@@ -1,8 +1,8 @@
 from typing import List
 from datetime import date
 
-from domain.models import Contractee 
-from domain.models.enums import RoleEnum, GenderEnum, CitizenshipEnum, PositionEnum
+from domain.entities import Contractee 
+from domain.entities.enums import RoleEnum, GenderEnum, CitizenshipEnum, PositionEnum
 
 from .user_dto import UserInputDTO
 

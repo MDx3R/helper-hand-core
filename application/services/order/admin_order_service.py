@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
-from domain.models import Order, Admin, OrderDetail, Contractee, DetailedOrder
-from domain.models.enums import OrderStatusEnum, RoleEnum, UserStatusEnum, GenderEnum
+from domain.entities import Order, Admin, OrderDetail, Contractee, DetailedOrder
+from domain.entities.enums import OrderStatusEnum, RoleEnum, UserStatusEnum, GenderEnum
 
 from domain.services.order import AdminOrderService
 from domain.repositories import (

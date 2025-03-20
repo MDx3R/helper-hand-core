@@ -1,8 +1,8 @@
 from typing import List
 from abc import ABC, abstractmethod
 
-from domain.models import Order, DetailedOrder, Contractor
-from domain.models.enums import OrderStatusEnum
+from domain.entities import Order, DetailedOrder, Contractor
+from domain.entities.enums import OrderStatusEnum
 
 class OrderRepository(ABC):
     @abstractmethod

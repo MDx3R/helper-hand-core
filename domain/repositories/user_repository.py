@@ -1,8 +1,8 @@
 from typing import List
 from abc import ABC, abstractmethod
 
-from domain.models import User, Admin, Contractee, Contractor
-from domain.models.enums import UserStatusEnum, RoleEnum, GenderEnum
+from domain.entities import User, Admin, Contractee, Contractor
+from domain.entities.enums import UserStatusEnum, RoleEnum, GenderEnum
 
 class UserRepository(ABC):
     @abstractmethod

@@ -3,8 +3,8 @@ from pydantic import BaseModel
 
 from datetime import datetime
 
-from domain.models import Reply 
-from domain.models.enums import ReplyStatusEnum
+from domain.entities import Reply 
+from domain.entities.enums import ReplyStatusEnum
 
 class ReplyOutputDTO(BaseModel):
     """

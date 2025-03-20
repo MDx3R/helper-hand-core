@@ -2,7 +2,7 @@ import pytest
 from typing import List, Tuple
 from infrastructure.database.models import UserBase, Base
 from infrastructure.database.mappers import AggregatedUserMapper
-from domain.models import ApplicationModel, User
+from domain.entities import ApplicationModel, User
 
 from .generators import (
     AggregatedUserMapperTestCasesGenerator, 

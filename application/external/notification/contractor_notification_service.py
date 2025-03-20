@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from domain.models import Contractor, Order
+from domain.entities import Contractor, Order
 
 class ContractorNotificationService(ABC):
     @abstractmethod

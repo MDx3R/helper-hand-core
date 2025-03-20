@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel
 
-from domain.models import Order 
+from domain.entities import Order 
 
 class OrderInputDTO(BaseModel):
     """

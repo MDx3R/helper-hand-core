@@ -1,5 +1,5 @@
-from domain.models import User
-from domain.models.enums import RoleEnum
+from domain.entities import User
+from domain.entities.enums import RoleEnum
 
 from application.dtos.output import UserOutputDTO, ContracteeOutputDTO, ContractorOutputDTO, AdminOutputDTO
 

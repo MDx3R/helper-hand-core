@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from domain.models import ApplicationModel
+from domain.entities import ApplicationModel
 from infrastructure.database.models import Base
 
 class TestCase:

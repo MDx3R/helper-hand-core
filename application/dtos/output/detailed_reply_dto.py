@@ -1,6 +1,6 @@
 from typing import Optional
 
-from domain.models import DetailedReply 
+from domain.entities import DetailedReply 
 
 from .reply_dto import ReplyOutputDTO
 from .contractee_dto import ContracteeOutputDTO

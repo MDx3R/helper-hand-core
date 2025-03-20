@@ -3,8 +3,8 @@ from sqlalchemy import select, update, exists, and_, Select
 from sqlalchemy.engine import Result
 
 from domain.repositories import UserRepository
-from domain.models import ApplicationModel, User, Admin, Contractee, Contractor
-from domain.models.enums import RoleEnum, UserStatusEnum, GenderEnum
+from domain.entities import ApplicationModel, User, Admin, Contractee, Contractor
+from domain.entities.enums import RoleEnum, UserStatusEnum, GenderEnum
 from domain.exceptions import ApplicationException
 
 from application.transactions import TransactionManager

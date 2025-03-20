@@ -1,8 +1,8 @@
 from typing import Optional
 from .user_dto import UserOutputDTO
 
-from domain.models import Admin
-from domain.models.enums import RoleEnum
+from domain.entities import Admin
+from domain.entities.enums import RoleEnum
 
 class AdminOutputDTO(UserOutputDTO):
     """

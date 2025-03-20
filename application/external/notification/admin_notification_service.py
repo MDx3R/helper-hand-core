@@ -1,7 +1,7 @@
 from typing import List
 from abc import ABC, abstractmethod
 
-from domain.models import Admin, Contractor, Contractee, Order, OrderDetail, DetailedOrder
+from domain.entities import Admin, Contractor, Contractee, Order, OrderDetail, DetailedOrder
 from domain.repositories import UserRepository
 
 class AdminNotificationService(ABC):

@@ -1,7 +1,7 @@
 from typing import List
 from abc import ABC, abstractmethod
 
-from domain.models import Contractor
+from domain.entities import Contractor
 
 from application.dtos.input import OrderInputDTO, OrderDetailInputDTO
 from application.dtos.output import DetailedOrderOutputDTO, OrderOutputDTO

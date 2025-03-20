@@ -3,8 +3,8 @@ from unittest.mock import AsyncMock, Mock
 from datetime import datetime
 from application.dtos.input import ContracteeInputDTO
 from application.dtos.output import ContracteeOutputDTO
-from domain.models import Contractee
-from domain.models.enums import GenderEnum, CitizenshipEnum, PositionEnum, UserStatusEnum
+from domain.entities import Contractee
+from domain.entities.enums import GenderEnum, CitizenshipEnum, PositionEnum, UserStatusEnum
 from domain.services.registration import ContracteeRegistrationService
 from domain.exceptions.service import UserBlockedException, AlreadyAuthenticatedException
 

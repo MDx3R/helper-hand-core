@@ -1,7 +1,7 @@
 from typing import List
 from abc import ABC, abstractmethod
 
-from domain.models import OrderDetail
+from domain.entities import OrderDetail
 
 class OrderDetailRepository(ABC):
     @abstractmethod

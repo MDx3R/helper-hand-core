@@ -2,10 +2,10 @@ from typing import Generic, TypeVar, List, Tuple, Dict, Any
 from datetime import datetime, time, date
 from abc import ABC, abstractmethod
 from faker import Faker
-from domain.models import ApplicationModel, User, Order, OrderDetail, Reply, Contractee, Contractor, Admin
+from domain.entities import ApplicationModel, User, Order, OrderDetail, Reply, Contractee, Contractor, Admin
 from infrastructure.database.models import Base, UserBase, OrderBase, OrderDetailBase, ReplyBase, ContracteeBase, ContractorBase, AdminBase
 
-from domain.models.enums import (
+from domain.entities.enums import (
     OrderStatusEnum, 
     PositionEnum, 
     GenderEnum, 

@@ -2,9 +2,9 @@ from typing import List, Tuple
 
 from datetime import date
 
-from domain.models import Contractee, Order, DetailedOrder, OrderDetail, Reply
+from domain.entities import Contractee, Order, DetailedOrder, OrderDetail, Reply
 from domain.wager import calculate_wager
-from domain.models.enums import OrderStatusEnum
+from domain.entities.enums import OrderStatusEnum
 from domain.services.reply import ContracteeReplyService
 from domain.repositories import ReplyRepository, OrderRepository, OrderDetailRepository, UserRepository
 from domain.exceptions.service import NotFoundException, ReplySubmitNotAllowedException

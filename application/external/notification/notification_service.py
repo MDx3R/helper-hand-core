@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from domain.models import User, Admin
+from domain.entities import User, Admin
 
 class NotificationService(ABC):
     async def send_registration_approved_notification(self, user: User):
