@@ -8,7 +8,7 @@ from domain.entities.enums import ReplyStatusEnum, OrderStatusEnum
 from domain.services.reply import ContractorReplyService
 from domain.repositories import ReplyRepository, OrderRepository, OrderDetailRepository, UserRepository
 from application.external.notification import ContracteeNotificationService, ContractorNotificationService, AdminNotificationService
-from application.dtos.output import ReplyOutputDTO, DetailedReplyOutputDTO
+from domain.dto.output import ReplyOutputDTO, DetailedReplyOutputDTO
 from application.transactions import TransactionManager, transactional
 from domain.exceptions.service import (
     UnauthorizedAccessException, 

@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 from domain.entities import Contractee
 
-from application.dtos.output import DetailedOrderOutputDTO, OrderOutputDTO, OrderDetailOutputDTO
+from domain.dto.output import DetailedOrderOutputDTO, OrderOutputDTO, OrderDetailOutputDTO
 
 class ContracteeOrderService(ABC):
     """

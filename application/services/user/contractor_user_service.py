@@ -4,7 +4,7 @@ from domain.services.user import ContractorUserService
 from domain.repositories import UserRepository
 
 from application.transactions import TransactionManager
-from application.dtos.output import ContractorOutputDTO, ContracteeOutputDTO
+from domain.dto.output import ContractorOutputDTO, ContracteeOutputDTO
 
 class ContractorUserServiceImpl(ContractorUserService):
     def __init__(

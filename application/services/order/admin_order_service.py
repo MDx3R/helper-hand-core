@@ -16,8 +16,8 @@ from application.external.notification import (
     ContracteeNotificationService
 )
 from application.transactions import TransactionManager, transactional
-from application.dtos.input import OrderInputDTO, OrderDetailInputDTO
-from application.dtos.output import DetailedOrderOutputDTO, OrderOutputDTO
+from domain.dto.input import OrderInputDTO, OrderDetailInputDTO
+from domain.dto.output import DetailedOrderOutputDTO, OrderOutputDTO
 
 from domain.exceptions.service import (
     PermissionDeniedException,

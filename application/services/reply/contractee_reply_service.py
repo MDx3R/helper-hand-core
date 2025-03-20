@@ -11,8 +11,8 @@ from domain.exceptions.service import NotFoundException, ReplySubmitNotAllowedEx
 
 from application.external.notification import ContractorNotificationService
 from application.transactions import TransactionManager, transactional
-from application.dtos.input import ReplyInputDTO
-from application.dtos.output import ReplyOutputDTO, DetailedReplyOutputDTO
+from domain.dto.input import ReplyInputDTO
+from domain.dto.output import ReplyOutputDTO, DetailedReplyOutputDTO
 
 from domain.services.domain import OrderDomainService, OrderDetailDomainService, AvailabilityDomainService
 

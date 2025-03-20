@@ -8,8 +8,8 @@ from domain.entities.enums import OrderStatusEnum
 
 from domain.repositories import OrderRepository, OrderDetailRepository, UserRepository, ReplyRepository
 from application.external.notification import AdminNotificationService, ContracteeNotificationService
-from application.dtos.input import OrderInputDTO, OrderDetailInputDTO
-from application.dtos.output import DetailedOrderOutputDTO, OrderOutputDTO, OrderDetailOutputDTO
+from domain.dto.input import OrderInputDTO, OrderDetailInputDTO
+from domain.dto.output import DetailedOrderOutputDTO, OrderOutputDTO, OrderDetailOutputDTO
 from application.transactions import TransactionManager, transactional
 
 from domain.services.order import ContracteeOrderService

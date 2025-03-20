@@ -1,6 +1,6 @@
 from domain.services.registration import ContracteeRegistrationService
-from application.dtos.input import ContracteeInputDTO
-from application.dtos.output import ContracteeOutputDTO
+from domain.dto.input import ContracteeInputDTO
+from domain.dto.output import ContracteeOutputDTO
 
 from domain.entities import Contractee, User
 from domain.entities.enums import RoleEnum, UserStatusEnum

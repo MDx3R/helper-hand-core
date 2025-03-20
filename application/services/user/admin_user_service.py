@@ -7,8 +7,8 @@ from domain.services.domain import UserDomainService
 
 from application.transactions import TransactionManager
 from application.external.notification import NotificationService
-from application.dtos.output import UserOutputDTO, ContracteeOutputDTO, ContractorOutputDTO, AdminOutputDTO
-from application.dtos.mappers import map_user_to_dto
+from domain.dto.output import UserOutputDTO, ContracteeOutputDTO, ContractorOutputDTO, AdminOutputDTO
+from domain.dto.mappers import map_user_to_dto
 
 class AdminUserServiceImpl(AdminUserService):
     def __init__(

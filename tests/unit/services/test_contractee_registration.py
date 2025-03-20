@@ -1,8 +1,8 @@
 import pytest
 from unittest.mock import AsyncMock, Mock
 from datetime import datetime
-from application.dtos.input import ContracteeInputDTO
-from application.dtos.output import ContracteeOutputDTO
+from domain.dto.input import ContracteeInputDTO
+from domain.dto.output import ContracteeOutputDTO
 from domain.entities import Contractee
 from domain.entities.enums import GenderEnum, CitizenshipEnum, PositionEnum, UserStatusEnum
 from domain.services.registration import ContracteeRegistrationService

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from domain.entities import Contractee
-from application.dtos.output import ContracteeOutputDTO
+from domain.dto.output import ContracteeOutputDTO
 
 class ContracteeUserService(ABC):
     @abstractmethod

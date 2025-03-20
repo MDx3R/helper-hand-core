@@ -1,8 +1,8 @@
 from abc import abstractmethod
 
 from .user_registration_service import UserRegistrationService
-from application.dtos.input import ContractorInputDTO
-from application.dtos.output import ContractorOutputDTO
+from domain.dto.input import ContractorInputDTO
+from domain.dto.output import ContractorOutputDTO
 
 class ContractorRegistrationService(UserRegistrationService):
     """

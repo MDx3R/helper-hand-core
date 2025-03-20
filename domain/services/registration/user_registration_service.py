@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from application.dtos.input import UserInputDTO
-from application.dtos.output import UserOutputDTO
+from domain.dto.input import UserInputDTO
+from domain.dto.output import UserOutputDTO
 
 class UserRegistrationService(ABC):
     """
