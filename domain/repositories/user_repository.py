@@ -15,9 +15,6 @@ class UserRepository(ABC):
             
         Returns:
             User: Модель с данными пользователя или `None`, если пользователь не найден.
-            
-        Raises:
-            RepositoryException: При всех непредвиденных ошибках.
         """
         pass
     
@@ -31,9 +28,6 @@ class UserRepository(ABC):
             
         Returns:
             User: Модель с данными пользователя или `None`, если пользователь не найден.
-            
-        Raises:
-            RepositoryException: При всех непредвиденных ошибках.
         """
         pass
     
@@ -47,9 +41,6 @@ class UserRepository(ABC):
             
         Returns:
             User: Модель роли, расширяющая User.
-            
-        Raises:
-            RepositoryException: При всех непредвиденных ошибках.
         """
         pass
 
@@ -63,9 +54,6 @@ class UserRepository(ABC):
         
         Returns:
             Admin: Модель с данными администратора или `None`, если администратор не найден.
-            
-        Raises:
-            RepositoryException: При всех непредвиденных ошибках.
         """
         pass
     
@@ -79,9 +67,6 @@ class UserRepository(ABC):
         
         Returns:
             Contractee: Модель с данными исполнителя или `None`, если исполнитель не найден.
-            
-        Raises:
-            RepositoryException: При всех непредвиденных ошибках.
         """
         pass
     
@@ -95,9 +80,6 @@ class UserRepository(ABC):
         
         Returns:
             Contractor: Модель с данными заказчика или `None`, если подрядчик не найден.
-            
-        Raises:
-            RepositoryException: При всех непредвиденных ошибках.
         """
         pass
     
@@ -108,9 +90,6 @@ class UserRepository(ABC):
         
         Returns:
             List[Admin]: Список объектов администраторов.
-            
-        Raises:
-            RepositoryException: При всех непредвиденных ошибках.
         """
         pass
 
@@ -121,9 +100,23 @@ class UserRepository(ABC):
             
         Returns:
             User: Модель роли, расширяющей User.
+        """
+        pass
+
+    @abstractmethod
+    async def save(self, role: Contractee | Contractor | Admin) -> Contractee | Contractor | Admin:
+        """
+        Сохраняет данные исполнителя, заказчика или администратора.
+        
+        Args:
+            role (Contractee | Contractor | Admin): Модель с данными пользователя.
+        
+        Returns:
+            Contractee | Contractor | Admin: Сохраненная модель пользователя.
             
         Raises:
-            RepositoryException: При всех непредвиденных ошибках.
+            IntegrityException: Возникает при нарушении целостности данных при сохранении данных.
+            DuplicateEntryException: Возникает, если уникальные значения повторяются: Если произошел конфликт уникальности поля.
         """
         pass
 
@@ -141,7 +134,6 @@ class UserRepository(ABC):
         Raises:
             IntegrityException: Возникает при нарушении целостности данных при сохранении данных.
             DuplicateEntryException: Возникает, если уникальные значения повторяются: Если произошел конфликт уникальности поля.
-            RepositoryException: При всех непредвиденных ошибках.
         """
         pass
     
@@ -159,7 +151,23 @@ class UserRepository(ABC):
         Raises:
             IntegrityException: Возникает при нарушении целостности данных при сохранении данных.
             DuplicateEntryException: Возникает, если уникальные значения повторяются: Если произошел конфликт уникальности поля.
-            RepositoryException: При всех непредвиденных ошибках.
+        """
+        pass
+
+    @abstractmethod
+    async def save_admin(self, admin: Admin) -> Admin:
+        """
+        Сохраняет данные администратора.
+        
+        Args:
+            admin (Admin): Модель с данными администратора.
+        
+        Returns:
+            Admin: Сохраненная модель администратора.
+            
+        Raises:
+            IntegrityException: Возникает при нарушении целостности данных при сохранении данных.
+            DuplicateEntryException: Возникает, если уникальные значения повторяются: Если произошел конфликт уникальности поля.
         """
         pass
     
@@ -177,7 +185,6 @@ class UserRepository(ABC):
 
         Raises:
             IntegrityException: Возникает при нарушении целостности данных при сохранении данных.
-            RepositoryException: При всех непредвиденных ошибках.
         """
         pass
 
@@ -191,9 +198,6 @@ class UserRepository(ABC):
         
         Returns:
             bool: `True`, если пользователь существует, иначе `False`.
-            
-        Raises:
-            RepositoryException: При всех непредвиденных ошибках.
         """
         pass
 
