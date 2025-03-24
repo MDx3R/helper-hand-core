@@ -10,11 +10,11 @@ class UserDTO(ApplicationDTO):
     name: str
     patronymic: Optional[str]
     phone_number: Optional[str]
-    role: RoleEnum 
+    role: RoleEnum
     status: UserStatusEnum
     photos: List[str]
-    telegram_id: int 
-    chat_id: int
+    telegram_id: Optional[int]
+    chat_id: Optional[int]
 
     @classmethod
     def from_user(cls, user: User) -> 'UserDTO':
