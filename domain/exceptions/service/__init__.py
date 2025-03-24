@@ -3,4 +3,4 @@ from .orders import MissingOrderDetailsException, OrderStatusChangeNotAllowedExc
 from .common import NotFoundException
 from .replies import InvalidReplyException, DetailFullException, ReplyStatusChangeNotAllowedException, ReplySubmitNotAllowedException
 from .users import UserStatusChangeNotAllowedException
-from .input import InvalidInput
+from .input import InvalidInputException
