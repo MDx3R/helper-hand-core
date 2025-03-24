@@ -6,25 +6,21 @@ from domain.repositories import UserRepository
 
 class AdminNotificationService(ABC):
     @abstractmethod
-    async def send_new_contractor_registration_notification(self, admins: List[Admin], contractor: Contractor):
+    async def send_new_registration_notification(self):
         pass
 
     @abstractmethod
-    async def send_new_contractee_registration_notification(self, admins: List[Admin], contractee: Contractee):
-        pass
-    
-    @abstractmethod
-    async def send_new_order_notification(self, admins: List[Admin], order: Order, details: List[OrderDetail]):
+    async def send_new_order_notification(self):
         pass
 
     @abstractmethod
-    async def send_order_cancelled_notification(self, admin: Admin, order: Order):
+    async def send_order_cancelled_notification(self, order: Order):
         pass
 
     @abstractmethod
-    async def send_order_set_active_notification(self, admin: Admin, order: Order):
+    async def send_order_set_active_notification(self, order: Order):
         pass
 
     @abstractmethod
-    async def send_order_closed_automatically_notification(self, admin: Admin, order: Order):
+    async def send_order_closed_automatically_notification(self, order: Order):
         pass
