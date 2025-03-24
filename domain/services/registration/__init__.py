@@ -1,4 +1,2 @@
 from .user_registration_service import UserRegistrationService
 from .user_reset_service import UserResetService
-from .contractee_registration_service import ContracteeRegistrationService
-from .contractor_registration_service import ContractorRegistrationService
