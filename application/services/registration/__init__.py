@@ -1,2 +1,4 @@
 from .contractee_registration_service import ContracteeRegistrationServiceImpl
 from .contractor_registration_service import ContractorRegistrationServiceImpl
+from .user_registration_service import TelegramUserRegistrationService, WebUserRegistrationService
+from .user_reset_service import UserResetServiceImpl

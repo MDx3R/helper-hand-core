@@ -24,7 +24,7 @@ class BaseUserRegistrationService(UserRegistrationService, BaseUserModificationS
         """Переопределение этого метода добавил дополнительные действия после регистрации пользователя"""
         pass
 
-class TelegramUserRegistrationServiceImpl(BaseUserRegistrationService):
+class TelegramUserRegistrationService(BaseUserRegistrationService):
     """
     Реализация интерфейса `UserRegistrationService` для регистрации пользователей из Telegram.
     
@@ -50,7 +50,7 @@ class TelegramUserRegistrationServiceImpl(BaseUserRegistrationService):
     async def _post_registration_hook(self, user: U):
         await self.notification_service.send_new_registration_notification()
         
-class WebUserRegistrationServiceImpl(BaseUserRegistrationService):
+class WebUserRegistrationService(BaseUserRegistrationService):
     """
     Реализация интерфейса `UserRegistrationService` для регистрации пользователей из Web.
     
