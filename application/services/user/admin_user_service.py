@@ -7,7 +7,7 @@ from domain.services.domain import UserDomainService
 
 from application.transactions import TransactionManager
 from application.external.notification import NotificationService
-from domain.dto.output import UserOutputDTO, ContracteeOutputDTO, ContractorOutputDTO, AdminOutputDTO
+from domain.dto.common import UserDTO, ContracteeDTO, ContractorDTO, AdminDTO
 from domain.dto.mappers import map_user_to_dto
 
 class AdminUserServiceImpl(AdminUserService):
@@ -24,21 +24,21 @@ class AdminUserServiceImpl(AdminUserService):
     def _map_user_to_dto(self, user: User):
         return map_user_to_dto(user)
 
-    async def get_user(self, user_id: int, admin: Admin) -> UserOutputDTO | None:
+    async def get_user(self, user_id: int, admin: Admin) -> UserDTO | None:
         user = await self.user_repository.get_user_with_role(user_id)
         if not user:
             return None
         
         return self._map_user_to_dto(user)
 
-    async def get_first_pending_user(self, admin: Admin) -> UserOutputDTO | None:
+    async def get_first_pending_user(self, admin: Admin) -> UserDTO | None:
         user = await self.user_repository.get_first_pending_user_with_role()
         if not user:
             return None
         
         return self._map_user_to_dto(user)
 
-    async def approve_registration(self, user_id: int, admin: Admin) -> UserOutputDTO:
+    async def approve_registration(self, user_id: int, admin: Admin) -> UserDTO:
         async with self.transaction_manager:
             user = await self._get_user_with_role_and_check_exists(user_id)
             
@@ -50,7 +50,7 @@ class AdminUserServiceImpl(AdminUserService):
 
         return self._map_user_to_dto(user)
 
-    async def disapprove_registration(self, user_id: int, admin: Admin) -> UserOutputDTO:
+    async def disapprove_registration(self, user_id: int, admin: Admin) -> UserDTO:
         async with self.transaction_manager:
             user = await self._get_user_with_role_and_check_exists(user_id)
             
@@ -74,7 +74,7 @@ class AdminUserServiceImpl(AdminUserService):
     async def _notify_registration_disapproved(self, user: User):
         await self.user_notification_service.send_registration_disapproved_notification(user)
 
-    async def drop_user(self, user_id: int, admin: Admin) -> UserOutputDTO:
+    async def drop_user(self, user_id: int, admin: Admin) -> UserDTO:
         async with self.transaction_manager:
             user = await self._get_user_with_role_and_check_exists(user_id)
 
@@ -86,7 +86,7 @@ class AdminUserServiceImpl(AdminUserService):
 
         return self._map_user_to_dto(user)
 
-    async def ban_user(self, user_id: int, admin: Admin) -> UserOutputDTO:
+    async def ban_user(self, user_id: int, admin: Admin) -> UserDTO:
         async with self.transaction_manager:
             user = await self._get_user_with_role_and_check_exists(user_id)
 

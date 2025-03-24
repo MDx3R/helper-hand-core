@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 
 from domain.entities import User, Contractor
-from domain.dto.output import UserOutputDTO
+from domain.dto.common import UserDTO
 
 class ContractorUserService(ABC):
     @abstractmethod
-    async def get_user(self, user_id: int, contractor: Contractor) -> UserOutputDTO | None:
+    async def get_user(self, user_id: int, contractor: Contractor) -> UserDTO | None:
         pass
 
     @abstractmethod

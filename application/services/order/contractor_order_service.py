@@ -16,7 +16,7 @@ from application.external.notification import (
 )
 from application.transactions import TransactionManager, transactional
 from domain.dto.input import OrderInputDTO, OrderDetailInputDTO
-from domain.dto.output import DetailedOrderOutputDTO, OrderOutputDTO, DetailedReplyOutputDTO
+from domain.dto.common import DetailedOrderDTO, OrderDTO, DetailedReplyDTO
 from domain.exceptions.service import (
     MissingOrderDetailsException, 
     OrderStatusChangeNotAllowedException, 
@@ -57,7 +57,7 @@ class ContractorOrderServiceImpl(ContractorOrderService):
         self.admin_notification_service = admin_notification_service
         self.contractee_notification_service = contractee_notification_service
 
-    async def create_order(self, order_input: OrderInputDTO, details_input: List[OrderDetailInputDTO], contractor: Contractor) -> DetailedOrderOutputDTO:
+    async def create_order(self, order_input: OrderInputDTO, details_input: List[OrderDetailInputDTO], contractor: Contractor) -> DetailedOrderDTO:
         self._check_order_input_is_complete(order_input, details_input)
         
         # объявляем транзакцию
@@ -66,7 +66,7 @@ class ContractorOrderServiceImpl(ContractorOrderService):
 
         await self._notify_admins_on_new_order(order, details)
 
-        return DetailedOrderOutputDTO.from_order_and_details(order, details)
+        return DetailedOrderDTO.from_order_and_details(order, details)
 
     def _check_order_input_is_complete(self, order: OrderInputDTO, details: List[OrderDetailInputDTO]):
         if len(details) == 0:
@@ -94,27 +94,27 @@ class ContractorOrderServiceImpl(ContractorOrderService):
         admins = await self.user_repository.get_admins()
         await self.admin_notification_service.send_new_order_notification(admins, order, details)
 
-    async def get_order(self, order_id: int, contractor: Contractor) -> OrderOutputDTO | None:
+    async def get_order(self, order_id: int, contractor: Contractor) -> OrderDTO | None:
         order = await self._get_order(order_id, contractor.contractor_id)
         if order is None:
             return None
 
-        return OrderOutputDTO.from_order(order)
+        return OrderDTO.from_order(order)
     
     async def _get_order(self, order_id: int, contractor_id: int) -> Order | None:
         return await self.order_repository.get_order_by_id_and_contractor_id(order_id, contractor_id)
 
-    async def get_detailed_order(self, order_id: int, contractor: Contractor) -> DetailedOrderOutputDTO | None:
+    async def get_detailed_order(self, order_id: int, contractor: Contractor) -> DetailedOrderDTO | None:
         detailed_order = await self._get_detailed_order(order_id, contractor.contractor_id)
         if detailed_order is None:
             return None
 
-        return DetailedOrderOutputDTO.from_order(detailed_order)
+        return DetailedOrderDTO.from_order(detailed_order)
 
     async def _get_detailed_order(self, order_id: int, contractor_id: int) -> DetailedOrder | None:
         return await self.order_repository.get_detailed_order_by_id_and_contractor_id(order_id, contractor_id)
 
-    async def cancel_order(self, order_id: int, contractor: Contractor) -> OrderOutputDTO:
+    async def cancel_order(self, order_id: int, contractor: Contractor) -> OrderDTO:
         # объявляем транзакцию
         async with self.transaction_manager:
             order = await self._get_order_and_check_order_access(order_id, contractor)
@@ -125,7 +125,7 @@ class ContractorOrderServiceImpl(ContractorOrderService):
 
         await self._send_notifications_on_order_cancel(order, dropped_contractees)
 
-        return OrderOutputDTO.from_order(order)
+        return OrderDTO.from_order(order)
 
     async def _get_order_and_check_order_access(self, order_id: int, contractor: Contractor) -> Order:
         """
@@ -177,7 +177,7 @@ class ContractorOrderServiceImpl(ContractorOrderService):
     async def _notify_contractees_on_order_cancelled(self, order: Order, dropped_contractees: List[Contractee]):
         await self.contractee_notification_service.send_order_cancelled_notification_many(dropped_contractees, order)
 
-    async def set_order_active(self, order_id: int, contractor: Contractor) -> OrderOutputDTO:
+    async def set_order_active(self, order_id: int, contractor: Contractor) -> OrderDTO:
         # объявляем транзакцию
         async with self.transaction_manager:
             order = await self._get_order_and_check_order_access(order_id, contractor)
@@ -188,7 +188,7 @@ class ContractorOrderServiceImpl(ContractorOrderService):
 
         await self._send_notifications_on_order_set_active(order, approved_contractees, dropped_contractees)
 
-        return OrderOutputDTO.from_order(order)
+        return OrderDTO.from_order(order)
 
     async def _check_order_can_be_set_active(self, order: Order):
         if not OrderDomainService.can_be_set_active(order):
@@ -230,10 +230,10 @@ class ContractorOrderServiceImpl(ContractorOrderService):
     async def _notify_dropped_contractees(self, order: Order, dropped_contractees: List[Contractee]):
         await self.contractee_notification_service.send_reply_disapproved_notification_many(dropped_contractees, order)
 
-    async def get_orders(self, contractor: Contractor, page: int = 1, size: int = 15) -> List[OrderOutputDTO]:
+    async def get_orders(self, contractor: Contractor, page: int = 1, size: int = 15) -> List[OrderDTO]:
         orders = await self.order_repository.get_contractor_orders_by_page(contractor.contractor_id, page, size)
-        return [OrderOutputDTO.from_order(order) for order in orders]
+        return [OrderDTO.from_order(order) for order in orders]
 
-    async def get_detailed_orders(self, contractor: Contractor, page: int = 1, size: int = 15) -> List[DetailedOrderOutputDTO]:
+    async def get_detailed_orders(self, contractor: Contractor, page: int = 1, size: int = 15) -> List[DetailedOrderDTO]:
         detailed_orders = await self.order_repository.get_contractor_detailed_orders_by_page(contractor.contractor_id, page, size)
-        return [DetailedOrderOutputDTO.from_order(order) for order in detailed_orders]
+        return [DetailedOrderDTO.from_order(order) for order in detailed_orders]

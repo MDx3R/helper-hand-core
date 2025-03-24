@@ -17,7 +17,7 @@ from application.external.notification import (
 )
 from application.transactions import TransactionManager, transactional
 from domain.dto.input import OrderInputDTO, OrderDetailInputDTO
-from domain.dto.output import DetailedOrderOutputDTO, OrderOutputDTO
+from domain.dto.common import DetailedOrderDTO, OrderDTO
 
 from domain.exceptions.service import (
     PermissionDeniedException,
@@ -50,7 +50,7 @@ class AdminOrderServiceImpl(AdminOrderService):
         self.contractor_notification_service = contractor_notification_service
         self.contractee_notification_service = contractee_notification_service
 
-    async def create_order(self, order_input: OrderInputDTO, details_input: List[OrderDetailInputDTO], admin: Admin) -> DetailedOrderOutputDTO:
+    async def create_order(self, order_input: OrderInputDTO, details_input: List[OrderDetailInputDTO], admin: Admin) -> DetailedOrderDTO:
         self._check_order_can_be_created(order_input, details_input, admin)
 
         async with self.transaction_manager:
@@ -58,7 +58,7 @@ class AdminOrderServiceImpl(AdminOrderService):
 
         await self._notify_contractees_on_new_order(order, details)
 
-        return DetailedOrderOutputDTO.from_order_and_details(order, details)
+        return DetailedOrderDTO.from_order_and_details(order, details)
 
     def _check_order_can_be_created(self, order_input: OrderInputDTO, details_input: List[OrderDetailInputDTO], admin: Admin):
         if not AdminDomainService.is_contractor(admin):
@@ -116,21 +116,21 @@ class AdminOrderServiceImpl(AdminOrderService):
 
         return gender
 
-    async def get_order(self, order_id: int, admin: Admin) -> OrderOutputDTO | None:
+    async def get_order(self, order_id: int, admin: Admin) -> OrderDTO | None:
         order = await self.order_repository.get_order_by_id(order_id)
         if order is None:
             return None
 
-        return OrderOutputDTO.from_order(order)
+        return OrderDTO.from_order(order)
 
-    async def get_detailed_order(self, order_id: int, admin: Admin) -> DetailedOrderOutputDTO | None:
+    async def get_detailed_order(self, order_id: int, admin: Admin) -> DetailedOrderDTO | None:
         detailed_order = await self.order_repository.get_detailed_order_by_id(order_id)
         if detailed_order is None:
             return None
 
-        return DetailedOrderOutputDTO.from_order(detailed_order)
+        return DetailedOrderDTO.from_order(detailed_order)
 
-    async def take_order(self, order_id: int, admin: Admin) -> OrderOutputDTO:
+    async def take_order(self, order_id: int, admin: Admin) -> OrderDTO:
         async with self.transaction_manager:
             order = await self._get_order_and_check_exists(order_id)
             self._check_order_can_be_assigned(order)
@@ -138,7 +138,7 @@ class AdminOrderServiceImpl(AdminOrderService):
 
         await self._notify_contractor_on_admin_assigned(order)
 
-        return OrderOutputDTO.from_order(order)
+        return OrderDTO.from_order(order)
 
     async def _get_order_and_check_exists(self, order_id: int) -> Order:
         order = await self.order_repository.get_order_by_id(order_id)
@@ -162,7 +162,7 @@ class AdminOrderServiceImpl(AdminOrderService):
         contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
         await self.contractor_notification_service.send_admin_assigned_for_order_notification(contractor, order)
 
-    async def approve_order(self, order_id: int, admin: Admin) -> OrderOutputDTO:
+    async def approve_order(self, order_id: int, admin: Admin) -> OrderDTO:
         async with self.transaction_manager:
             order = await self._get_detailed_order_and_check_exists(order_id)
             self._check_order_can_be_approved(order, admin)
@@ -171,7 +171,7 @@ class AdminOrderServiceImpl(AdminOrderService):
         await self._notify_contractor_on_order_approved(order)
         await self._notify_contractees_on_new_order(order, order.details)
 
-        return OrderOutputDTO.from_order(order)
+        return OrderDTO.from_order(order)
 
     def _check_order_can_be_approved(self, order: Order, admin: Admin):
         is_supervised = OrderDomainService.has_supervisor(order) and not OrderDomainService.is_supervised_by(order, admin.admin_id)
@@ -198,7 +198,7 @@ class AdminOrderServiceImpl(AdminOrderService):
         contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
         await self.contractor_notification_service.send_order_approved_notification(contractor, order)
 
-    async def cancel_order(self, order_id: int, admin: Admin) -> OrderOutputDTO:
+    async def cancel_order(self, order_id: int, admin: Admin) -> OrderDTO:
         async with self.transaction_manager:
             order = await self._get_order_and_check_exists(order_id)
             self._check_order_can_be_cancelled(order, admin)
@@ -206,7 +206,7 @@ class AdminOrderServiceImpl(AdminOrderService):
         
         await self._send_notifications_on_order_cancelled(order, dropped_contractees)
 
-        return OrderOutputDTO.from_order(order)
+        return OrderDTO.from_order(order)
 
     def _check_order_can_be_cancelled(self, order: Order, admin: Admin):
         is_supervised = OrderDomainService.has_supervisor(order) and not OrderDomainService.is_supervised_by(order, admin.admin_id)
@@ -247,7 +247,7 @@ class AdminOrderServiceImpl(AdminOrderService):
     async def _notify_contractees_on_order_cancelled(self, order: Order, dropped_contractees: List[Contractee]):
         await self.contractee_notification_service.send_order_cancelled_notification_many(dropped_contractees, order)
 
-    async def lock_order(self, order_id: int, admin: Admin) -> OrderOutputDTO:
+    async def lock_order(self, order_id: int, admin: Admin) -> OrderDTO:
         async with self.transaction_manager:
             order = await self._get_order_and_check_exists(order_id)
             self._check_order_can_be_closed(order, admin)
@@ -255,7 +255,7 @@ class AdminOrderServiceImpl(AdminOrderService):
 
         await self._notify_contractor_on_order_closed(order)
 
-        return OrderOutputDTO.from_order(order)
+        return OrderDTO.from_order(order)
 
     def _check_order_can_be_closed(self, order: Order, admin: Admin):
         if not OrderDomainService.is_supervised_by(order, admin.admin_id):
@@ -271,7 +271,7 @@ class AdminOrderServiceImpl(AdminOrderService):
         contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
         await self.contractor_notification_service.send_order_closed_notification(contractor, order)
 
-    async def open_order(self, order_id: int, admin: Admin) -> OrderOutputDTO:
+    async def open_order(self, order_id: int, admin: Admin) -> OrderDTO:
         async with self.transaction_manager:
             order = await self._get_order_and_check_exists(order_id)
             self._check_order_can_be_opened(order, admin)
@@ -279,7 +279,7 @@ class AdminOrderServiceImpl(AdminOrderService):
 
         await self._notify_contractor_on_order_opened(order)
 
-        return OrderOutputDTO.from_order(order)
+        return OrderDTO.from_order(order)
 
     def _check_order_can_be_opened(self, order: Order, admin: Admin):
         if not OrderDomainService.is_supervised_by(order, admin.admin_id):
@@ -295,7 +295,7 @@ class AdminOrderServiceImpl(AdminOrderService):
         contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
         await self.contractor_notification_service.send_order_opened_notification(contractor, order)
 
-    async def fulfill_order(self, order_id: int, admin: Admin) -> OrderOutputDTO:
+    async def fulfill_order(self, order_id: int, admin: Admin) -> OrderDTO:
         async with self.transaction_manager:
             order = await self._get_order_and_check_exists(order_id)
             self._check_order_can_be_fulfilled(order, admin)
@@ -303,7 +303,7 @@ class AdminOrderServiceImpl(AdminOrderService):
 
         await self._notify_contractor_on_order_fulfilled(order)
 
-        return OrderOutputDTO.from_order(order)
+        return OrderDTO.from_order(order)
 
     def _check_order_can_be_fulfilled(self, order: Order, admin: Admin):
         if not OrderDomainService.is_supervised_by(order, admin.admin_id):
@@ -319,38 +319,38 @@ class AdminOrderServiceImpl(AdminOrderService):
         contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
         await self.contractor_notification_service.send_order_fulfilled_notification(contractor, order)
 
-    async def get_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[OrderOutputDTO]:
+    async def get_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[OrderDTO]:
         orders = await self.order_repository.get_orders_by_page(page, size)
-        return [OrderOutputDTO.from_order(order) for order in orders]
+        return [OrderDTO.from_order(order) for order in orders]
 
-    async def get_detailed_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[DetailedOrderOutputDTO]:
+    async def get_detailed_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[DetailedOrderDTO]:
         detailed_orders = await self.order_repository.get_detailed_orders_by_page(page, size)
-        return [DetailedOrderOutputDTO.from_order(order) for order in detailed_orders]
+        return [DetailedOrderDTO.from_order(order) for order in detailed_orders]
 
-    async def get_one_unassigned_order(self, admin: Admin, last_order_id: int = None) -> DetailedOrderOutputDTO | None:
+    async def get_one_unassigned_order(self, admin: Admin, last_order_id: int = None) -> DetailedOrderDTO | None:
         detailed_order = (await self.order_repository.get_detailed_unassigned_orders_by_last_order_id(last_order_id, 1))[0]
-        return DetailedOrderOutputDTO.from_order(detailed_order)
+        return DetailedOrderDTO.from_order(detailed_order)
 
-    async def get_open_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[OrderOutputDTO]:
+    async def get_open_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[OrderDTO]:
         orders = await self.order_repository.get_open_orders_by_page(page, size)
-        return [OrderOutputDTO.from_order(order) for order in orders]
+        return [OrderDTO.from_order(order) for order in orders]
 
-    async def get_closed_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[OrderOutputDTO]:
+    async def get_closed_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[OrderDTO]:
         orders = await self.order_repository.get_closed_orders_by_page(page, size)
-        return [OrderOutputDTO.from_order(order) for order in orders]
+        return [OrderDTO.from_order(order) for order in orders]
 
-    async def get_active_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[OrderOutputDTO]:
+    async def get_active_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[OrderDTO]:
         orders = await self.order_repository.get_active_orders_by_page(page, size)
-        return [OrderOutputDTO.from_order(order) for order in orders]
+        return [OrderDTO.from_order(order) for order in orders]
 
-    async def get_contractee_orders(self, contractee_id: int, admin: Admin, page: int = 1, size: int = 15) -> List[OrderOutputDTO]:
+    async def get_contractee_orders(self, contractee_id: int, admin: Admin, page: int = 1, size: int = 15) -> List[OrderDTO]:
         orders = await self.order_repository.get_contractee_orders_by_page(contractee_id, page, size)
-        return [OrderOutputDTO.from_order(order) for order in orders]
+        return [OrderDTO.from_order(order) for order in orders]
 
-    async def get_contractor_orders(self, contractor_id: int, admin: Admin, page: int = 1, size: int = 15) -> List[OrderOutputDTO]:
+    async def get_contractor_orders(self, contractor_id: int, admin: Admin, page: int = 1, size: int = 15) -> List[OrderDTO]:
         orders = await self.order_repository.get_contractor_orders_by_page(contractor_id, page, size)
-        return [OrderOutputDTO.from_order(order) for order in orders]
+        return [OrderDTO.from_order(order) for order in orders]
 
-    async def get_admin_orders(self, admin_id: int, admin: Admin, page: int = 1, size: int = 15) -> List[OrderOutputDTO]:
+    async def get_admin_orders(self, admin_id: int, admin: Admin, page: int = 1, size: int = 15) -> List[OrderDTO]:
         orders = await self.order_repository.get_admin_orders_by_page(admin_id, page, size)
-        return [OrderOutputDTO.from_order(order) for order in orders]
+        return [OrderDTO.from_order(order) for order in orders]

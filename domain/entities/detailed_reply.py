@@ -25,9 +25,9 @@ class DetailedReply(Reply):
     """Объект заказа."""
 
     @classmethod
-    def from_order_detail_contractee(cls, reply: Reply, contractee: Contractee, detail: OrderDetail, order: Order) -> 'Reply':
+    def from_order_detail_contractee(cls, reply: Reply, contractee: Contractee, detail: OrderDetail, order: Order) -> 'DetailedReply':
         """
-        Преобразует `Reply`, `Contractee`, `OrderDetail` и `Order` в `Reply`.
+        Преобразует `Reply`, `Contractee`, `OrderDetail` и `Order` в `DetailedReply`.
         """
         return cls(
             detail_id=reply.detail_id,

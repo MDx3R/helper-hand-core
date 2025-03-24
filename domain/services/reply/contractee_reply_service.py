@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from domain.entities import Contractee
 
 from domain.dto.input import ReplyInputDTO
-from domain.dto.output import ReplyOutputDTO, DetailedReplyOutputDTO
+from domain.dto.common import ReplyDTO, DetailedReplyDTO
 
 class ContracteeReplyService(ABC):
     """
@@ -14,7 +14,7 @@ class ContracteeReplyService(ABC):
     """
 
     @abstractmethod
-    async def submit_reply_to_order(self, reply_input: ReplyInputDTO, contractee: Contractee) -> DetailedReplyOutputDTO:
+    async def submit_reply_to_order(self, reply_input: ReplyInputDTO, contractee: Contractee) -> DetailedReplyDTO:
         """
         Создает новый отклик на заказ.
 
@@ -31,7 +31,7 @@ class ContracteeReplyService(ABC):
             reply_input (ReplyInputDTO): DTO с данными для создания отклика.
         
         Returns:
-            DetailedReplyOutputDTO: DTO с данными созданного отклика.
+            DetailedReplyDTO: DTO с данными созданного отклика.
         
         Raises:
             InvalidReplyException: Возникает, если отклик не может быть отправлен.
@@ -40,7 +40,7 @@ class ContracteeReplyService(ABC):
         pass
 
     @abstractmethod
-    async def get_reply(self, contractee_id: int, detail_id: int, contractee: Contractee) -> DetailedReplyOutputDTO | None:
+    async def get_reply(self, contractee_id: int, detail_id: int, contractee: Contractee) -> DetailedReplyDTO | None:
         """
         Получает отклик.
         
@@ -50,12 +50,12 @@ class ContracteeReplyService(ABC):
             contractee (Contractee): Объект исполнителя.
 
         Returns:
-            DetailedReplyOutputDTO: DTO с данными отклика. Может быть `None`, если был запрошен чужой отклик или отклика не существует.
+            DetailedReplyDTO: DTO с данными отклика. Может быть `None`, если был запрошен чужой отклик или отклика не существует.
         """
         pass
 
     @abstractmethod
-    async def get_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyOutputDTO]:
+    async def get_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyDTO]:
         """
         Получает список откликов исполнителя по его ID.
         
@@ -65,12 +65,12 @@ class ContracteeReplyService(ABC):
             size (int): Размер страницы. По умолчанию размер страницы равен 10.
 
         Returns:
-            List[DetailedReplyOutputDTO]: Список DTO с данными откликов.
+            List[DetailedReplyDTO]: Список DTO с данными откликов.
         """
         pass
 
     @abstractmethod
-    async def get_approved_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyOutputDTO]:
+    async def get_approved_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyDTO]:
         """
         Получает список неподтвержденных откликов исполнителя по его ID.
         
@@ -80,12 +80,12 @@ class ContracteeReplyService(ABC):
             size (int): Размер страницы. По умолчанию размер страницы равен 10.
 
         Returns:
-            List[DetailedReplyOutputDTO]: Список DTO с данными откликов.
+            List[DetailedReplyDTO]: Список DTO с данными откликов.
         """
         pass
 
     @abstractmethod
-    async def get_unapproved_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyOutputDTO]:
+    async def get_unapproved_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyDTO]:
         """
         Получает список неподтвержденных откликов исполнителя по его ID.
         
@@ -95,7 +95,7 @@ class ContracteeReplyService(ABC):
             size (int): Размер страницы. По умолчанию размер страницы равен 10.
 
         Returns:
-            List[DetailedReplyOutputDTO]: Список DTO с данными откликов.
+            List[DetailedReplyDTO]: Список DTO с данными откликов.
         """
         pass
 

@@ -4,7 +4,7 @@ from domain.services.user import ContractorUserService
 from domain.repositories import UserRepository
 
 from application.transactions import TransactionManager
-from domain.dto.output import ContractorOutputDTO, ContracteeOutputDTO
+from domain.dto.common import ContractorDTO, ContracteeDTO
 
 class ContractorUserServiceImpl(ContractorUserService):
     def __init__(
@@ -23,7 +23,7 @@ class ContractorUserServiceImpl(ContractorUserService):
         if not user:
             return None
 
-        return ContracteeOutputDTO.from_contractee(user)
+        return ContracteeDTO.from_contractee(user)
 
     async def get_profile(self, contractor: Contractor) -> Contractor:
-        return ContractorOutputDTO.from_contractor(contractor)
+        return ContractorDTO.from_contractor(contractor)

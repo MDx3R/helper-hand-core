@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from domain.dto.input import UserInputDTO
-from domain.dto.output import UserOutputDTO
+from domain.dto.common import UserDTO
 
 class UserRegistrationService(ABC):
     """
@@ -11,7 +11,7 @@ class UserRegistrationService(ABC):
     """
     
     @abstractmethod
-    async def register_user(self, user_input: UserInputDTO) -> UserOutputDTO:
+    async def register_user(self, user_input: UserInputDTO) -> UserDTO:
         """
         Регистрирует нового пользователя.
 
@@ -25,7 +25,7 @@ class UserRegistrationService(ABC):
             user_input (UserInputDTO): DTO с данными для регистрации, включая имя, фамилию, номер телефона и другие необходимые данные.
 
         Returns:
-            UserOutputDTO: DTO с данными зарегистрированного пользователя, включая уникальный идентификатор и статус регистрации.
+            UserDTO: DTO с данными зарегистрированного пользователя, включая уникальный идентификатор и статус регистрации.
 
         Raises:
             AlreadyAuthenticatedException: Возникает, если пользователь уже аутентифицирован и пытается повторно зарегистрироваться.

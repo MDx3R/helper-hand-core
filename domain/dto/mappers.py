@@ -1,12 +1,12 @@
 from domain.entities import User
 from domain.entities.enums import RoleEnum
 
-from application.dtos.output import UserOutputDTO, ContracteeOutputDTO, ContractorOutputDTO, AdminOutputDTO
+from domain.dto.common import UserDTO, ContracteeDTO, ContractorDTO, AdminDTO
 
-def map_user_to_dto(user: User) -> UserOutputDTO | None:
+def map_user_to_dto(user: User) -> UserDTO | None:
     mapping = {
-        RoleEnum.contractee: ContracteeOutputDTO.from_contractee,
-        RoleEnum.contractor: ContractorOutputDTO.from_contractor,
-        RoleEnum.admin: AdminOutputDTO.from_admin,
+        RoleEnum.contractee: ContracteeDTO.from_contractee,
+        RoleEnum.contractor: ContractorDTO.from_contractor,
+        RoleEnum.admin: AdminDTO.from_admin,
     }
     return mapping.get(user.role, lambda x: None)(user)

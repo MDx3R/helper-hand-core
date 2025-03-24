@@ -7,13 +7,6 @@ from domain.entities.enums import RoleEnum, GenderEnum, CitizenshipEnum, Positio
 from .user_dto import UserInputDTO
 
 class ContracteeInputDTO(UserInputDTO):
-    """
-    DTO входных данных исполнителя.
-
-    Этот класс используется для представления данных исполнителя, полученных из внешнего источника. 
-    Он предназначен для валидации входных данных перед передачей в бизнес-логику.
-    """
-
     birthday: date
     height: int
     gender: GenderEnum
@@ -23,23 +16,6 @@ class ContracteeInputDTO(UserInputDTO):
 
     def to_contractee(self) -> Contractee:
         """
-        Преобразует `ContracteeInputDTO` в `Contractee`.
-        
         Поле `status` устанавливается значением по умолчанию.
-        Поле `role` устанавливается как `RoleEnum.contractee`.
         """
-        return Contractee(
-            surname=self.surname,
-            name=self.name,
-            patronymic=self.patronymic,
-            phone_number=self.phone_number,
-            role=RoleEnum.contractee,
-            photos=self.photos,
-            telegram_id=self.telegram_id,
-            chat_id=self.chat_id,
-            birthday=self.birthday,
-            height=self.height,
-            gender=self.gender,
-            citizenship=self.citizenship,
-            positions=self.positions
-        )
+        return Contractee.model_validate(self.model_dump())

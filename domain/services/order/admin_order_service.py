@@ -4,11 +4,11 @@ from abc import ABC, abstractmethod
 from domain.entities import Order, Admin
 
 from domain.dto.input import OrderInputDTO, OrderDetailInputDTO
-from domain.dto.output import DetailedOrderOutputDTO, OrderOutputDTO
+from domain.dto.common import DetailedOrderDTO, OrderDTO
 
 class AdminOrderService(ABC):
     @abstractmethod
-    async def create_order(self, order_input: OrderInputDTO, details_input: List[OrderDetailInputDTO], admin: Admin) -> DetailedOrderOutputDTO:
+    async def create_order(self, order_input: OrderInputDTO, details_input: List[OrderDetailInputDTO], admin: Admin) -> DetailedOrderDTO:
         """
         Создает новый заказ от имени администратора.
 
@@ -25,7 +25,7 @@ class AdminOrderService(ABC):
             admin (Admin): Объект администратора.
 
         Returns:
-            DetailedOrderOutputDTO: DTO с данными созданного заказа вместе с его сведениями.
+            DetailedOrderDTO: DTO с данными созданного заказа вместе с его сведениями.
 
         Raises:
             PermissionDeniedException: Возникает, если у администратора отсутствует профиль заказчика.
@@ -35,7 +35,7 @@ class AdminOrderService(ABC):
         pass
     
     @abstractmethod
-    async def get_order(self, order_id: int, admin: Admin) -> OrderOutputDTO | None:
+    async def get_order(self, order_id: int, admin: Admin) -> OrderDTO | None:
         """
         Получает заказ по его ID.
 
@@ -46,12 +46,12 @@ class AdminOrderService(ABC):
             admin (Admin): Объект администратора.
 
         Returns:
-            OrderOutputDTO: DTO с данными заказа или `None`, если заказ не найден.
+            OrderDTO: DTO с данными заказа или `None`, если заказ не найден.
         """
         pass
 
     @abstractmethod
-    async def get_detailed_order(self, order_id: int, admin: Admin) -> DetailedOrderOutputDTO | None:
+    async def get_detailed_order(self, order_id: int, admin: Admin) -> DetailedOrderDTO | None:
         """
         Получает заказ вместе с его сведениями по его ID.
 
@@ -62,12 +62,12 @@ class AdminOrderService(ABC):
             admin (Admin): Объект администратора.
 
         Returns:
-            DetailedOrderOutputDTO: DTO с данными созданного заказа вместе с его сведениями или `None`, если заказ не найден.
+            DetailedOrderDTO: DTO с данными созданного заказа вместе с его сведениями или `None`, если заказ не найден.
         """
         pass
 
     @abstractmethod
-    async def take_order(self, order_id: int, admin: Admin) -> OrderOutputDTO:
+    async def take_order(self, order_id: int, admin: Admin) -> OrderDTO:
         """
         Назначает администратора куратором заказа.
 
@@ -78,7 +78,7 @@ class AdminOrderService(ABC):
             admin (Admin): Объект администратора.
 
         Returns:
-            OrderOutputDTO: DTO с данными заказа.
+            OrderDTO: DTO с данными заказа.
 
         Raises:
             NotFoundException: Возникает, если заказ не был найден.
@@ -87,7 +87,7 @@ class AdminOrderService(ABC):
         pass
 
     @abstractmethod
-    async def approve_order(self, order_id: int, admin: Admin) -> OrderOutputDTO:
+    async def approve_order(self, order_id: int, admin: Admin) -> OrderDTO:
         """
         Подтверждает заказ.
 
@@ -98,7 +98,7 @@ class AdminOrderService(ABC):
             admin (Admin): Объект администратора.
 
         Returns:
-            OrderOutputDTO: DTO с данными заказа.
+            OrderDTO: DTO с данными заказа.
 
         Raises:
             NotFoundException: Возникает, если заказ не был найден.
@@ -108,7 +108,7 @@ class AdminOrderService(ABC):
         pass
 
     @abstractmethod
-    async def cancel_order(self, order_id: int, admin: Admin) -> OrderOutputDTO:
+    async def cancel_order(self, order_id: int, admin: Admin) -> OrderDTO:
         """
         Отменяет заказ по его ID: устанавливается статус сброшен (`cancelled`).
 
@@ -123,7 +123,7 @@ class AdminOrderService(ABC):
             admin (Admin): Объект администратора.
 
         Returns:
-            OrderOutputDTO: DTO с данными заказа.
+            OrderDTO: DTO с данными заказа.
 
         Raises:
             NotFoundException: Возникает, если заказ не был найден.
@@ -133,7 +133,7 @@ class AdminOrderService(ABC):
         pass
 
     @abstractmethod
-    async def lock_order(self, order_id: int, admin: Admin) -> OrderOutputDTO:
+    async def lock_order(self, order_id: int, admin: Admin) -> OrderDTO:
         """
         Закрывает заказ по его ID: устанавливается статус закрыт (`closed`).
 
@@ -144,7 +144,7 @@ class AdminOrderService(ABC):
             admin (Admin): Объект администратора.
 
         Returns:
-            OrderOutputDTO: DTO с данными заказа.
+            OrderDTO: DTO с данными заказа.
 
         Raises:
             NotFoundException: Возникает, если заказ не был найден.
@@ -154,7 +154,7 @@ class AdminOrderService(ABC):
         pass
 
     @abstractmethod
-    async def open_order(self, order_id: int, admin: Admin) -> OrderOutputDTO:
+    async def open_order(self, order_id: int, admin: Admin) -> OrderDTO:
         """
         Заново открывает заказ по его ID: устанавливается статус открыт (`open`).
 
@@ -165,7 +165,7 @@ class AdminOrderService(ABC):
             admin (Admin): Объект администратора.
 
         Returns:
-            OrderOutputDTO: DTO с данными заказа.
+            OrderDTO: DTO с данными заказа.
 
         Raises:
             NotFoundException: Возникает, если заказ не был найден.
@@ -175,7 +175,7 @@ class AdminOrderService(ABC):
         pass
 
     @abstractmethod
-    async def fulfill_order(self, order_id: int, admin: Admin) -> OrderOutputDTO:
+    async def fulfill_order(self, order_id: int, admin: Admin) -> OrderDTO:
         """
         Завершает заказ.
 
@@ -186,7 +186,7 @@ class AdminOrderService(ABC):
             admin (Admin): Объект администратора.
 
         Returns:
-            OrderOutputDTO: DTO с данными заказа.
+            OrderDTO: DTO с данными заказа.
 
         Raises:
             NotFoundException: Возникает, если заказ не был найден.
@@ -196,7 +196,7 @@ class AdminOrderService(ABC):
         pass
 
     @abstractmethod
-    async def get_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[OrderOutputDTO]:
+    async def get_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[OrderDTO]:
         """
         Получает список заказов в порядке убывания даты.
 
@@ -206,12 +206,12 @@ class AdminOrderService(ABC):
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
-            List[OrderOutputDTO]: Список DTO с заказами.
+            List[OrderDTO]: Список DTO с заказами.
         """
         pass
 
     @abstractmethod
-    async def get_detailed_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[DetailedOrderOutputDTO]:
+    async def get_detailed_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[DetailedOrderDTO]:
         """
         Получает список заказов вместе с их сведениями в порядке убывания даты.
 
@@ -221,12 +221,12 @@ class AdminOrderService(ABC):
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
-            List[DetailedOrderOutputDTO]: Список DTO с подробными данными заказов.
+            List[DetailedOrderDTO]: Список DTO с подробными данными заказов.
         """
         pass
 
     @abstractmethod
-    async def get_one_unassigned_order(self, admin: Admin, last_order_id: int = None) -> DetailedOrderOutputDTO | None:
+    async def get_one_unassigned_order(self, admin: Admin, last_order_id: int = None) -> DetailedOrderDTO | None:
         """
         Получает список открытых заказов с их сведениями.
 
@@ -237,12 +237,12 @@ class AdminOrderService(ABC):
             last_order_id (int): ID последнего запрошенного заказа.
 
         Returns:
-            DetailedOrderOutputDTO: DTO с данными заказа вместе с его сведениями.
+            DetailedOrderDTO: DTO с данными заказа вместе с его сведениями.
         """
         pass
 
     @abstractmethod
-    async def get_open_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[DetailedOrderOutputDTO]:
+    async def get_open_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[DetailedOrderDTO]:
         """
         Получает список открытых заказов с их сведениями.
 
@@ -252,12 +252,12 @@ class AdminOrderService(ABC):
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
-            List[DetailedOrderOutputDTO]: Список DTO с данными заказов вместе с их сведениями.
+            List[DetailedOrderDTO]: Список DTO с данными заказов вместе с их сведениями.
         """
         pass
 
     @abstractmethod
-    async def get_closed_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[DetailedOrderOutputDTO]:
+    async def get_closed_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[DetailedOrderDTO]:
         """
         Получает список закрытых заказов с их сведениями.
 
@@ -267,12 +267,12 @@ class AdminOrderService(ABC):
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
-            List[DetailedOrderOutputDTO]: Список DTO с данными заказов вместе с их сведениями.
+            List[DetailedOrderDTO]: Список DTO с данными заказов вместе с их сведениями.
         """
         pass
 
     @abstractmethod
-    async def get_active_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[DetailedOrderOutputDTO]:
+    async def get_active_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[DetailedOrderDTO]:
         """
         Получает список активных заказов с их сведениями.
 
@@ -282,12 +282,12 @@ class AdminOrderService(ABC):
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
-            List[DetailedOrderOutputDTO]: Список DTO с данными заказов вместе с их сведениями.
+            List[DetailedOrderDTO]: Список DTO с данными заказов вместе с их сведениями.
         """
         pass
 
     @abstractmethod
-    async def get_contractee_orders(self, contractee_id: int, admin: Admin, page: int = 1, size: int = 15) -> List[DetailedOrderOutputDTO]:
+    async def get_contractee_orders(self, contractee_id: int, admin: Admin, page: int = 1, size: int = 15) -> List[DetailedOrderDTO]:
         """
         Получает список заказов исполнителя с их сведениями.
 
@@ -298,12 +298,12 @@ class AdminOrderService(ABC):
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
-            List[DetailedOrderOutputDTO]: Список DTO с данными заказов вместе с их сведениями.
+            List[DetailedOrderDTO]: Список DTO с данными заказов вместе с их сведениями.
         """
         pass
 
     @abstractmethod
-    async def get_contractor_orders(self, contractor_id: int, admin: Admin, page: int = 1, size: int = 15) -> List[DetailedOrderOutputDTO]:
+    async def get_contractor_orders(self, contractor_id: int, admin: Admin, page: int = 1, size: int = 15) -> List[DetailedOrderDTO]:
         """
         Получает список заказов заказчика с их сведениями.
 
@@ -314,12 +314,12 @@ class AdminOrderService(ABC):
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
-            List[DetailedOrderOutputDTO]: Список DTO с данными заказов вместе с их сведениями.
+            List[DetailedOrderDTO]: Список DTO с данными заказов вместе с их сведениями.
         """
         pass
 
     @abstractmethod
-    async def get_admin_orders(self, admin_id: int, admin: Admin, page: int = 1, size: int = 15) -> List[DetailedOrderOutputDTO]:
+    async def get_admin_orders(self, admin_id: int, admin: Admin, page: int = 1, size: int = 15) -> List[DetailedOrderDTO]:
         """
         Получает список заказов, курируемых администратором, вместе со сведениями заказов.
 
@@ -330,6 +330,6 @@ class AdminOrderService(ABC):
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
-            List[DetailedOrderOutputDTO]: Список DTO с данными заказов вместе с их сведениями.
+            List[DetailedOrderDTO]: Список DTO с данными заказов вместе с их сведениями.
         """
         pass

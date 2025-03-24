@@ -1,8 +1,8 @@
 from domain.entities import Contractee
 from domain.services.user import ContracteeUserService
 
-from domain.dto.output import ContracteeOutputDTO
+from domain.dto.common import ContracteeDTO
 
 class ContracteeUserServiceImpl(ContracteeUserService):
     async def get_profile(self, contractee: Contractee) -> Contractee:
-        return ContracteeOutputDTO.from_contractee(contractee)
+        return ContracteeDTO.from_contractee(contractee)

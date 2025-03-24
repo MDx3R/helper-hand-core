@@ -1,6 +1,6 @@
 from domain.services.registration import ContracteeRegistrationService
 from domain.dto.input import ContracteeInputDTO
-from domain.dto.output import ContracteeOutputDTO
+from domain.dto.common import ContracteeDTO
 
 from domain.entities import Contractee, User
 from domain.entities.enums import RoleEnum, UserStatusEnum
@@ -27,7 +27,7 @@ class ContracteeRegistrationServiceImpl(ContracteeRegistrationService):
         self.transaction_manager = transaction_manager
         self.notification_service = notification_service
 
-    async def register_user(self, user_input: ContracteeInputDTO) -> ContracteeOutputDTO:
+    async def register_user(self, user_input: ContracteeInputDTO) -> ContracteeDTO:
         # объявляем транзакцию
         async with self.transaction_manager:
             await self._get_user_and_check_access(user_input.telegram_id)
@@ -36,7 +36,7 @@ class ContracteeRegistrationServiceImpl(ContracteeRegistrationService):
 
         await self._notify_admin(contractee)
 
-        return ContracteeOutputDTO.from_contractee(contractee)
+        return ContracteeDTO.from_contractee(contractee)
 
     async def _get_user_and_check_access(self, telegram_id: int) -> User | None:
         """

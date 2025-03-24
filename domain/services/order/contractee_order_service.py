@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 from domain.entities import Contractee
 
-from domain.dto.output import DetailedOrderOutputDTO, OrderOutputDTO, OrderDetailOutputDTO
+from domain.dto.common import DetailedOrderDTO, OrderDTO, OrderDetailDTO
 
 class ContracteeOrderService(ABC):
     """
@@ -13,7 +13,7 @@ class ContracteeOrderService(ABC):
     """
     
     @abstractmethod
-    async def get_order(self, order_id: int, contractee: Contractee) -> DetailedOrderOutputDTO | None:
+    async def get_order(self, order_id: int, contractee: Contractee) -> DetailedOrderDTO | None:
         """
         Получает заказ по его ID.
 
@@ -25,7 +25,7 @@ class ContracteeOrderService(ABC):
             order_id (int): ID заказа.
 
         Returns:
-            DetailedOrderOutputDTO: DTO с данными заказа.
+            DetailedOrderDTO: DTO с данными заказа.
 
         Raises:
             RepositoryException: Возникает при ошибках в работе репозиториев.
@@ -34,7 +34,7 @@ class ContracteeOrderService(ABC):
         pass
 
     @abstractmethod
-    async def get_one_open_order(self, contractee: Contractee, last_order_id: int = None) -> DetailedOrderOutputDTO | None:
+    async def get_one_open_order(self, contractee: Contractee, last_order_id: int = None) -> DetailedOrderDTO | None:
         """
         Получает открытый заказ.
 
@@ -45,7 +45,7 @@ class ContracteeOrderService(ABC):
             last_order_id (int): ID последнего запрошенного заказа.
 
         Returns:
-            DetailedOrderOutputDTO: DTO с данными открытого заказа.
+            DetailedOrderDTO: DTO с данными открытого заказа.
 
         Raises:
             Exception: Если произошла ошибка при получении открытого заказа.
@@ -53,7 +53,7 @@ class ContracteeOrderService(ABC):
         pass
 
     @abstractmethod
-    async def get_open_orders(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[OrderOutputDTO]:
+    async def get_open_orders(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[OrderDTO]:
         """
         Получает все открытые заказы постранично.
 
@@ -63,7 +63,7 @@ class ContracteeOrderService(ABC):
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
-            List[DetailedOrderOutputDTO]: Список DTO с данными открытых заказов.
+            List[DetailedOrderDTO]: Список DTO с данными открытых заказов.
 
         Raises:
             Exception: Если произошла ошибка при получении списка открытых заказов.
@@ -71,7 +71,7 @@ class ContracteeOrderService(ABC):
         pass
 
     @abstractmethod
-    async def get_contractee_orders(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[OrderOutputDTO]:
+    async def get_contractee_orders(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[OrderDTO]:
         """
         Получает все заказы исполнителя по его объекту постранично.
 
@@ -81,7 +81,7 @@ class ContracteeOrderService(ABC):
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
-            List[OrderOutputDTO]: Список DTO с данными заказов исполнителя.
+            List[OrderDTO]: Список DTO с данными заказов исполнителя.
 
         Raises:
             Exception: Если произошла ошибка при получении списка заказов исполнителя.
@@ -89,7 +89,7 @@ class ContracteeOrderService(ABC):
         pass
 
     @abstractmethod
-    async def get_available_details(self, order_id: int, contractee: Contractee) -> List[OrderDetailOutputDTO]:
+    async def get_available_details(self, order_id: int, contractee: Contractee) -> List[OrderDetailDTO]:
         """
         Получает доступные позиции для исполнителя по ID заказа и объекту исполнителя.
 
@@ -98,7 +98,7 @@ class ContracteeOrderService(ABC):
             contractee (Contractee): Объект исполнителя.
 
         Returns:
-            List[OrderDetailOutputDTO]: Список DTO с данными доступных позиций.
+            List[OrderDetailDTO]: Список DTO с данными доступных позиций.
 
         Raises:
             Exception: Если произошла ошибка при получении доступных позиций.

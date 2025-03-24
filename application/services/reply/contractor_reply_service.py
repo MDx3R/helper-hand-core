@@ -8,7 +8,7 @@ from domain.entities.enums import ReplyStatusEnum, OrderStatusEnum
 from domain.services.reply import ContractorReplyService
 from domain.repositories import ReplyRepository, OrderRepository, OrderDetailRepository, UserRepository
 from application.external.notification import ContracteeNotificationService, ContractorNotificationService, AdminNotificationService
-from domain.dto.output import ReplyOutputDTO, DetailedReplyOutputDTO
+from domain.dto.common import ReplyDTO, DetailedReplyDTO
 from application.transactions import TransactionManager, transactional
 from domain.exceptions.service import (
     UnauthorizedAccessException, 
@@ -52,31 +52,31 @@ class ContractorReplyServiceImpl(ContractorReplyService):
         self.contractor_notification_service = contractor_notification_service
         self.contractee_notification_service = contractee_notification_service
 
-    async def get_first_unapproved_reply(self, contractor: Contractor) -> DetailedReplyOutputDTO | None:
+    async def get_first_unapproved_reply(self, contractor: Contractor) -> DetailedReplyDTO | None:
         reply = await self.reply_repository.get_first_unapproved_reply_by_contractor_id(contractor.contractor_id)
         if reply is None:
             return None
 
-        return DetailedReplyOutputDTO.from_reply(reply)
+        return DetailedReplyDTO.from_reply(reply)
 
-    async def get_first_unapproved_reply_for_order(self, order_id: int, contractor: Contractor) -> DetailedReplyOutputDTO | None:
+    async def get_first_unapproved_reply_for_order(self, order_id: int, contractor: Contractor) -> DetailedReplyDTO | None:
         reply = await self.reply_repository.get_first_unapproved_reply_by_order_id_and_contractor_id(order_id, contractor.contractor_id)
         if reply is None:
             return None
 
-        return DetailedReplyOutputDTO.from_reply(reply)
+        return DetailedReplyDTO.from_reply(reply)
 
-    async def get_unapproved_replies_for_order(self, order_id: int, contractor: Contractor, page: int = 1, size: int = 20) -> List[DetailedReplyOutputDTO]:
+    async def get_unapproved_replies_for_order(self, order_id: int, contractor: Contractor, page: int = 1, size: int = 20) -> List[DetailedReplyDTO]:
         replies = await self.reply_repository.get_unapproved_replies_by_order_id_and_contractor_id_by_page(order_id, contractor.contractor_id, page, size)
 
-        return [DetailedReplyOutputDTO.from_reply(rep) for rep in replies]
+        return [DetailedReplyDTO.from_reply(rep) for rep in replies]
 
-    async def get_approved_replies_for_order(self, order_id: int, contractor: Contractor, page: int = 1, size: int = 20) -> List[DetailedReplyOutputDTO]:
+    async def get_approved_replies_for_order(self, order_id: int, contractor: Contractor, page: int = 1, size: int = 20) -> List[DetailedReplyDTO]:
         replies = await self.reply_repository.get_approved_replies_by_order_id_and_contractor_id_by_page(order_id, contractor.contractor_id, page, size)
 
-        return [DetailedReplyOutputDTO.from_reply(rep) for rep in replies]
+        return [DetailedReplyDTO.from_reply(rep) for rep in replies]
 
-    async def approve_reply(self, contractee_id: int, detail_id: int, contractor: Contractor) -> DetailedReplyOutputDTO:
+    async def approve_reply(self, contractee_id: int, detail_id: int, contractor: Contractor) -> DetailedReplyDTO:
         # объявляем транзакцию
         async with self.transaction_manager:
             detailed_reply = await self._get_detailed_reply_and_check_access(contractee_id, detail_id, contractor)
@@ -95,9 +95,9 @@ class ContractorReplyServiceImpl(ContractorReplyService):
 
         await self._send_notifications_on_reply_approval(contractor, detailed_reply, dropped_contractees)
 
-        return DetailedReplyOutputDTO.from_reply(detailed_reply)
+        return DetailedReplyDTO.from_reply(detailed_reply)
 
-    async def disapprove_reply(self, contractee_id: int, detail_id: int, contractor: Contractor) -> DetailedReplyOutputDTO:
+    async def disapprove_reply(self, contractee_id: int, detail_id: int, contractor: Contractor) -> DetailedReplyDTO:
         # объявляем транзакцию
         async with self.transaction_manager:
             detailed_reply = await self._get_detailed_reply_and_check_access(contractee_id, detail_id, contractor)
@@ -108,7 +108,7 @@ class ContractorReplyServiceImpl(ContractorReplyService):
 
         await self._notify_disapproved_contractee(detailed_reply)
 
-        return DetailedReplyOutputDTO.from_reply(detailed_reply)
+        return DetailedReplyDTO.from_reply(detailed_reply)
     
     async def _get_detailed_reply_and_check_access(self, contractee_id: int, detail_id: int, contractor: Contractor) -> DetailedReply:
         """

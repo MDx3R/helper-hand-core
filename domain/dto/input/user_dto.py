@@ -1,17 +1,10 @@
 from typing import Optional, List
-from pydantic import BaseModel
 
 from domain.entities import User 
 from domain.entities.enums import RoleEnum
+from domain.entities.base import ApplicationModel
 
-class UserInputDTO(BaseModel):
-    """
-    DTO входных данных пользователя.
-
-    Этот класс используется для представления данных пользователя, полученных из внешнего источника. 
-    Он предназначен для валидации входных данных перед передачей в бизнес-логику.
-    """
-
+class UserInputDTO(ApplicationModel):
     surname: str
     name: str
     patronymic: Optional[str] = None
@@ -23,17 +16,6 @@ class UserInputDTO(BaseModel):
 
     def to_user(self) -> User:
         """
-        Преобразует `UserInputDTO` в `User`.
-        
         Поле `status` устанавливается значением по умолчанию.
         """
-        return User(
-            surname=self.surname,
-            name=self.name,
-            patronymic=self.patronymic,
-            phone_number=self.phone_number,
-            role=self.role,
-            photos=self.photos,
-            telegram_id=self.telegram_id,
-            chat_id=self.chat_id
-        )
+        return User.model_validate(self.model_dump())

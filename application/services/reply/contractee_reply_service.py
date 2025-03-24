@@ -12,7 +12,7 @@ from domain.exceptions.service import NotFoundException, ReplySubmitNotAllowedEx
 from application.external.notification import ContractorNotificationService
 from application.transactions import TransactionManager, transactional
 from domain.dto.input import ReplyInputDTO
-from domain.dto.output import ReplyOutputDTO, DetailedReplyOutputDTO
+from domain.dto.common import ReplyDTO, DetailedReplyDTO
 
 from domain.services.domain import OrderDomainService, OrderDetailDomainService, AvailabilityDomainService
 
@@ -41,7 +41,7 @@ class ContracteeReplyServiceImpl(ContracteeReplyService):
         self.transaction_manager = transaction_manager
         self.contractor_notification_service = contractor_notification_service
 
-    async def submit_reply_to_order(self, reply_input: ReplyInputDTO, contractee: Contractee) -> ReplyOutputDTO:
+    async def submit_reply_to_order(self, reply_input: ReplyInputDTO, contractee: Contractee) -> ReplyDTO:
         async with self.transaction_manager:
 
             order, detail = await self._get_order_and_detail_and_check_access(reply_input.detail_id)
@@ -52,7 +52,7 @@ class ContracteeReplyServiceImpl(ContracteeReplyService):
 
         await self._notify_contractor_on_new_reply(order, detail, contractee)
 
-        return ReplyOutputDTO.from_reply(reply)
+        return ReplyDTO.from_reply(reply)
 
     async def _save_reply(self, detail: OrderDetail, contractee: Contractee) -> Reply:
         wager = calculate_wager(detail.wager)
@@ -109,7 +109,7 @@ class ContracteeReplyServiceImpl(ContracteeReplyService):
         contractor = await self.order_repository.get_contractor_by_order_id(detail.order_id)
         await self.contractor_notification_service.send_new_reply_notification(contractor)
 
-    async def get_reply(self, contractee_id: int, detail_id: int, contractee: Contractee) -> DetailedReplyOutputDTO | None:
+    async def get_reply(self, contractee_id: int, detail_id: int, contractee: Contractee) -> DetailedReplyDTO | None:
         if contractee_id != contractee.contractee_id:
             return None
         
@@ -117,16 +117,16 @@ class ContracteeReplyServiceImpl(ContracteeReplyService):
         if not reply:
             return None
         
-        return DetailedReplyOutputDTO.from_reply(reply)
+        return DetailedReplyDTO.from_reply(reply)
 
-    async def get_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyOutputDTO]:
+    async def get_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyDTO]:
         replies = await self.reply_repository.get_detailed_replies_by_contractee_id_by_page(contractee.contractee_id, page, size)
-        return [DetailedReplyOutputDTO.from_reply(reply) for reply in replies]
+        return [DetailedReplyDTO.from_reply(reply) for reply in replies]
 
-    async def get_approved_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyOutputDTO]:
+    async def get_approved_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyDTO]:
         replies = await self.reply_repository.get_approved_detailed_replies_by_contractee_id_by_page(contractee.contractee_id, page, size)
-        return [DetailedReplyOutputDTO.from_reply(reply) for reply in replies]
+        return [DetailedReplyDTO.from_reply(reply) for reply in replies]
 
-    async def get_unapproved_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyOutputDTO]:
+    async def get_unapproved_replies(self, contractee: Contractee, page: int = 1, size: int = 10) -> List[DetailedReplyDTO]:
         replies = await self.reply_repository.get_unapproved_detailed_replies_by_contractee_id_by_page(contractee.contractee_id, page, size)
-        return [DetailedReplyOutputDTO.from_reply(reply) for reply in replies]
+        return [DetailedReplyDTO.from_reply(reply) for reply in replies]

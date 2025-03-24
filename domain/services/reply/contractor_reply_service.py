@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 from domain.entities import Contractor
 
-from domain.dto.output import DetailedReplyOutputDTO
+from domain.dto.common import DetailedReplyDTO
 
 class ContractorReplyService(ABC):
     """
@@ -13,7 +13,7 @@ class ContractorReplyService(ABC):
     """
 
     @abstractmethod
-    async def get_first_unapproved_reply(self, contractor: Contractor) -> DetailedReplyOutputDTO | None:
+    async def get_first_unapproved_reply(self, contractor: Contractor) -> DetailedReplyDTO | None:
         """
         Получает первый неподтвержденный отклик, требующий подтверждения заказчика.
 
@@ -21,7 +21,7 @@ class ContractorReplyService(ABC):
             contractor (Contractor): Объект заказчика.
             
         Returns:
-            DetailedReplyOutputDTO: DTO с подробными данными отклика или `None`, если отклик не найден.
+            DetailedReplyDTO: DTO с подробными данными отклика или `None`, если отклик не найден.
 
         Raises:
             Exception: Если произошла ошибка при получении списка заказов.
@@ -29,7 +29,7 @@ class ContractorReplyService(ABC):
         pass
 
     @abstractmethod
-    async def get_first_unapproved_reply_for_order(self, order_id: int, contractor: Contractor) -> DetailedReplyOutputDTO | None:
+    async def get_first_unapproved_reply_for_order(self, order_id: int, contractor: Contractor) -> DetailedReplyDTO | None:
         """
         Получает первый неподтвержденный отклик на заказ по его ID.
 
@@ -38,7 +38,7 @@ class ContractorReplyService(ABC):
             contractor (Contractor): Объект заказчика. Используется для ограничения доступа заказчика к не принадлежащим ему заказам.
             
         Returns:
-            DetailedReplyOutputDTO: DTO с подробными данными отклика. 
+            DetailedReplyDTO: DTO с подробными данными отклика. 
             Может быть `None`, если отклик не найден. 
 
         Raises:
@@ -47,7 +47,7 @@ class ContractorReplyService(ABC):
         pass
 
     @abstractmethod
-    async def get_unapproved_replies_for_order(self, order_id: int, contractor: Contractor, page: int = 1, size: int = 20) -> List[DetailedReplyOutputDTO]:
+    async def get_unapproved_replies_for_order(self, order_id: int, contractor: Contractor, page: int = 1, size: int = 20) -> List[DetailedReplyDTO]:
         """
         Получает список неподтвержденных откликов на заказ по его ID.
 
@@ -58,7 +58,7 @@ class ContractorReplyService(ABC):
             size (int): размер страницы. По умолчанию размер страницы равен 20.
             
         Returns:
-            List[DetailedReplyOutputDTO]: DTO с подробными данными отклика. 
+            List[DetailedReplyDTO]: DTO с подробными данными отклика. 
 
         Raises:
             Exception: Если произошла ошибка при получении списка заказов.
@@ -66,7 +66,7 @@ class ContractorReplyService(ABC):
         pass
 
     @abstractmethod
-    async def get_approved_replies_for_order(self, order_id: int, contractor: Contractor, page: int = 1, size: int = 20) -> List[DetailedReplyOutputDTO]:
+    async def get_approved_replies_for_order(self, order_id: int, contractor: Contractor, page: int = 1, size: int = 20) -> List[DetailedReplyDTO]:
         """
         Получает список подтвержденных откликов на заказ по его ID.
 
@@ -77,7 +77,7 @@ class ContractorReplyService(ABC):
             size (int): размер страницы. По умолчанию размер страницы равен 20.
             
         Returns:
-            List[DetailedReplyOutputDTO]: DTO с подробными данными отклика. 
+            List[DetailedReplyDTO]: DTO с подробными данными отклика. 
 
         Raises:
             Exception: Если произошла ошибка при получении списка заказов.
@@ -85,7 +85,7 @@ class ContractorReplyService(ABC):
         pass
 
     @abstractmethod
-    async def approve_reply(self, contractee_id: int, detail_id: int, contractor: Contractor) -> DetailedReplyOutputDTO | None:
+    async def approve_reply(self, contractee_id: int, detail_id: int, contractor: Contractor) -> DetailedReplyDTO | None:
         """
         Подтверждает отклик по его ID.
 
@@ -105,7 +105,7 @@ class ContractorReplyService(ABC):
             contractor (Contractor): Объект заказчика. Используется для ограничения доступа заказчика к не принадлежащим ему откликам.
 
         Returns:
-            DetailedReplyOutputDTO: DTO с подробными данными отклика.
+            DetailedReplyDTO: DTO с подробными данными отклика.
 
         Raises:
             Exception: Если произошла ошибка при подтверждении отклика.
@@ -113,7 +113,7 @@ class ContractorReplyService(ABC):
         pass
 
     @abstractmethod
-    async def disapprove_reply(self, contractee_id: int, detail_id: int, contractor: Contractor) -> DetailedReplyOutputDTO | None:
+    async def disapprove_reply(self, contractee_id: int, detail_id: int, contractor: Contractor) -> DetailedReplyDTO | None:
         """
         Отклоняет отклик по его ID.
 
@@ -122,7 +122,7 @@ class ContractorReplyService(ABC):
             contractor (Contractor): Объект заказчика. Используется для ограничения доступа заказчика к не принадлежащим ему откликам.
 
         Returns:
-            DetailedReplyOutputDTO: DTO с подробными данными отклика.
+            DetailedReplyDTO: DTO с подробными данными отклика.
 
         Raises:
             Exception: Если произошла ошибка при отклонении отклика.

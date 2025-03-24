@@ -9,7 +9,7 @@ from domain.entities.enums import OrderStatusEnum
 from domain.repositories import OrderRepository, OrderDetailRepository, UserRepository, ReplyRepository
 from application.external.notification import AdminNotificationService, ContracteeNotificationService
 from domain.dto.input import OrderInputDTO, OrderDetailInputDTO
-from domain.dto.output import DetailedOrderOutputDTO, OrderOutputDTO, OrderDetailOutputDTO
+from domain.dto.common import DetailedOrderDTO, OrderDTO, OrderDetailDTO
 from application.transactions import TransactionManager, transactional
 
 from domain.services.order import ContracteeOrderService
@@ -41,32 +41,32 @@ class ContracteeOrderServiceImpl(ContracteeOrderService):
         self.reply_repository = reply_repository
         self.transaction_manager = transaction_manager
     
-    async def get_order(self, order_id: int, contractee: Contractee) -> DetailedOrderOutputDTO | None:
+    async def get_order(self, order_id: int, contractee: Contractee) -> DetailedOrderDTO | None:
         detailed_order = await self.order_repository.get_detailed_order_by_id(order_id)
         if OrderDomainService.is_available(detailed_order):
-            return DetailedOrderOutputDTO.from_order(detailed_order)
+            return DetailedOrderDTO.from_order(detailed_order)
         
         if await self._has_contractee_replied(detailed_order, contractee):
-            return DetailedOrderOutputDTO.from_order(detailed_order)
+            return DetailedOrderDTO.from_order(detailed_order)
 
         return None
 
     async def _has_contractee_replied(self, order: Order, contractee: Contractee) -> bool:
         return await self.reply_repository.has_contractee_replied_to_order(order.order_id, contractee.contractee_id)
 
-    async def get_one_open_order(self, contractee: Contractee, last_order_id: int = None) -> DetailedOrderOutputDTO | None:
+    async def get_one_open_order(self, contractee: Contractee, last_order_id: int = None) -> DetailedOrderDTO | None:
         # todo: добавить фильтрацию заказов для конкретного исполнителя по профилю
         detailed_order = (await self.order_repository.get_detailed_open_orders_by_last_order_id(last_order_id, 1))[0]
-        return DetailedOrderOutputDTO.from_order(detailed_order)
+        return DetailedOrderDTO.from_order(detailed_order)
     
-    async def get_open_orders(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[OrderOutputDTO]:
+    async def get_open_orders(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[OrderDTO]:
         # todo: добавить фильтрацию заказов для конкретного исполнителя по профилю
         detailed_orders = await self.order_repository.get_detailed_open_orders_by_page(page, size)
-        return [DetailedOrderOutputDTO.from_order(order) for order in detailed_orders]
+        return [DetailedOrderDTO.from_order(order) for order in detailed_orders]
 
-    async def get_contractee_orders(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[OrderOutputDTO]:
+    async def get_contractee_orders(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[OrderDTO]:
         orders = await self.order_repository.get_contractee_orders_by_page(contractee.contractee_id, page, size)
-        return [OrderOutputDTO.from_order(order) for order in orders]
+        return [OrderDTO.from_order(order) for order in orders]
     
     async def get_available_details(self, order_id: int, contractee: Contractee) -> List[OrderDetailInputDTO]:
         async with self.transaction_manager:

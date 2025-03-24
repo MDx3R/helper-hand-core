@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from domain.entities import Contractor
 
 from domain.dto.input import OrderInputDTO, OrderDetailInputDTO
-from domain.dto.output import DetailedOrderOutputDTO, OrderOutputDTO
+from domain.dto.common import DetailedOrderDTO, OrderDTO
 
 class ContractorOrderService(ABC):
     """
@@ -14,7 +14,7 @@ class ContractorOrderService(ABC):
     """
 
     @abstractmethod
-    async def create_order(self, order_input: OrderInputDTO, details_input: List[OrderDetailInputDTO], contractor: Contractor) -> DetailedOrderOutputDTO:
+    async def create_order(self, order_input: OrderInputDTO, details_input: List[OrderDetailInputDTO], contractor: Contractor) -> DetailedOrderDTO:
         """
         Создает новый заказ.
 
@@ -29,7 +29,7 @@ class ContractorOrderService(ABC):
             
 
         Returns:
-            DetailedOrderOutputDTO: DTO с данными созданного заказа вместе с его сведениями.
+            DetailedOrderDTO: DTO с данными созданного заказа вместе с его сведениями.
 
         Raises:
             MissingOrderDetailsException: Возникает, если отсутствуют сведения заказа.
@@ -38,7 +38,7 @@ class ContractorOrderService(ABC):
         pass
     
     @abstractmethod
-    async def get_order(self, order_id: int, contractor: Contractor) -> OrderOutputDTO | None:
+    async def get_order(self, order_id: int, contractor: Contractor) -> OrderDTO | None:
         """
         Получает заказ по его ID.
 
@@ -49,12 +49,12 @@ class ContractorOrderService(ABC):
             contractor (Contractor): Объект заказчика. Используется для ограничения доступа заказчика к не принадлежащим ему заказам.
 
         Returns:
-            OrderOutputDTO: DTO с данными заказа или `None`, если заказ не найден.
+            OrderDTO: DTO с данными заказа или `None`, если заказ не найден.
         """
         pass
 
     @abstractmethod
-    async def get_detailed_order(self, order_id: int, contractor: Contractor) -> DetailedOrderOutputDTO | None:
+    async def get_detailed_order(self, order_id: int, contractor: Contractor) -> DetailedOrderDTO | None:
         """
         Получает заказ вместе с его сведениями по его ID.
 
@@ -65,12 +65,12 @@ class ContractorOrderService(ABC):
             contractor (Contractor): Объект заказчика. Используется для ограничения доступа заказчика к не принадлежащим ему заказам.
 
         Returns:
-            DetailedOrderOutputDTO: DTO с данными созданного заказа вместе с его сведениями или `None`, если заказ не найден.
+            DetailedOrderDTO: DTO с данными созданного заказа вместе с его сведениями или `None`, если заказ не найден.
         """
         pass
 
     @abstractmethod
-    async def cancel_order(self, order_id: int, contractor: Contractor) -> OrderOutputDTO:
+    async def cancel_order(self, order_id: int, contractor: Contractor) -> OrderDTO:
         """
         Отменяет заказ по его ID: устанавливается статус сброшен (`cancelled`). 
 
@@ -95,7 +95,7 @@ class ContractorOrderService(ABC):
         pass
 
     @abstractmethod
-    async def set_order_active(self, order_id: int, contractor: Contractor) -> OrderOutputDTO:
+    async def set_order_active(self, order_id: int, contractor: Contractor) -> OrderDTO:
         """
         Закрывает заказ по его ID: устанавливается статус в работе (`active`). 
         Это действие возможно, если для заказа есть хотя бы один подтверждённый отклик, и статус заказа установлен как открытый
@@ -120,7 +120,7 @@ class ContractorOrderService(ABC):
         pass
 
     @abstractmethod
-    async def get_orders(self, contractor: Contractor, page: int = 1, size: int = 15) -> List[OrderOutputDTO]:
+    async def get_orders(self, contractor: Contractor, page: int = 1, size: int = 15) -> List[OrderDTO]:
         """
         Получает список заказов по ID заказчика.
 
@@ -132,12 +132,12 @@ class ContractorOrderService(ABC):
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
-            List[OrderOutputDTO]: Список DTO с заказами заказчика.
+            List[OrderDTO]: Список DTO с заказами заказчика.
         """
         pass
 
     @abstractmethod
-    async def get_detailed_orders(self, contractor: Contractor, page: int = 1, size: int = 15) -> List[DetailedOrderOutputDTO]:
+    async def get_detailed_orders(self, contractor: Contractor, page: int = 1, size: int = 15) -> List[DetailedOrderDTO]:
         """
         Получает список заказов вместе с их сведениями по ID заказчика.
 
@@ -149,6 +149,6 @@ class ContractorOrderService(ABC):
             size (int): Размер страницы. По умолчанию размер страницы равен 15.
 
         Returns:
-            List[DetailedOrderOutputDTO]: Список DTO с подробными данными заказов заказчика.
+            List[DetailedOrderDTO]: Список DTO с подробными данными заказов заказчика.
         """
         pass

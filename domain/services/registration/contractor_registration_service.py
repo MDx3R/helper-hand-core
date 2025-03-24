@@ -2,7 +2,7 @@ from abc import abstractmethod
 
 from .user_registration_service import UserRegistrationService
 from domain.dto.input import ContractorInputDTO
-from domain.dto.output import ContractorOutputDTO
+from domain.dto.common import ContractorDTO
 
 class ContractorRegistrationService(UserRegistrationService):
     """
@@ -12,7 +12,7 @@ class ContractorRegistrationService(UserRegistrationService):
     """
 
     @abstractmethod
-    async def register_user(self, user_input: ContractorInputDTO) -> ContractorOutputDTO:
+    async def register_user(self, user_input: ContractorInputDTO) -> ContractorDTO:
         """
         Регистрирует нового заказчика.
 
@@ -26,7 +26,7 @@ class ContractorRegistrationService(UserRegistrationService):
             user_input (ContractorInputDTO): DTO с данными для регистрации заказчика, включая имя, фамилию, номер телефона и другие необходимые данные.
 
         Returns:
-            ContractorOutputDTO: DTO с данными зарегистрированного заказчика, включая уникальный идентификатор и статус регистрации.
+            ContractorDTO: DTO с данными зарегистрированного заказчика, включая уникальный идентификатор и статус регистрации.
 
         Raises:
             AlreadyAuthenticatedException: Возникает, если пользователь уже аутентифицирован и пытается повторно зарегистрироваться.

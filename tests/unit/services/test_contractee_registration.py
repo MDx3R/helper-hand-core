@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import AsyncMock, Mock
 from datetime import datetime
 from domain.dto.input import ContracteeInputDTO
-from domain.dto.output import ContracteeOutputDTO
+from domain.dto.common import ContracteeDTO
 from domain.entities import Contractee
 from domain.entities.enums import GenderEnum, CitizenshipEnum, PositionEnum, UserStatusEnum
 from domain.services.registration import ContracteeRegistrationService
@@ -141,7 +141,7 @@ async def test_register_contractee_success(input_data, contractee_service: Contr
     result = await contractee_service.register_user(input_dto)
 
     # Проверка результата
-    assert isinstance(result, ContracteeOutputDTO)
+    assert isinstance(result, ContracteeDTO)
     assert result.contractee_id == counter
 
     # Проверка вызовов репозитория
