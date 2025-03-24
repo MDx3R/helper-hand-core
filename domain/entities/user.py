@@ -1,4 +1,4 @@
-from typing import Optional, List, Any, Protocol
+from typing import Optional, List, Any, Optional
 from .base import ApplicationModel
 
 from .enums import RoleEnum, UserStatusEnum
@@ -30,10 +30,10 @@ class User(ApplicationModel):
     role: RoleEnum 
     """Роль пользователя."""
 
-    telegram_id: int 
+    telegram_id: Optional[int] = None
     """Уникальный идентификатор пользователя в Telegram."""
 
-    chat_id: int
+    chat_id: Optional[int] = None
     """Уникальный идентификатор чата с пользователем в Telegram."""
 
     status: UserStatusEnum = UserStatusEnum.created
@@ -43,8 +43,10 @@ class User(ApplicationModel):
     """Доступ к фотографии пользователя. Фотография может быть не установлена."""
 
     def get_fields(self) -> dict[str, Any]:
+        """
+        К полям класса добавится `user_id`, 
+        так как для производных моделей пользователя используется alias для `user_id`.
+        """
         data = super().get_fields()
-        # добавляем user_id, 
-        # так как для производных моделей пользователя используется alias для user_id
         data["user_id"] = self.user_id
         return data
