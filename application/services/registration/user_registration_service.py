@@ -18,7 +18,7 @@ class BaseUserRegistrationService(UserRegistrationService, BaseUserModificationS
         return await self._modify_user(user_input)
     
     async def _post_modification_hook(self, user: U):
-        self._post_registration_hook(user)
+        await self._post_registration_hook(user)
 
     async def _post_registration_hook(self, user: U):
         """Переопределение этого метода добавил дополнительные действия после регистрации пользователя"""
