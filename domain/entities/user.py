@@ -1,4 +1,4 @@
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Protocol
 from .base import ApplicationModel
 
 from .enums import RoleEnum, UserStatusEnum
@@ -36,7 +36,7 @@ class User(ApplicationModel):
     chat_id: int
     """Уникальный идентификатор чата с пользователем в Telegram."""
 
-    status: UserStatusEnum = UserStatusEnum.pending
+    status: UserStatusEnum = UserStatusEnum.created
     """Статус пользователя. Определяется с использованием `UserStatusEnum`."""
 
     photos: List[str]
