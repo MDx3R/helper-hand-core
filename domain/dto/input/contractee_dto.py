@@ -1,3 +1,5 @@
+from pydantic import Field
+
 from typing import List
 from datetime import date
 
@@ -12,10 +14,10 @@ class ContracteeInputDTO(UserInputDTO):
     gender: GenderEnum
     citizenship: CitizenshipEnum
     positions: List[PositionEnum]
-    role: RoleEnum = RoleEnum.contractee
+    role: RoleEnum = Field(default=RoleEnum.contractee, frozen=True)
 
-    def to_contractee(self) -> Contractee:
+    def to_contractee(self, contractee_id: int | None = None) -> Contractee:
         """
         Поле `status` устанавливается значением по умолчанию.
         """
-        return Contractee.model_validate(self.model_dump())
+        return Contractee.model_validate(self.model_dump() | {"contractee_id": contractee_id})

@@ -11,11 +11,11 @@ class UserInputDTO(ApplicationModel):
     phone_number: str
     role: RoleEnum 
     photos: List[str]
-    telegram_id: int 
-    chat_id: int
+    telegram_id: Optional[int] = None
+    chat_id: Optional[int] = None
 
-    def to_user(self) -> User:
+    def to_user(self, user_id: int | None = None) -> User:
         """
         Поле `status` устанавливается значением по умолчанию.
         """
-        return User.model_validate(self.model_dump())
+        return User.model_validate(self.model_dump() | {"user_id": user_id})
