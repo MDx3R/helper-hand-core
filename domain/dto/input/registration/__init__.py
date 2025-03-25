@@ -1,0 +1,3 @@
+from .user_dto import UserRegistrationDTO, UserResetDTO, WebUserRegistrationDTO, TelegramUserRegistrationDTO
+from .contractee_dto import ContracteeRegistrationDTO, ContracteeResetDTO, WebContracteeRegistrationDTO, TelegramContracteeRegistrationDTO
+from .contractor_dto import ContractorRegistrationDTO, ContractorResetDTO, WebContractorRegistrationDTO, TelegramContractorRegistrationDTO
