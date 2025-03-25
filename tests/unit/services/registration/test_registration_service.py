@@ -1,8 +1,8 @@
 import pytest
 from unittest.mock import AsyncMock, Mock
 
-from domain.dto.input import UserInputDTO, ContracteeInputDTO, ContractorInputDTO
-from domain.dto.common import UserDTO, ContracteeDTO, ContractorDTO
+from domain.dto.input.registration import UserRegistrationDTO
+from domain.dto.common import UserDTO
 
 from domain.entities import User, Contractee, Contractor
 from domain.entities.enums import UserStatusEnum, RoleEnum
@@ -36,9 +36,7 @@ def user_repository():
 
         return user.model_validate(data)
         
-
     mock.save.side_effect = save
-    mock.get_user_by_telegram_id.return_value = None # По умолчанию пользователь не найден
     return mock
 
 @pytest.fixture
@@ -107,7 +105,7 @@ class TestTelegramUserRegistrationService:
     async def test_register_user_is_successful(
         self, 
         telegram_registration_service: TelegramUserRegistrationService, 
-        user_input: UserInputDTO, 
+        user_input: UserRegistrationDTO, 
         expected_user: UserDTO
     ):
         result = await telegram_registration_service.register_user(user_input)
@@ -122,7 +120,7 @@ class TestTelegramUserRegistrationService:
     async def test_register_user_has_no_excessive_calls(
         self, 
         telegram_registration_service: TelegramUserRegistrationService, 
-        user_input: UserInputDTO, 
+        user_input: UserRegistrationDTO, 
         expected_user: UserDTO
     ):
         result = await telegram_registration_service.register_user(user_input)
@@ -137,7 +135,7 @@ class TestTelegramUserRegistrationService:
     async def test_register_user_result_is_correct(
         self, 
         telegram_registration_service: TelegramUserRegistrationService, 
-        user_input: UserInputDTO, 
+        user_input: UserRegistrationDTO, 
         expected_user: UserDTO
     ):
         set_up_counter(expected_user.user_id)
@@ -153,7 +151,7 @@ class TestWebContracteeRegistrationService:
     async def test_register_user_is_successful(
         self, 
         web_registration_service: WebUserRegistrationService,
-        user_input: UserInputDTO, 
+        user_input: UserRegistrationDTO, 
         expected_user: UserDTO
     ):
         result = await web_registration_service.register_user(user_input)
@@ -168,7 +166,7 @@ class TestWebContracteeRegistrationService:
     async def test_register_user_has_no_excessive_calls(
         self, 
         web_registration_service: WebUserRegistrationService,
-        user_input: UserInputDTO, 
+        user_input: UserRegistrationDTO, 
         expected_user: UserDTO
     ):
         result = await web_registration_service.register_user(user_input)
@@ -182,7 +180,7 @@ class TestWebContracteeRegistrationService:
     async def test_register_user_result_is_correct(
         self, 
         web_registration_service: WebUserRegistrationService,
-        user_input: UserInputDTO, 
+        user_input: UserRegistrationDTO, 
         expected_user: UserDTO
     ):
         set_up_counter(expected_user.user_id)
