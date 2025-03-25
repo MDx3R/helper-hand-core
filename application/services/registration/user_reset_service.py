@@ -12,7 +12,6 @@ from application.external.notification import AdminNotificationService
 
 from domain.exceptions.service import PermissionDeniedException, UnauthorizedAccessException
 
-
 from .base_user_modification_service import U, BaseUserModificationService
 
 class UserResetServiceImpl(UserResetService, BaseUserModificationService):
@@ -35,7 +34,11 @@ class UserResetServiceImpl(UserResetService, BaseUserModificationService):
         self.notification_service = notification_service
 
     async def reset_user(self, user_input: UserResetDTO, user: UserContextDTO) -> UserDTO:
-        if user_input.user_id != user.user_id:
+        if (
+            (user_input.user_id != user.user_id)
+            or (user_input.telegram_id != user.telegram_id)
+            or (user_input.chat_id != user.chat_id)
+        ):
             raise PermissionDeniedException(
                 f"Прохождение повторной регистрации для чужого профиля с id {user_input.user_id} недопустимо", 
                 user.user_id
@@ -43,7 +46,7 @@ class UserResetServiceImpl(UserResetService, BaseUserModificationService):
         return await self._modify_user(user_input, user.user_id)
     
     def _assign_status(self, user: U) -> U:
-        user.status = UserStatusEnum.created
+        user.status = UserStatusEnum.pending
         return user
     
     async def _post_modification_hook(self, user: U):
