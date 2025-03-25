@@ -246,7 +246,7 @@ class AggregatedUserCreator(ModelBaseCreator[B, M]):
     
     @classmethod
     def get_default_data(cls, **kwargs) -> Dict[str, Any]:
-        data = super().get_default_data(kwargs)
+        data = super().get_default_data(**kwargs)
         cls._assign_user_id_to_role_id_field(data)
         return data
 
