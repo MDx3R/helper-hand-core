@@ -1,10 +1,7 @@
 from typing import Optional, List
-from datetime import date
 
-from pydantic import Field
-
-from domain.entities import User, Contractee, Contractor
-from domain.entities.enums import RoleEnum, GenderEnum, CitizenshipEnum, PositionEnum
+from domain.entities import User
+from domain.entities.enums import RoleEnum
 from domain.dto.base import ApplicationDTO
 
 class UserRegistrationDTO(ApplicationDTO):
