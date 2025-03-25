@@ -1,6 +1,6 @@
 from domain.services.registration import UserRegistrationService
 
-from domain.dto.input import UserInputDTO
+from domain.dto.input.registration import UserRegistrationDTO
 from domain.dto.common import UserDTO
 
 from domain.repositories import UserRepository
@@ -14,7 +14,7 @@ from .base_user_modification_service import U, BaseUserModificationService
 class BaseUserRegistrationService(UserRegistrationService, BaseUserModificationService):
     """Базовый класс для сервисов регистрации пользователя."""
 
-    async def register_user(self, user_input: UserInputDTO) -> UserDTO:
+    async def register_user(self, user_input: UserRegistrationDTO) -> UserDTO:
         return await self._modify_user(user_input)
     
     async def _post_modification_hook(self, user: U):

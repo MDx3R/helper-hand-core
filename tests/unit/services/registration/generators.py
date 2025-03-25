@@ -1,6 +1,10 @@
 from domain.entities.enums import UserStatusEnum
 
-from domain.dto.input import UserInputDTO, ContracteeInputDTO, ContractorInputDTO
+from domain.dto.input.registration import (
+    UserRegistrationDTO, ContracteeRegistrationDTO, ContractorRegistrationDTO,
+    TelegramContracteeRegistrationDTO, TelegramContractorRegistrationDTO,
+    WebContracteeRegistrationDTO, WebContractorRegistrationDTO
+)
 from domain.dto.common import UserDTO, ContracteeDTO, ContractorDTO
 
 from tests.creators import (
@@ -14,7 +18,7 @@ class UserRegistrationTestCasesGenerator(
     TestCasesGenerator[UserRegistrationTestCase]
 ):
     creator: type[AggregatedUserCreator] = AggregatedUserCreator
-    input_dto: type[UserInputDTO] = UserInputDTO
+    input_dto: type[UserRegistrationDTO] = UserRegistrationDTO
     output_dto: type[UserDTO] = UserDTO
 
     @classmethod
@@ -40,29 +44,39 @@ class UserRegistrationTestCasesGenerator(
 class TelegramUserRegistrationTestCasesGenerator(UserRegistrationTestCasesGenerator):
     @classmethod
     def _create_test_case(cls, random: bool = False, **kwargs) -> UserRegistrationTestCase:
-        return super()._create_test_case(random=random, status = UserStatusEnum.pending, **kwargs)
+        return super()._create_test_case(
+            random=random, 
+            status = UserStatusEnum.pending, 
+            **kwargs
+        )
 
 class WebUserRegistrationTestCasesGenerator(UserRegistrationTestCasesGenerator):
     @classmethod
     def _create_test_case(cls, random: bool = False, **kwargs) -> UserRegistrationTestCase:
-        return super()._create_test_case(random=random, status = UserStatusEnum.created, **kwargs)
+        return super()._create_test_case(
+            random=random, 
+            status = UserStatusEnum.created, 
+            telegram_id = None,
+            chat_id = None,
+            **kwargs
+        )
 
 class TelegramContracteeRegistrationTestCasesGenerator(TelegramUserRegistrationTestCasesGenerator):
     creator = ContracteeCreator
-    input_dto = ContracteeInputDTO
+    input_dto = TelegramContracteeRegistrationDTO
     output_dto = ContracteeDTO
 
 class TelegramContractorRegistrationTestCasesGenerator(TelegramUserRegistrationTestCasesGenerator):
     creator = ContractorCreator
-    input_dto = ContractorInputDTO
+    input_dto = TelegramContractorRegistrationDTO
     output_dto = ContractorDTO
 
 class WebContracteeRegistrationTestCasesGenerator(WebUserRegistrationTestCasesGenerator):
     creator = ContracteeCreator
-    input_dto = ContracteeInputDTO
+    input_dto = WebContracteeRegistrationDTO
     output_dto = ContracteeDTO
 
 class WebContractorRegistrationTestCasesGenerator(WebUserRegistrationTestCasesGenerator):
     creator = ContractorCreator
-    input_dto = ContractorInputDTO
+    input_dto = WebContractorRegistrationDTO
     output_dto = ContractorDTO

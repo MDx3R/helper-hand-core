@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from domain.dto.input import UserInputDTO
+from domain.dto.input.registration import UserResetDTO
 from domain.dto.common import UserDTO
 from domain.dto.context import UserContextDTO
 
@@ -9,7 +9,7 @@ class UserResetService(ABC):
     Интерфейс для сервисов повторной регистрации пользователей.
     """
     @abstractmethod
-    async def reset_user(self, user_input: UserInputDTO, user: UserContextDTO) -> UserDTO:
+    async def reset_user(self, user_input: UserResetDTO, user: UserContextDTO) -> UserDTO:
         """
         Повторно регистрирует пользователя.
 
@@ -19,7 +19,7 @@ class UserResetService(ABC):
         - Повторная регистрация требует подтверждения Администратора.
 
         Args:
-            user_input (UserInputDTO): Объект класса пользователя, производного от `UserInputDTO`, соответствующий полю `role` класса `UserInputDTO`.
+            user_input (UserResetDTO): Объект класса пользователя, производного от `UserResetDTO`, соответствующий полю `role` класса `UserResetDTO`.
             user (UserContextDTO)
 
         Returns:

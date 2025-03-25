@@ -1,16 +1,14 @@
 from typing import TypeVar
 from abc import ABC, abstractmethod
 
-from domain.dto.input import UserInputDTO, ContracteeInputDTO, ContractorInputDTO
+from domain.dto.input.registration import UserRegistrationDTO, ContracteeRegistrationDTO, ContractorRegistrationDTO
 from domain.dto.common import UserDTO
-from domain.dto.context import UserContextDTO
 from domain.dto.mappers import map_user_to_dto
 
 from domain.repositories import UserRepository
 from application.transactions import TransactionManager
 
 from domain.entities import Contractee, Contractor
-from domain.entities.enums import UserStatusEnum
 from domain.exceptions.service import InvalidInputException
 
 U = TypeVar('U', Contractor, Contractee)
@@ -35,7 +33,7 @@ class BaseUserModificationService(ABC):
         """Переопределение этого метода добавил дополнительные действия после изменения пользователя"""
         pass
 
-    async def _modify_user(self, user_input: UserInputDTO, user_id: int | None = None) -> UserDTO:
+    async def _modify_user(self, user_input: UserRegistrationDTO, user_id: int | None = None) -> UserDTO:
         async with self.transaction_manager:
             user = await self._create_or_update_user(self._cast_to_role_input_dto(user_input, user_id))
 
@@ -51,11 +49,11 @@ class BaseUserModificationService(ABC):
     async def _save_user(self, user: U) -> U:
         return await self.user_repository.save(user)
 
-    def _cast_to_role_input_dto(self, user_input: UserInputDTO, user_id: int | None = None) -> U:
-        if isinstance(user_input, ContracteeInputDTO):
-            return user_input.to_contractee(user_id)
-        elif isinstance(user_input, ContractorInputDTO):
-            return user_input.to_contractor(user_id)
+    def _cast_to_role_input_dto(self, user_input: UserRegistrationDTO, user_id: int | None = None) -> U:
+        if isinstance(user_input, ContracteeRegistrationDTO):
+            return user_input.to_contractee()
+        elif isinstance(user_input, ContractorRegistrationDTO):
+            return user_input.to_contractor()
         raise InvalidInputException(
             f"Роль пользователя {user_input.role} не совпадает с типом передаваемого объекта {type(user_input)}"
         )
