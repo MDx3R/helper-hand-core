@@ -232,6 +232,23 @@ class AggregatedUserCreator(ModelBaseCreator[B, M]):
     @classmethod
     def create_user_base(cls, **kwargs) -> UserBase:
         return cls._create_user_base(cls.fixed_data | kwargs)
+    
+    @classmethod
+    @abstractmethod
+    def _get_random_data(cls, **kwargs) -> Dict[str, Any]:
+        pass
+
+    @classmethod
+    def get_random_data(cls, **kwargs) -> Dict[str, Any]:
+        data = cls._get_random_data(**kwargs)
+        cls._assign_user_id_to_role_id_field(data)
+        return data
+    
+    @classmethod
+    def get_default_data(cls, **kwargs) -> Dict[str, Any]:
+        data = super().get_default_data(kwargs)
+        cls._assign_user_id_to_role_id_field(data)
+        return data
 
 class ContracteeCreator(AggregatedUserCreator[ContracteeBase, Contractee]):
     role_id_field: str = "contractee_id"
@@ -247,7 +264,7 @@ class ContracteeCreator(AggregatedUserCreator[ContracteeBase, Contractee]):
     }
 
     @classmethod
-    def get_random_data(cls, **kwargs) -> Dict[str, Any]:
+    def _get_random_data(cls, **kwargs) -> Dict[str, Any]:
         return UserCreator.get_random_data() | {
             "role": RoleEnum.contractee,
             "birthday": fk.date_of_birth(minimum_age=18, maximum_age=60),
@@ -267,7 +284,7 @@ class ContractorCreator(AggregatedUserCreator[ContractorBase, Contractor]):
     }
 
     @classmethod
-    def get_random_data(cls, **kwargs) -> Dict[str, Any]:
+    def _get_random_data(cls, **kwargs) -> Dict[str, Any]:
         return UserCreator.get_random_data() | {
             "role": RoleEnum.contractor,
             "about": fk.paragraph(),
@@ -284,7 +301,7 @@ class AdminCreator(AggregatedUserCreator[AdminBase, Admin]):
     }
 
     @classmethod
-    def get_random_data(cls, **kwargs) -> Dict[str, Any]:
+    def _get_random_data(cls, **kwargs) -> Dict[str, Any]:
         return UserCreator.get_random_data() | {
             "role": RoleEnum.admin,
             "about": fk.paragraph(),
