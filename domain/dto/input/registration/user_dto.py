@@ -5,15 +5,18 @@ from pydantic import Field
 
 from domain.entities import User, Contractee, Contractor
 from domain.entities.enums import RoleEnum, GenderEnum, CitizenshipEnum, PositionEnum
-from domain.entities.base import ApplicationModel
+from domain.dto.base import ApplicationDTO
 
-class UserRegistrationDTO(ApplicationModel):
+class UserRegistrationDTO(ApplicationDTO):
+    user_id: None = None
     surname: str
     name: str
     patronymic: Optional[str] = None
     phone_number: str
     role: RoleEnum 
     photos: List[str]
+    telegram_id: Optional[int] = None
+    chat_id: Optional[int] = None
 
     def to_user(self) -> User:
         """
@@ -23,9 +26,12 @@ class UserRegistrationDTO(ApplicationModel):
 
 class UserResetDTO(UserRegistrationDTO):
     user_id: int
+    telegram_id: int
+    chat_id: int
 
 class WebUserRegistrationDTO(UserRegistrationDTO):
-    pass
+    telegram_id: None = None
+    chat_id: None = None
 
 class TelegramUserRegistrationDTO(UserRegistrationDTO):
     telegram_id: int
