@@ -1,2 +1,10 @@
-from .user_registration_service import TelegramUserRegistrationService, WebUserRegistrationService
-from .user_reset_service import UserResetServiceImpl
+from .user_registration_service import (
+    TelegramContracteeRegistrationService,
+    TelegramContractorRegistrationService,
+    WebContracteeRegistrationService,
+    WebContractorRegistrationService
+)
+from .user_reset_service import (
+    ResetContracteeUseCase,
+    ResetContractorUseCase
+)
