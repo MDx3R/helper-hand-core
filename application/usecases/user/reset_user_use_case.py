@@ -27,7 +27,7 @@ class ResetContracteeUseCase(ABC):
 
 class ResetContractorUseCase(ABC):
     @abstractmethod
-    async def register_contractor(
+    async def reset_contractor(
         self, 
         contractor_input: ContractorResetDTO
     ) -> ContractorDTO:
