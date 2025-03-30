@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 
 from domain.dto.mappers import map_user_to_dto
 
-class ResetContracteeFromWebUseCase(ABC):
+class ResetContracteeUseCase(ABC):
     @abstractmethod
     async def reset_contractee(
         self, 
@@ -25,7 +25,7 @@ class ResetContracteeFromWebUseCase(ABC):
         pass
 
 
-class ResetContractorFromWebUseCase(ABC):
+class ResetContractorUseCase(ABC):
     @abstractmethod
     async def register_contractor(
         self, 
@@ -35,8 +35,8 @@ class ResetContractorFromWebUseCase(ABC):
 
 
 class ResetUserUseCaseFacade(
-    ResetContracteeFromWebUseCase,
-    ResetContractorFromWebUseCase,
+    ResetContracteeUseCase,
+    ResetContractorUseCase,
 ):
     def __init__(
         self, user_repository: UserRepository,
