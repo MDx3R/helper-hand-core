@@ -2,7 +2,7 @@ from domain.dto.input.registration import UserRegistrationDTO
 
 from domain.entities import User, Contractee, Contractor, Admin
 from domain.entities.enums import UserStatusEnum
-from domain.dto.common import UserDTO
+from domain.dto.common import UserDTO, ContracteeDTO, ContractorDTO
 from domain.dto.input.registration import (
     UserRegistrationDTO, 
     ContracteeRegistrationDTO, 
@@ -20,6 +20,8 @@ from application.transactions import transactional
 
 from abc import ABC, abstractmethod
 
+from domain.dto.mappers import map_user_to_dto
+
 class SaveUserUseCase(ABC):
     def __init__(
         self, user_repository: UserRepository,
@@ -27,9 +29,10 @@ class SaveUserUseCase(ABC):
         self.user_repository = user_repository
 
     @transactional
-    async def save_user(self, user_input: UserRegistrationDTO) -> Contractee | Contractor:
+    async def save_user(self, user_input: UserRegistrationDTO) -> ContracteeDTO | ContractorDTO:
         user = self._cast_role_input_to_role(user_input)
-        return await self._save_user(user)
+        user = await self._save_user(user)
+        return map_user_to_dto(user)
     
     def _cast_role_input_to_role(self, user_input: UserRegistrationDTO) -> Contractee | Contractor:
         if isinstance(user_input, ContracteeRegistrationDTO):
