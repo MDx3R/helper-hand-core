@@ -34,7 +34,7 @@ class SaveUserUseCase(ABC):
         user = await self._save_user(user)
         return map_user_to_dto(user)
     
-    def _cast_role_input_to_role(self, user_input: UserRegistrationDTO) -> Contractee | Contractor:
+    def _cast_role_input_to_role(self, user_input: UserInputDTO) -> Contractee | Contractor:
         if isinstance(user_input, ContracteeInputDTO):
             return user_input.to_contractee()
         elif isinstance(user_input, ContractorInputDTO):
