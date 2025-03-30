@@ -12,7 +12,7 @@ from tests.creators import (
     ModelBaseCreator, UserCreator, OrderCreator, OrderDetailCreator, ReplyCreator,
     AggregatedUserCreator, ContracteeCreator, ContractorCreator, AdminCreator
 )
-from tests.generators.base import ApplicationModelTestCaseGenerator, BaseTestCaseGenerator
+from tests.generators.base import ApplicationModelTestCaseGenerator, BaseTestCaseGenerator, GenerateAllTestCaseMixin
 from .test_cases import MAP, B, M, MapperTestCase, AggregatedUserMapperTestCase
 
 MAP = TypeVar("MAP", bound=Mapper)
@@ -20,21 +20,20 @@ MAP = TypeVar("MAP", bound=Mapper)
 class MapperTestCaseGenerator(
     ApplicationModelTestCaseGenerator[MapperTestCase, M],
     BaseTestCaseGenerator[MapperTestCase, B],
+    GenerateAllTestCaseMixin,
     Generic[MAP, B, M]
 ):
     mapper: type[Mapper] = Mapper
     creator: type[ModelBaseCreator] = ModelBaseCreator
 
     @classmethod
-    def _create_test_case(cls, random: bool = False, **kwargs) -> MapperTestCase:
-        if random:
-            base, model = cls.creator.get_random_pair(**kwargs)
-        else:
-            base, model = cls.creator.get_default_pair(**kwargs)
+    def _create_test_case(cls, **kwargs) -> MapperTestCase:
+        base, model = cls.creator.get_random_pair(**kwargs)
+
         return MapperTestCase(cls._get_mapper(), base, model)
 
     @classmethod
-    def _get_mapper(cls, random: bool = False) -> MAP:
+    def _get_mapper(cls) -> MAP:
         return cls.mapper
 
 class UserMapperTestCaseGenerator(MapperTestCaseGenerator[UserMapper, UserBase, User]):
@@ -47,16 +46,16 @@ class UserMapperTestCaseGenerator(MapperTestCaseGenerator[UserMapper, UserBase, 
     }
 
     @classmethod
-    def create_no_id(cls, random: bool = False):
-        return cls.create("no_id", random=random)
+    def create_no_id(cls):
+        return cls.create("no_id")
 
     @classmethod
-    def create_no_patronymic(cls, random: bool = False):
-        return cls.create("no_patronymic", random=random)
+    def create_no_patronymic(cls):
+        return cls.create("no_patronymic")
 
     @classmethod
-    def create_no_photos(cls, random: bool = False):
-        return cls.create("no_photos", random=random)
+    def create_no_photos(cls):
+        return cls.create("no_photos")
 
 class OrderMapperTestCaseGenerator(MapperTestCaseGenerator[OrderMapper, OrderBase, Order]):
     mapper = OrderMapper
@@ -67,12 +66,12 @@ class OrderMapperTestCaseGenerator(MapperTestCaseGenerator[OrderMapper, OrderBas
     }
 
     @classmethod
-    def create_no_id(cls, random: bool = False):
-        return cls.create("no_id", random=random)
+    def create_no_id(cls):
+        return cls.create("no_id")
 
     @classmethod
-    def create_no_admin_id(cls, random: bool = False):
-        return cls.create("no_admin_id", random=random)
+    def create_no_admin_id(cls):
+        return cls.create("no_admin_id")
 
 class OrderDetailMapperTestCaseGenerator(MapperTestCaseGenerator[OrderDetailMapper, OrderDetailBase, OrderDetail]):
     mapper = OrderDetailMapper
@@ -83,12 +82,12 @@ class OrderDetailMapperTestCaseGenerator(MapperTestCaseGenerator[OrderDetailMapp
     }
 
     @classmethod
-    def create_no_id(cls, random: bool = False):
-        return cls.create("no_id", random=random)
+    def create_no_id(cls):
+        return cls.create("no_id")
 
     @classmethod
-    def create_no_gender(cls, random: bool = False):
-        return cls.create("no_gender", random=random)
+    def create_no_gender(cls):
+        return cls.create("no_gender")
 
 class ReplyMapperTestCaseGenerator(MapperTestCaseGenerator[ReplyMapper, ReplyBase, Reply]):
     mapper = ReplyMapper
@@ -98,26 +97,24 @@ class ReplyMapperTestCaseGenerator(MapperTestCaseGenerator[ReplyMapper, ReplyBas
     }
 
     @classmethod
-    def create_no_paid(cls, random: bool = False):
-        return cls.create("no_paid", random=random)
+    def create_no_paid(cls):
+        return cls.create("no_paid")
 
 class AggregatedUserMapperTestCaseGenerator(
     ApplicationModelTestCaseGenerator[AggregatedUserMapperTestCase, M],
     BaseTestCaseGenerator[AggregatedUserMapperTestCase, B],
+    GenerateAllTestCaseMixin,
     Generic[MAP, B, M]
 ):
     mapper: type[AggregatedUserMapper] = AggregatedUserMapper
     creator: type[AggregatedUserCreator] = AggregatedUserCreator
 
     @classmethod
-    def _create_test_case(cls, random: bool = False, **kwargs) -> AggregatedUserMapperTestCase:
-        if random:
-            data = cls.creator.get_random_data()
-            user_base = cls.creator.create_user_base(**data)
-            role_base, model = cls.creator.get_default_pair(**(data | kwargs))
-        else:
-            user_base = cls.creator.create_user_base() # без kwargs так как класс для ролей
-            role_base, model = cls.creator.get_default_pair(**kwargs)
+    def _create_test_case(cls, **kwargs) -> AggregatedUserMapperTestCase:
+        data = cls.creator.get_random_data()
+        user_base = cls.creator.create_user_base(**data)
+        role_base, model = cls.creator.get_default_pair(**(data | kwargs))
+
         return AggregatedUserMapperTestCase(cls._get_mapper(), user_base, role_base, model)
 
     @classmethod
@@ -125,8 +122,8 @@ class AggregatedUserMapperTestCaseGenerator(
         return cls.mapper
 
     @classmethod
-    def create_different_update_time(cls, random: bool = False) -> AggregatedUserMapperTestCase:
-        return cls._create_test_case(random=random, updated_at=datetime(2024, 3, 16, 13, 30, 0))
+    def create_different_update_time(cls) -> AggregatedUserMapperTestCase:
+        return cls._create_test_case(updated_at=datetime(2024, 3, 16, 13, 30, 0))
 
 class ContracteeMapperTestCaseGenerator(AggregatedUserMapperTestCaseGenerator[ContracteeMapper, ContracteeBase, Contractee]):
     mapper = ContracteeMapper
@@ -136,8 +133,8 @@ class ContracteeMapperTestCaseGenerator(AggregatedUserMapperTestCaseGenerator[Co
     }
 
     @classmethod
-    def create_no_id(cls, random: bool = False):
-        return cls.create("no_id", random=random)
+    def create_no_id(cls):
+        return cls.create("no_id")
 
 class ContractorMapperTestCaseGenerator(AggregatedUserMapperTestCaseGenerator[ContractorMapper, ContractorBase, Contractor]):
     mapper = ContractorMapper
@@ -147,8 +144,8 @@ class ContractorMapperTestCaseGenerator(AggregatedUserMapperTestCaseGenerator[Co
     }
 
     @classmethod
-    def create_no_id(cls, random: bool = False):
-        return cls.create("no_id", random=random)
+    def create_no_id(cls):
+        return cls.create("no_id")
 
 class AdminMapperTestCaseGenerator(AggregatedUserMapperTestCaseGenerator[AdminMapper, AdminBase, Admin]):
     mapper = AdminMapper
@@ -159,9 +156,9 @@ class AdminMapperTestCaseGenerator(AggregatedUserMapperTestCaseGenerator[AdminMa
     }
 
     @classmethod
-    def create_no_id(cls, random: bool = False):
-        return cls.create("no_id", random=random)
+    def create_no_id(cls):
+        return cls.create("no_id")
 
     @classmethod
-    def create_no_contractor_id(cls, random: bool = False):
-        return cls.create("no_contractor_id", random=random)
+    def create_no_contractor_id(cls):
+        return cls.create("no_contractor_id")

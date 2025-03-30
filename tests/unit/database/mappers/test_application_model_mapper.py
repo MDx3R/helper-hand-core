@@ -29,15 +29,7 @@ def generate_test_cases():
 
     return test_cases
 
-def generate_random_test_cases():
-    test_cases = []
-    for result in [generator.generate_all() for generator in generators]:
-        for case in result:
-            test_cases.append((case.mapper, case.base, case.model))
-
-    return test_cases
-
-test_cases = generate_test_cases() + generate_random_test_cases()
+test_cases = generate_test_cases()
 
 class TestToModelApplicationModelMapper:
     @pytest.mark.parametrize("mapper, base_instance, expected_model", test_cases)
