@@ -78,13 +78,16 @@ class BanUserUseCase(ABC):
 
 
 class UserCommandUseCase(
-    SaveUserUseCase, 
     ApproveUserUseCase, 
     DisapproveUserUseCase, 
     DropUserUseCase, 
     BanUserUseCase, 
     #ChangeUserStatusUseCase
 ):
+    """
+    Реализация Use Cases типа UserCommand.
+    Не для прямого использования. 
+    """
     def __init__(
         self, user_repository: UserRepository,
     ):
