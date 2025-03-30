@@ -7,6 +7,10 @@ from domain.time import is_current_time_valid_for_reply
 
 class UserDomainService:
     @staticmethod
+    def is_unverified(user: User) -> bool:
+        return user.status == UserStatusEnum.created
+
+    @staticmethod
     def is_pending(user: User) -> bool:
         return user.status == UserStatusEnum.pending
     
@@ -35,12 +39,43 @@ class UserDomainService:
         return user.role == RoleEnum.admin 
     
     @classmethod
-    def can_be_registered(cls, user: User) -> bool:
-        return cls.is_dropped(user)
+    def can_status_be_changed(cls, user: User, change_to: UserStatusEnum) -> bool:
+        if not cls.is_editable_by_others():
+            return False
+        match change_to:
+            case UserStatusEnum.registered:
+                return cls.can_be_approved(user)
+            case UserStatusEnum.dropped:
+                return cls.can_be_dropped(user)
+            case UserStatusEnum.banned:
+                return cls.can_be_dropped(user)
+
+        return False
+
+    @classmethod
+    def can_be_approved(cls, user: User) -> bool:
+        return cls.is_pending(user)
     
     @classmethod
+    def can_be_dropped(cls, user: User) -> bool:
+        return not cls.is_dropped(user)
+    
+    @classmethod
+    def can_be_banned(cls, user: User) -> bool:
+        return not cls.is_banned(user)
+
+    @classmethod
     def is_editable_by_others(cls, user: User) -> bool:
+        """
+        Проверяет может ли пользователь быть изменен другими.
+
+        Профили администраторов доступны для редактирования только владельцу этого профиля.
+        """
         return not cls.is_admin(user)
+    
+    @classmethod
+    def is_allowed_to_register(cls, user: User) -> bool:
+        return cls.is_dropped(user)
 
 class AdminDomainService:
     @staticmethod
