@@ -1,9 +1,13 @@
-from .transaction_manager import TransactionManager
+import functools
 
-def transactional(transaction_manager: TransactionManager):
-    def decorator(func):
-        async def wrapper(self, *args, **kwargs):
-            async with transaction_manager:
-                return await func(self, *args, **kwargs)
-        return wrapper
-    return decorator
+from .configuration import get_transaction_manager
+
+def transactional(func):
+    @functools.wraps(func)
+    async def wrapper(self, *args, **kwargs):
+        manager = get_transaction_manager()
+        if not manager:
+            raise ValueError("Не установлен менеджер транзакций.")
+        async with manager:
+            return await func(self, *args, **kwargs)
+    return wrapper
