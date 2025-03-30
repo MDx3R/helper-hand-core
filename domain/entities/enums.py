@@ -8,6 +8,7 @@ class RoleEnum(str, enum.Enum):
     """
     Возможные роли пользователя.
     """
+    unset = "unset"
     admin = "admin"
     developer = "developer" 
     contractor = "contractor" 
