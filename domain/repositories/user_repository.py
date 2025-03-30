@@ -6,7 +6,7 @@ from domain.entities.enums import UserStatusEnum, RoleEnum, GenderEnum
 
 class UserRepository(ABC):
     @abstractmethod
-    async def get_user_by_id(self, user_id: int) -> User | None:
+    async def get_user(self, user_id: int) -> User | None:
         """
         Получает пользователя по его ID.
         
@@ -45,7 +45,7 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_admin_by_id(self, admin_id: int) -> Admin | None:
+    async def get_admin(self, admin_id: int) -> Admin | None:
         """
         Получает администратора по его ID.
         
@@ -58,7 +58,7 @@ class UserRepository(ABC):
         pass
     
     @abstractmethod
-    async def get_contractee_by_id(self, contractee_id: int) -> Contractee | None:
+    async def get_contractee(self, contractee_id: int) -> Contractee | None:
         """
         Получает исполнителя по его ID.
         
@@ -71,7 +71,7 @@ class UserRepository(ABC):
         pass
     
     @abstractmethod
-    async def get_contractor_by_id(self, contractor_id: int) -> Contractor | None:
+    async def get_contractor(self, contractor_id: int) -> Contractor | None:
         """
         Получает заказчика по его ID.
         

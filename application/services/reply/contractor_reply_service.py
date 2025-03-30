@@ -232,7 +232,7 @@ class ContractorReplyServiceImpl(ContractorReplyService):
     async def _notify_contractor_and_admin_on_order_closed(self, contractor: Contractor, order: Order):
         await self.contractor_notification_service.send_order_closed_automatically_notification(contractor, order)
         
-        admin = await self.user_repository.get_admin_by_id(order.admin_id)
+        admin = await self.user_repository.get_admin(order.admin_id)
         await self.admin_notification_service.send_order_closed_automatically_notification(admin, order)
 
     async def _drop_unapproved_replies_by_date(self, contractee_id: int, date: date):

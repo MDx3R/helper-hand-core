@@ -171,7 +171,7 @@ class ContractorOrderServiceImpl(ContractorOrderService):
             await self._notify_contractees_on_order_cancelled(order, dropped_contractees)
 
     async def _notify_admin_on_order_cancelled(self, order: Order):
-        admin = await self.user_repository.get_admin_by_id(order.admin_id)
+        admin = await self.user_repository.get_admin(order.admin_id)
         await self.admin_notification_service.send_order_cancelled_notification(admin, order)
 
     async def _notify_contractees_on_order_cancelled(self, order: Order, dropped_contractees: List[Contractee]):
@@ -221,7 +221,7 @@ class ContractorOrderServiceImpl(ContractorOrderService):
             await self._notify_dropped_contractees(order, dropped_contractees)
 
     async def _notify_admin_on_order_set_active(self, order: Order):
-        admin = await self.user_repository.get_admin_by_id(order.admin_id)
+        admin = await self.user_repository.get_admin(order.admin_id)
         await self.admin_notification_service.send_order_set_active_notification(admin, order)
 
     async def _notify_contractees_on_order_set_active(self, order: Order, approved_contractees: List[Contractee]):

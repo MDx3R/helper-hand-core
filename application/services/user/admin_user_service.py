@@ -129,5 +129,5 @@ class AdminUserServiceImpl(AdminUserService):
         return user
 
     async def notify_user(self, user_id: int, admin: Admin):
-        user = await self.user_repository.get_user_by_id(user_id)
+        user = await self.user_repository.get_user(user_id)
         await self.user_notification_service.send_admin_contact_notification(user, admin)

@@ -56,7 +56,7 @@ async def test_transaction_commit(user_repository: UserRepository, transaction_m
         )
         await user_repository.save_contractee(contractee)
     
-    result = await user_repository.get_contractee_by_id(contractee.contractee_id)
+    result = await user_repository.get_contractee(contractee.contractee_id)
     assert result is not None
     assert result.name == "John"
 
@@ -74,7 +74,7 @@ async def test_transaction_rollback(user_repository: UserRepository, transaction
             await user_repository.save_contractor(contractor)
             raise ValueError("Test rollback")
     
-    result = await user_repository.get_contractor_by_id(contractor.contractor_id)
+    result = await user_repository.get_contractor(contractor.contractor_id)
     assert result is None
 
 @pytest.mark.asyncio(scope="session")

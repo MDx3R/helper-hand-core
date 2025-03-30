@@ -35,11 +35,11 @@ def user_repository(transaction_manager_mock):
     ],
 )
 @pytest.mark.asyncio
-async def test_get_user_by_id(user_id, expected_result, user_repository, transaction_manager_mock):
+async def test_get_user(user_id, expected_result, user_repository, transaction_manager_mock):
     session_mock = transaction_manager_mock.get_session.return_value.__aenter__.return_value
     session_mock.execute.return_value = MagicMock(scalar_one_or_none=MagicMock(return_value=expected_result))
 
-    result = await user_repository.get_user_by_id(user_id)
+    result = await user_repository.get_user(user_id)
 
     if expected_result is None:
         assert result is None
@@ -69,7 +69,7 @@ async def test_get_user_by_telegram_id(user_repository, transaction_manager_mock
     assert result.telegram_id == telegram_id
 
 @pytest.mark.asyncio
-async def test_get_admin_by_id(user_repository, transaction_manager_mock):
+async def test_get_admin(user_repository, transaction_manager_mock):
     admin_id = 1
     user_base = UserBase(user_id=admin_id, surname="Ivanov", name="Ivan", phone_number="+79123456789", role=RoleEnum.admin, status=UserStatusEnum.pending, telegram_id=12345, chat_id=67890, photos=[])
     admin_base = AdminBase(admin_id=admin_id, about="Admin info")
@@ -77,7 +77,7 @@ async def test_get_admin_by_id(user_repository, transaction_manager_mock):
     session_mock = transaction_manager_mock.get_session.return_value.__aenter__.return_value
     session_mock.execute.return_value = MagicMock(first=MagicMock(return_value=(user_base, admin_base)))
 
-    result = await user_repository.get_admin_by_id(admin_id)
+    result = await user_repository.get_admin(admin_id)
 
     assert result is not None
     assert result.user_id == admin_id
@@ -85,7 +85,7 @@ async def test_get_admin_by_id(user_repository, transaction_manager_mock):
     assert result.about == "Admin info"
 
 @pytest.mark.asyncio
-async def test_get_contractee_by_id(user_repository, transaction_manager_mock):
+async def test_get_contractee(user_repository, transaction_manager_mock):
     contractee_id = 1
     user_base = UserBase(user_id=contractee_id, surname="Ivanov", name="Ivan", phone_number="+79123456789", role=RoleEnum.contractee, status=UserStatusEnum.pending, telegram_id=12345, chat_id=67890, photos=[])
     contractee_base = ContracteeBase(contractee_id=contractee_id, birthday=datetime(1990, 1, 1), height=180, gender=GenderEnum.male, citizenship=CitizenshipEnum.russia, positions=[PositionEnum.helper])
@@ -93,7 +93,7 @@ async def test_get_contractee_by_id(user_repository, transaction_manager_mock):
     session_mock = transaction_manager_mock.get_session.return_value.__aenter__.return_value
     session_mock.execute.return_value = MagicMock(first=MagicMock(return_value=(user_base, contractee_base)))
 
-    result = await user_repository.get_contractee_by_id(contractee_id)
+    result = await user_repository.get_contractee(contractee_id)
 
     assert result is not None
     assert result.user_id == contractee_id
@@ -105,7 +105,7 @@ async def test_get_contractee_by_id(user_repository, transaction_manager_mock):
     assert result.positions == [PositionEnum.helper]
 
 @pytest.mark.asyncio
-async def test_get_contractor_by_id(user_repository, transaction_manager_mock):
+async def test_get_contractor(user_repository, transaction_manager_mock):
     contractor_id = 1
     user_base = UserBase(user_id=contractor_id, surname="Ivanov", name="Ivan", phone_number="+79123456789", role=RoleEnum.contractor, status=UserStatusEnum.pending, telegram_id=12345, chat_id=67890, photos=[])
     contractor_base = ContractorBase(contractor_id=contractor_id, about="Contractor info")
@@ -113,7 +113,7 @@ async def test_get_contractor_by_id(user_repository, transaction_manager_mock):
     session_mock = transaction_manager_mock.get_session.return_value.__aenter__.return_value
     session_mock.execute.return_value = MagicMock(first=MagicMock(return_value=(user_base, contractor_base)))
 
-    result = await user_repository.get_contractor_by_id(contractor_id)
+    result = await user_repository.get_contractor(contractor_id)
 
     assert result is not None
     assert result.user_id == contractor_id

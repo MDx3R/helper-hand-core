@@ -159,7 +159,7 @@ class AdminOrderServiceImpl(AdminOrderService):
         return order
 
     async def _notify_contractor_on_admin_assigned(self, order: Order):
-        contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
+        contractor = await self.user_repository.get_contractor(order.contractor_id)
         await self.contractor_notification_service.send_admin_assigned_for_order_notification(contractor, order)
 
     async def approve_order(self, order_id: int, admin: Admin) -> OrderDTO:
@@ -195,7 +195,7 @@ class AdminOrderServiceImpl(AdminOrderService):
         return order
 
     async def _notify_contractor_on_order_approved(self, order: Order):
-        contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
+        contractor = await self.user_repository.get_contractor(order.contractor_id)
         await self.contractor_notification_service.send_order_approved_notification(contractor, order)
 
     async def cancel_order(self, order_id: int, admin: Admin) -> OrderDTO:
@@ -241,7 +241,7 @@ class AdminOrderServiceImpl(AdminOrderService):
             await self._notify_contractees_on_order_cancelled(order, dropped_contractees)
 
     async def _notify_contractor_on_order_cancelled(self, order: Order):
-        contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
+        contractor = await self.user_repository.get_contractor(order.contractor_id)
         await self.contractor_notification_service.send_order_cancelled_notification(contractor, order)
 
     async def _notify_contractees_on_order_cancelled(self, order: Order, dropped_contractees: List[Contractee]):
@@ -268,7 +268,7 @@ class AdminOrderServiceImpl(AdminOrderService):
         return await self._change_order_status(order, OrderStatusEnum.closed)
 
     async def _notify_contractor_on_order_closed(self, order: Order):
-        contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
+        contractor = await self.user_repository.get_contractor(order.contractor_id)
         await self.contractor_notification_service.send_order_closed_notification(contractor, order)
 
     async def open_order(self, order_id: int, admin: Admin) -> OrderDTO:
@@ -292,7 +292,7 @@ class AdminOrderServiceImpl(AdminOrderService):
         return await self._change_order_status(order, OrderStatusEnum.open)
 
     async def _notify_contractor_on_order_opened(self, order: Order):
-        contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
+        contractor = await self.user_repository.get_contractor(order.contractor_id)
         await self.contractor_notification_service.send_order_opened_notification(contractor, order)
 
     async def fulfill_order(self, order_id: int, admin: Admin) -> OrderDTO:
@@ -316,7 +316,7 @@ class AdminOrderServiceImpl(AdminOrderService):
         return await self._change_order_status(order, OrderStatusEnum.fulfilled)
 
     async def _notify_contractor_on_order_fulfilled(self, order: Order):
-        contractor = await self.user_repository.get_contractor_by_id(order.contractor_id)
+        contractor = await self.user_repository.get_contractor(order.contractor_id)
         await self.contractor_notification_service.send_order_fulfilled_notification(contractor, order)
 
     async def get_orders(self, admin: Admin, page: int = 1, size: int = 15) -> List[OrderDTO]:
