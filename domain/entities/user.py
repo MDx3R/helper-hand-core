@@ -30,12 +30,6 @@ class User(ApplicationModel):
     role: RoleEnum 
     """Роль пользователя."""
 
-    telegram_id: Optional[int] = None
-    """Уникальный идентификатор пользователя в Telegram."""
-
-    chat_id: Optional[int] = None
-    """Уникальный идентификатор чата с пользователем в Telegram."""
-
     status: UserStatusEnum = UserStatusEnum.created
     """Статус пользователя. Определяется с использованием `UserStatusEnum`."""
 
