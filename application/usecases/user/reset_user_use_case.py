@@ -1,12 +1,10 @@
-from typing import Literal
-
 from domain.dto.input.registration import (
     UserResetDTO,
     ContracteeResetDTO,
     ContractorResetDTO
 )
 
-from domain.entities import Contractee, Contractor, TelegramUser
+from domain.entities import Contractee, Contractor
 from domain.entities.enums import UserStatusEnum
 from domain.dto.common import ContracteeDTO, ContractorDTO
 from domain.repositories import UserRepository
