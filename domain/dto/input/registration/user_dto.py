@@ -4,8 +4,6 @@ from domain.dto.input import UserInputDTO
 
 class UserRegistrationDTO(UserInputDTO):
     user_id: None = None
-    telegram_id: Optional[int] = None
-    chat_id: Optional[int] = None
 
 class WebUserRegistrationDTO(UserRegistrationDTO):
     telegram_id: None = None
