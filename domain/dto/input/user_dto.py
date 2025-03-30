@@ -18,3 +18,6 @@ class UserInputDTO(ApplicationModel):
         Поле `status` устанавливается значением по умолчанию.
         """
         return User.model_validate(self.model_dump() | {"role": RoleEnum.unset})
+    
+class UserUpdateDTO(UserInputDTO):
+    pass

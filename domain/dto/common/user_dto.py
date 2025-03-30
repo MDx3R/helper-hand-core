@@ -13,8 +13,6 @@ class UserDTO(ApplicationDTO):
     role: RoleEnum
     status: UserStatusEnum
     photos: List[str]
-    telegram_id: Optional[int] = None
-    chat_id: Optional[int] = None
 
     @classmethod
     def from_user(cls, user: User) -> 'UserDTO':
