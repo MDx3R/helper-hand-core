@@ -15,5 +15,3 @@ class TelegramUserRegistrationDTO(UserRegistrationDTO):
 
 class UserResetDTO(UserInputDTO):
     user_id: int
-    telegram_id: int
-    chat_id: int
