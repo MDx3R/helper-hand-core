@@ -1,24 +1,24 @@
 import pytest
 
-from domain.dto.input.registration import ContracteeResetDTO
+from domain.dto.input.registration import ContractorResetDTO
 from domain.dto.common import UserDTO
 
 from application.usecases.user import (
     ResetUserUseCaseFacade,
-    ResetContracteeUseCase,
-    ResetContracteeUseCase
+    ResetContractorUseCase,
+    ResetContractorUseCase
 )
 
 from domain.exceptions.service import InvalidInputException
 
 from .generators import (
     UserResetTestCaseGenerator,
-    ContracteeResetTestCaseGenerator,
+    ContractorResetTestCaseGenerator,
 )
 
 def generate_test_cases():
     return [
-        (t.input, t.expected) for t in [ContracteeResetTestCaseGenerator.create()]
+        (t.input, t.expected) for t in [ContractorResetTestCaseGenerator.create()]
     ]
 
 test_cases = generate_test_cases()
@@ -35,19 +35,19 @@ def invalid_input():
     return UserResetTestCaseGenerator.create_invalid_input().input
 
 @pytest.fixture
-def contractee_input():
-    return ContracteeResetTestCaseGenerator.create().input
+def contractor_input():
+    return ContractorResetTestCaseGenerator.create().input
 
-class TestWebResetContracteeUseCase:
+class TestWebResetContractorUseCase:
     @pytest.mark.asyncio
     @pytest.mark.parametrize("user_input, expected_user", test_cases)
-    async def test_register_contractee_is_successful(
+    async def test_register_contractor_is_successful(
         self, 
-        use_case: ResetContracteeUseCase,
-        user_input: ContracteeResetDTO, 
+        use_case: ResetContractorUseCase,
+        user_input: ContractorResetDTO, 
         expected_user: UserDTO
     ):
-        result = await use_case.reset_contractee(user_input)
+        result = await use_case.reset_contractor(user_input)
         
         assert isinstance(result, type(expected_user))
         assert result.user_id is not None
@@ -55,31 +55,31 @@ class TestWebResetContracteeUseCase:
     
     @pytest.mark.asyncio
     @pytest.mark.parametrize("user_input, expected_user", test_cases)
-    async def test_register_contractee_result_is_correct(
+    async def test_register_contractor_result_is_correct(
         self, 
-        use_case: ResetContracteeUseCase,
-        user_input: ContracteeResetDTO, 
+        use_case: ResetContractorUseCase,
+        user_input: ContractorResetDTO, 
         expected_user: UserDTO
     ):
-        result = await use_case.reset_contractee(user_input)
+        result = await use_case.reset_contractor(user_input)
 
         assert result == expected_user
 
     @pytest.mark.asyncio
-    async def test_register_contractee_raises_when_invalid_input(
+    async def test_register_contractor_raises_when_invalid_input(
         self, 
-        use_case: ResetContracteeUseCase,
+        use_case: ResetContractorUseCase,
         invalid_input
     ):
         with pytest.raises(InvalidInputException) as exc_info:
-            await use_case.reset_contractee(invalid_input)
+            await use_case.reset_contractor(invalid_input)
 
     @pytest.mark.asyncio
-    async def test_register_contractee_has_no_excessive_calls(
+    async def test_register_contractor_has_no_excessive_calls(
         self, 
         use_case: ResetUserUseCaseFacade,
-        contractee_input: ContracteeResetDTO
+        contractor_input: ContractorResetDTO
     ):
-        await use_case.reset_contractee(contractee_input)
+        await use_case.reset_contractor(contractor_input)
 
         use_case.user_repository.save.assert_awaited_once()
