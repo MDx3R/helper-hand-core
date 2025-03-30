@@ -3,10 +3,10 @@ from domain.dto.input.registration import UserRegistrationDTO
 from domain.entities import User, Contractee, Contractor, Admin
 from domain.entities.enums import UserStatusEnum
 from domain.dto.common import UserDTO, ContracteeDTO, ContractorDTO
-from domain.dto.input.registration import (
-    UserRegistrationDTO, 
-    ContracteeRegistrationDTO, 
-    ContractorRegistrationDTO
+from domain.dto.input import (
+    UserInputDTO, 
+    ContracteeInputDTO, 
+    ContractorInputDTO
 )
 from domain.repositories import UserRepository
 from domain.services.domain import UserDomainService
@@ -29,15 +29,15 @@ class SaveUserUseCase(ABC):
         self.user_repository = user_repository
 
     @transactional
-    async def save_user(self, user_input: UserRegistrationDTO) -> ContracteeDTO | ContractorDTO:
+    async def save_user(self, user_input: UserInputDTO) -> ContracteeDTO | ContractorDTO:
         user = self._cast_role_input_to_role(user_input)
         user = await self._save_user(user)
         return map_user_to_dto(user)
     
     def _cast_role_input_to_role(self, user_input: UserRegistrationDTO) -> Contractee | Contractor:
-        if isinstance(user_input, ContracteeRegistrationDTO):
+        if isinstance(user_input, ContracteeInputDTO):
             return user_input.to_contractee()
-        elif isinstance(user_input, ContractorRegistrationDTO):
+        elif isinstance(user_input, ContractorInputDTO):
             return user_input.to_contractor()
         raise InvalidInputException(
             f"Роль пользователя {user_input.role} не совпадает с типом передаваемого объекта {type(user_input)}"
