@@ -12,15 +12,10 @@ class TestCasesGenerator(ABC, Generic[T]):
     }
 
     @classmethod
-    def create(cls, preset_name: str = "default", random: bool = False, **kwargs) -> T:
-        """Создает одиночный тестовый случай с возможностью выбора статических или рандомных данных."""
+    def create(cls, preset_name: str = "default", **kwargs) -> T:
+        """Создает одиночный успешный тестовый кейс."""
         data = cls._concat_data(cls.get_preset_data(preset_name), kwargs)
-        return cls._create_test_case(random=random, **data)
-
-    @classmethod
-    def create_list(cls, count: int = 3, preset_name: str = "default", random: bool = False, **kwargs) -> List[T]:
-        """Создает список тестовых случаев."""
-        return [cls.create(preset_name=preset_name, random=random, **kwargs) for _ in range(count)]
+        return cls._create_test_case(**data)
 
     @classmethod
     def get_preset_data(cls, preset_name: str = "default") -> dict:
@@ -29,19 +24,27 @@ class TestCasesGenerator(ABC, Generic[T]):
             raise ValueError(f"'{preset_name}' не найден в {cls.__name__}.presets")
         return cls.presets[preset_name]
 
+    @classmethod
+    def create_list(cls, count: int = 3, preset_name: str = "default", **kwargs) -> List[T]:
+        """Создает список тестовых случаев."""
+        return [cls.create(preset_name=preset_name, **kwargs) for _ in range(count)]
+
     @staticmethod
     def _concat_data(d: dict, t: dict) -> dict:
         """Объединяет два словаря."""
         return d | t
-
+    
     @classmethod
     @abstractmethod
-    def _create_test_case(cls, random: bool = False, **kwargs) -> T:
-        """Абстрактный метод для создания тестового случая."""
+    def _create_test_case(cls, **kwargs) -> T:
         pass
 
+
+class GenerateAllTestCasesMixin:
+    """Миксин для генерации всех методов create"""
+
     @classmethod
-    def generate_all(cls, count: Optional[int] = None, random: bool = False) -> List[T]:
+    def generate_all(cls, count: Optional[int] = None) -> List[T]:
         """Генерирует все тестовые случаи из методов create_*."""
         test_cases = []
         for attr_name in dir(cls):
@@ -49,32 +52,23 @@ class TestCasesGenerator(ABC, Generic[T]):
                 method = getattr(cls, attr_name)
                 if callable(method):
                     if count is None:
-                        test_cases.append(method(random=random))
+                        test_cases.append(method())
                     else:
-                        test_cases.extend(cls._generate_from_method(method, count, random=random))
+                        test_cases.extend(cls._generate_from_method(method, count))
         return test_cases
-
+    
     @classmethod
-    def generate_all_static(cls, count: Optional[int] = None) -> List[T]:
-        """Генерирует все статические тестовые случаи."""
-        return cls.generate_all(count=count, random=False)
-
-    @classmethod
-    def generate_all_random(cls, count: Optional[int] = None) -> List[T]:
-        """Генерирует все рандомные тестовые случаи."""
-        cls.generate_all(count=count, random=True)
-
-    @classmethod
-    def _generate_from_method(cls, method, count: int, random: bool = False) -> List[T]:
+    def _generate_from_method(cls, method, count: int) -> List[T]:
         """Вспомогательный метод для генерации списка из метода."""
-        return [method(random=random) for _ in range(count)]
+        return [method() for _ in range(count)]
+
 
 class ApplicationModelTestCasesGenerator(TestCasesGenerator[T], Generic[T, M]):
     creator: type[ModelBaseCreator] = ModelBaseCreator
 
     @classmethod
-    def _create_test_case(cls, random: bool = False, **kwargs) -> ApplicationModelTestCase:
-        model = cls._create_model(random, **kwargs)
+    def _create_test_case(cls, **kwargs) -> ApplicationModelTestCase:
+        model = cls._create_model(random=True, **kwargs)
         return ApplicationModelTestCase(model)
 
     @classmethod
@@ -89,8 +83,8 @@ class BaseTestCasesGenerator(TestCasesGenerator[T], Generic[T, B]):
     creator: type[ModelBaseCreator] = ModelBaseCreator
 
     @classmethod
-    def _create_test_case(cls, random: bool = False, **kwargs) -> BaseTestCase:
-        base = cls._create_base(random, **kwargs)
+    def _create_test_case(cls, **kwargs) -> BaseTestCase:
+        base = cls._create_base(random=True, **kwargs)
         return BaseTestCase(base)
 
     @classmethod
