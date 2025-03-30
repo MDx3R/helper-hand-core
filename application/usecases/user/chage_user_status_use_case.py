@@ -1,51 +1,17 @@
-from domain.dto.input.registration import UserRegistrationDTO
-
-from domain.entities import User, Contractee, Contractor, Admin
+from domain.entities import User
 from domain.entities.enums import UserStatusEnum
-from domain.dto.common import UserDTO, ContracteeDTO, ContractorDTO
-from domain.dto.input import (
-    UserInputDTO, 
-    ContracteeInputDTO, 
-    ContractorInputDTO
-)
+from domain.dto.common import UserDTO
+
 from domain.repositories import UserRepository
 from domain.services.domain import UserDomainService
 from domain.exceptions.service import (
     UserStatusChangeNotAllowedException, 
     NotFoundException,
-    InvalidInputException
 )
 
 from application.transactions import transactional
 
 from abc import ABC, abstractmethod
-
-from domain.dto.mappers import map_user_to_dto
-
-class SaveUserUseCase(ABC):
-    def __init__(
-        self, user_repository: UserRepository,
-    ):
-        self.user_repository = user_repository
-
-    @transactional
-    async def save_user(self, user_input: UserInputDTO) -> ContracteeDTO | ContractorDTO:
-        user = self._cast_role_input_to_role(user_input)
-        user = await self._save_user(user)
-        return map_user_to_dto(user)
-    
-    def _cast_role_input_to_role(self, user_input: UserInputDTO) -> Contractee | Contractor:
-        if isinstance(user_input, ContracteeInputDTO):
-            return user_input.to_contractee()
-        elif isinstance(user_input, ContractorInputDTO):
-            return user_input.to_contractor()
-        raise InvalidInputException(
-            f"Роль пользователя {user_input.role} не совпадает с типом передаваемого объекта {type(user_input)}"
-        )
-    
-    async def _save_user(self, user: Contractee | Contractor | Admin):
-        return await self.user_repository.save(user)
-
 
 class ChangeUserStatusUseCase(ABC):
     @abstractmethod
@@ -77,17 +43,13 @@ class BanUserUseCase(ABC):
         pass
 
 
-class UserCommandUseCase(
+class ChangeUserStatusUseCaseFacade(
     ApproveUserUseCase, 
     DisapproveUserUseCase, 
     DropUserUseCase, 
     BanUserUseCase, 
     #ChangeUserStatusUseCase
 ):
-    """
-    Реализация Use Cases типа UserCommand.
-    Не для прямого использования. 
-    """
     def __init__(
         self, user_repository: UserRepository,
     ):
