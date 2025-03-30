@@ -9,3 +9,4 @@ from .detailed_order import DetailedOrder
 from .reply import Reply
 from .detailed_reply import DetailedReply
 from .available_replies_for_detail import AvailableRepliesForDetail
+from .telegram_user import TelegramUser
