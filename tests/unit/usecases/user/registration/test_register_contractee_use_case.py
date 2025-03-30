@@ -15,11 +15,9 @@ from .generators import (
     UserRegistrationTestCaseGenerator,
     ContracteeRegistrationFromTelegramTestCaseGenerator,
     ContracteeRegistrationFromWebTestCaseGenerator,
-    # ContractorRegistrationFromTelegramTestCaseGenerator,
-    # ContractorRegistrationFromWebTestCaseGenerator
 )
 
-from .conftest import set_up_counter
+from ..conftest import set_up_counter
 
 def generate_register_user_test_cases(generator: type[UserRegistrationTestCaseGenerator]):
     return [
@@ -31,19 +29,6 @@ def generate_contractee_telegram_test_cases():
 
 def generate_contractee_web_test_cases():
     return [(t.input, t.expected) for t in generate_register_user_test_cases(ContracteeRegistrationFromWebTestCaseGenerator)]
-
-# def generate_contractor_telegram_test_cases():
-#     return [(t.input, t.expected) for t in generate_register_user_test_cases(ContractorRegistrationFromTelegramTestCaseGenerator)]
-
-# def generate_contractor_web_test_cases():
-#     return [(t.input, t.expected) for t in generate_register_user_test_cases(ContractorRegistrationFromWebTestCaseGenerator)]
-
-test_cases = [
-    *generate_contractee_telegram_test_cases(),
-    *generate_contractee_web_test_cases(),
-    # *generate_contractor_telegram_test_cases(),
-    # *generate_contractor_web_test_cases()
-]
 
 @pytest.fixture
 def web_use_case(user_repository):
