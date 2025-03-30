@@ -1,7 +1,7 @@
 from typing import List
 from abc import ABC, abstractmethod
 
-from domain.entities import User, Admin, Contractee, Contractor
+from domain.entities import User, Admin, Contractee, Contractor, TelegramUser
 from domain.entities.enums import UserStatusEnum, RoleEnum, GenderEnum
 
 class UserRepository(ABC):
@@ -100,6 +100,23 @@ class UserRepository(ABC):
             
         Returns:
             User: Модель роли, расширяющей User.
+        """
+        pass
+
+    @abstractmethod
+    async def save_telegram_user(self, user: TelegramUser) -> TelegramUser:
+        """
+        Сохраняет данные профиля Telegram пользователя.
+        
+        Args:
+            user (TelegramUser)
+        
+        Returns:
+            TelegramUser.
+            
+        Raises:
+            IntegrityException: Возникает при нарушении целостности данных при сохранении данных.
+            DuplicateEntryException: Возникает, если уникальные значения повторяются: Если произошел конфликт уникальности поля.
         """
         pass
 
