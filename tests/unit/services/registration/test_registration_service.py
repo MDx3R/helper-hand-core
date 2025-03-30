@@ -10,10 +10,10 @@ from domain.entities.enums import UserStatusEnum, RoleEnum
 from application.services.registration import TelegramUserRegistrationService, WebUserRegistrationService
 
 from .generators import (
-    TelegramContracteeRegistrationTestCasesGenerator, 
-    WebContracteeRegistrationTestCasesGenerator,
-    TelegramContractorRegistrationTestCasesGenerator,
-    WebContractorRegistrationTestCasesGenerator
+    TelegramContracteeRegistrationTestCaseGenerator, 
+    WebContracteeRegistrationTestCaseGenerator,
+    TelegramContractorRegistrationTestCaseGenerator,
+    WebContractorRegistrationTestCaseGenerator
 )
 
 counter = 1
@@ -76,17 +76,17 @@ def set_up_counter(user_id: int):
 
 def generate_successful_contractee_registration_test_case(telegram: bool = False):
     if telegram:
-        test_case = TelegramContracteeRegistrationTestCasesGenerator.create_successful(random=True)
+        test_case = TelegramContracteeRegistrationTestCaseGenerator.create_successful(random=True)
     else:
-        test_case = WebContracteeRegistrationTestCasesGenerator.create_successful(random=True)
+        test_case = WebContracteeRegistrationTestCaseGenerator.create_successful(random=True)
 
     return (test_case.input, test_case.expected)
 
 def generate_successful_contractor_registration_test_case(telegram: bool = False):
     if telegram:
-        test_case = TelegramContractorRegistrationTestCasesGenerator.create_successful(random=True)
+        test_case = TelegramContractorRegistrationTestCaseGenerator.create_successful(random=True)
     else:
-        test_case = WebContractorRegistrationTestCasesGenerator.create_successful(random=True)
+        test_case = WebContractorRegistrationTestCaseGenerator.create_successful(random=True)
 
     return (test_case.input, test_case.expected)
 

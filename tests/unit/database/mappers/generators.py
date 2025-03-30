@@ -12,14 +12,14 @@ from tests.creators import (
     ModelBaseCreator, UserCreator, OrderCreator, OrderDetailCreator, ReplyCreator,
     AggregatedUserCreator, ContracteeCreator, ContractorCreator, AdminCreator
 )
-from tests.generators.base import ApplicationModelTestCasesGenerator, BaseTestCasesGenerator
+from tests.generators.base import ApplicationModelTestCaseGenerator, BaseTestCaseGenerator
 from .test_cases import MAP, B, M, MapperTestCase, AggregatedUserMapperTestCase
 
 MAP = TypeVar("MAP", bound=Mapper)
 
-class MapperTestCasesGenerator(
-    ApplicationModelTestCasesGenerator[MapperTestCase, M],
-    BaseTestCasesGenerator[MapperTestCase, B],
+class MapperTestCaseGenerator(
+    ApplicationModelTestCaseGenerator[MapperTestCase, M],
+    BaseTestCaseGenerator[MapperTestCase, B],
     Generic[MAP, B, M]
 ):
     mapper: type[Mapper] = Mapper
@@ -37,10 +37,10 @@ class MapperTestCasesGenerator(
     def _get_mapper(cls, random: bool = False) -> MAP:
         return cls.mapper
 
-class UserMapperTestCasesGenerator(MapperTestCasesGenerator[UserMapper, UserBase, User]):
+class UserMapperTestCaseGenerator(MapperTestCaseGenerator[UserMapper, UserBase, User]):
     mapper = UserMapper
     creator = UserCreator
-    presets = MapperTestCasesGenerator.presets | {
+    presets = MapperTestCaseGenerator.presets | {
         "no_id": {"user_id": None},
         "no_patronymic": {"patronymic": None},
         "no_photos": {"photos": []},
@@ -58,10 +58,10 @@ class UserMapperTestCasesGenerator(MapperTestCasesGenerator[UserMapper, UserBase
     def create_no_photos(cls, random: bool = False):
         return cls.create("no_photos", random=random)
 
-class OrderMapperTestCasesGenerator(MapperTestCasesGenerator[OrderMapper, OrderBase, Order]):
+class OrderMapperTestCaseGenerator(MapperTestCaseGenerator[OrderMapper, OrderBase, Order]):
     mapper = OrderMapper
     creator = OrderCreator
-    presets = MapperTestCasesGenerator.presets | {
+    presets = MapperTestCaseGenerator.presets | {
         "no_id": {"order_id": None},
         "no_admin_id": {"admin_id": None},
     }
@@ -74,10 +74,10 @@ class OrderMapperTestCasesGenerator(MapperTestCasesGenerator[OrderMapper, OrderB
     def create_no_admin_id(cls, random: bool = False):
         return cls.create("no_admin_id", random=random)
 
-class OrderDetailMapperTestCasesGenerator(MapperTestCasesGenerator[OrderDetailMapper, OrderDetailBase, OrderDetail]):
+class OrderDetailMapperTestCaseGenerator(MapperTestCaseGenerator[OrderDetailMapper, OrderDetailBase, OrderDetail]):
     mapper = OrderDetailMapper
     creator = OrderDetailCreator
-    presets = MapperTestCasesGenerator.presets | {
+    presets = MapperTestCaseGenerator.presets | {
         "no_id": {"detail_id": None},
         "no_gender": {"gender": None},
     }
@@ -90,10 +90,10 @@ class OrderDetailMapperTestCasesGenerator(MapperTestCasesGenerator[OrderDetailMa
     def create_no_gender(cls, random: bool = False):
         return cls.create("no_gender", random=random)
 
-class ReplyMapperTestCasesGenerator(MapperTestCasesGenerator[ReplyMapper, ReplyBase, Reply]):
+class ReplyMapperTestCaseGenerator(MapperTestCaseGenerator[ReplyMapper, ReplyBase, Reply]):
     mapper = ReplyMapper
     creator = ReplyCreator
-    presets = MapperTestCasesGenerator.presets | {
+    presets = MapperTestCaseGenerator.presets | {
         "no_paid": {"paid": None},
     }
 
@@ -101,9 +101,9 @@ class ReplyMapperTestCasesGenerator(MapperTestCasesGenerator[ReplyMapper, ReplyB
     def create_no_paid(cls, random: bool = False):
         return cls.create("no_paid", random=random)
 
-class AggregatedUserMapperTestCasesGenerator(
-    ApplicationModelTestCasesGenerator[AggregatedUserMapperTestCase, M],
-    BaseTestCasesGenerator[AggregatedUserMapperTestCase, B],
+class AggregatedUserMapperTestCaseGenerator(
+    ApplicationModelTestCaseGenerator[AggregatedUserMapperTestCase, M],
+    BaseTestCaseGenerator[AggregatedUserMapperTestCase, B],
     Generic[MAP, B, M]
 ):
     mapper: type[AggregatedUserMapper] = AggregatedUserMapper
@@ -128,10 +128,10 @@ class AggregatedUserMapperTestCasesGenerator(
     def create_different_update_time(cls, random: bool = False) -> AggregatedUserMapperTestCase:
         return cls._create_test_case(random=random, updated_at=datetime(2024, 3, 16, 13, 30, 0))
 
-class ContracteeMapperTestCasesGenerator(AggregatedUserMapperTestCasesGenerator[ContracteeMapper, ContracteeBase, Contractee]):
+class ContracteeMapperTestCaseGenerator(AggregatedUserMapperTestCaseGenerator[ContracteeMapper, ContracteeBase, Contractee]):
     mapper = ContracteeMapper
     creator = ContracteeCreator
-    presets = AggregatedUserMapperTestCasesGenerator.presets | {
+    presets = AggregatedUserMapperTestCaseGenerator.presets | {
         "no_id": {"contractee_id": None},
     }
 
@@ -139,10 +139,10 @@ class ContracteeMapperTestCasesGenerator(AggregatedUserMapperTestCasesGenerator[
     def create_no_id(cls, random: bool = False):
         return cls.create("no_id", random=random)
 
-class ContractorMapperTestCasesGenerator(AggregatedUserMapperTestCasesGenerator[ContractorMapper, ContractorBase, Contractor]):
+class ContractorMapperTestCaseGenerator(AggregatedUserMapperTestCaseGenerator[ContractorMapper, ContractorBase, Contractor]):
     mapper = ContractorMapper
     creator = ContractorCreator
-    presets = AggregatedUserMapperTestCasesGenerator.presets | {
+    presets = AggregatedUserMapperTestCaseGenerator.presets | {
         "no_id": {"contractor_id": None}, 
     }
 
@@ -150,10 +150,10 @@ class ContractorMapperTestCasesGenerator(AggregatedUserMapperTestCasesGenerator[
     def create_no_id(cls, random: bool = False):
         return cls.create("no_id", random=random)
 
-class AdminMapperTestCasesGenerator(AggregatedUserMapperTestCasesGenerator[AdminMapper, AdminBase, Admin]):
+class AdminMapperTestCaseGenerator(AggregatedUserMapperTestCaseGenerator[AdminMapper, AdminBase, Admin]):
     mapper = AdminMapper
     creator = AdminCreator
-    presets = AggregatedUserMapperTestCasesGenerator.presets | {
+    presets = AggregatedUserMapperTestCaseGenerator.presets | {
         "no_id": {"admin_id": None},
         "no_contractor_id": {"contractor_id": None},
     }

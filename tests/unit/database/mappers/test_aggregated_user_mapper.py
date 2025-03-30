@@ -5,17 +5,17 @@ from infrastructure.database.mappers import AggregatedUserMapper
 from domain.entities import ApplicationModel, User
 
 from .generators import (
-    AggregatedUserMapperTestCasesGenerator, 
-    ContracteeMapperTestCasesGenerator, 
-    ContractorMapperTestCasesGenerator, 
-    AdminMapperTestCasesGenerator
+    AggregatedUserMapperTestCaseGenerator, 
+    ContracteeMapperTestCaseGenerator, 
+    ContractorMapperTestCaseGenerator, 
+    AdminMapperTestCaseGenerator
 )
 
 # Список тестовых случаев
-generators: list[type[AggregatedUserMapperTestCasesGenerator]] = [
-    ContracteeMapperTestCasesGenerator,
-    ContractorMapperTestCasesGenerator,
-    AdminMapperTestCasesGenerator,
+generators: list[type[AggregatedUserMapperTestCaseGenerator]] = [
+    ContracteeMapperTestCaseGenerator,
+    ContractorMapperTestCaseGenerator,
+    AdminMapperTestCaseGenerator,
 ]
 
 def generate_test_cases():
@@ -108,7 +108,7 @@ class TestToModelListAggregatedUserMapper:
             assert model.created_at == exp.created_at
             assert model.updated_at == exp.updated_at
 
-    @pytest.mark.parametrize("mapper", [ContracteeMapperTestCasesGenerator.mapper, ContractorMapperTestCasesGenerator.mapper, AdminMapperTestCasesGenerator.mapper])
+    @pytest.mark.parametrize("mapper", [ContracteeMapperTestCaseGenerator.mapper, ContractorMapperTestCaseGenerator.mapper, AdminMapperTestCaseGenerator.mapper])
     def test_to_model_list_with_empty_list(self, mapper: AggregatedUserMapper) -> None:
         """Проверка, что to_model_list корректно обрабатывает пустой список."""
         result: List[ApplicationModel] = mapper.to_model_list([])
@@ -143,7 +143,7 @@ class TestToBaseListAggregatedUserMapper:
             assert role_base.created_at == exp_role_base.created_at
             assert role_base.updated_at == exp_role_base.updated_at
 
-    @pytest.mark.parametrize("mapper", [ContracteeMapperTestCasesGenerator.mapper, ContractorMapperTestCasesGenerator.mapper, AdminMapperTestCasesGenerator.mapper])
+    @pytest.mark.parametrize("mapper", [ContracteeMapperTestCaseGenerator.mapper, ContractorMapperTestCaseGenerator.mapper, AdminMapperTestCaseGenerator.mapper])
     def test_to_base_list_with_empty_list(self, mapper: AggregatedUserMapper) -> None:
         """Проверка, что to_base_list корректно обрабатывает пустой список."""
         result: List[Tuple[UserBase, Base]] = mapper.to_base_list([])

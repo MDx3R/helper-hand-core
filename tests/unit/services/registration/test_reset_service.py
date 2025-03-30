@@ -13,9 +13,9 @@ from domain.exceptions.service import PermissionDeniedException
 from application.services.registration import UserResetServiceImpl
 
 from .generators import (
-    UserResetTestCasesGenerator,
-    ContracteeResetTestCasesGenerator,
-    ContractorResetTestCasesGenerator
+    UserResetTestCaseGenerator,
+    ContracteeResetTestCaseGenerator,
+    ContractorResetTestCaseGenerator
 )
 
 @pytest.fixture
@@ -54,7 +54,7 @@ def reset_service(user_repository, transaction_manager, notification_service):
     return service
 
 def generate_successful_user_reset_test_case(
-    generator: type[UserResetTestCasesGenerator],
+    generator: type[UserResetTestCaseGenerator],
     same_user_id: bool = True, 
     same_telegram_id: bool = True, 
     same_chat_id: bool = True
@@ -76,7 +76,7 @@ def generate_successful_contractee_reset_test_case(
     same_chat_id: bool = True
 ):
     return generate_successful_user_reset_test_case(
-        ContracteeResetTestCasesGenerator,
+        ContracteeResetTestCaseGenerator,
         same_user_id,
         same_telegram_id,
         same_chat_id,
@@ -88,7 +88,7 @@ def generate_successful_contractor_reset_test_case(
     same_chat_id: bool = True
 ):
     return generate_successful_user_reset_test_case(
-        ContractorResetTestCasesGenerator,
+        ContractorResetTestCaseGenerator,
         same_user_id,
         same_telegram_id,
         same_chat_id,

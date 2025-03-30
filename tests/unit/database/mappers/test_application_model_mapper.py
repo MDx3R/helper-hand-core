@@ -11,14 +11,14 @@ from infrastructure.database.mappers import (
 )
 
 from .test_cases import MapperTestCase
-from .generators import MapperTestCasesGenerator, UserMapperTestCasesGenerator, OrderMapperTestCasesGenerator, OrderDetailMapperTestCasesGenerator, ReplyMapperTestCasesGenerator
+from .generators import MapperTestCaseGenerator, UserMapperTestCaseGenerator, OrderMapperTestCaseGenerator, OrderDetailMapperTestCaseGenerator, ReplyMapperTestCaseGenerator
 
 # Список тестовых случаев
-generators: list[type[MapperTestCasesGenerator]] = [
-    UserMapperTestCasesGenerator,
-    OrderMapperTestCasesGenerator,
-    OrderDetailMapperTestCasesGenerator,
-    ReplyMapperTestCasesGenerator
+generators: list[type[MapperTestCaseGenerator]] = [
+    UserMapperTestCaseGenerator,
+    OrderMapperTestCaseGenerator,
+    OrderDetailMapperTestCaseGenerator,
+    ReplyMapperTestCaseGenerator
 ]
 
 def generate_test_cases():

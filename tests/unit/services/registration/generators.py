@@ -12,12 +12,12 @@ from domain.dto.common import UserDTO, ContracteeDTO, ContractorDTO
 from tests.creators import (
     AggregatedUserCreator, ContracteeCreator, ContractorCreator
 )
-from tests.generators.base import TestCasesGenerator
+from tests.generators.base import TestCaseGenerator
 
 from .test_cases import UserRegistrationTestCase, UserResetTestCase
 
-class UserRegistrationTestCasesGenerator(
-    TestCasesGenerator[UserRegistrationTestCase]
+class UserRegistrationTestCaseGenerator(
+    TestCaseGenerator[UserRegistrationTestCase]
 ):
     creator: type[AggregatedUserCreator] = AggregatedUserCreator
     input_dto: type[UserRegistrationDTO] = UserRegistrationDTO
@@ -49,7 +49,7 @@ class UserRegistrationTestCasesGenerator(
         return cls.create(random=random)
 
 
-class TelegramUserRegistrationTestCasesGenerator(UserRegistrationTestCasesGenerator):
+class TelegramUserRegistrationTestCaseGenerator(UserRegistrationTestCaseGenerator):
     @classmethod
     def _create_test_case(cls, random: bool = False, **kwargs) -> UserRegistrationTestCase:
         return super()._create_test_case(
@@ -59,7 +59,7 @@ class TelegramUserRegistrationTestCasesGenerator(UserRegistrationTestCasesGenera
         )
 
 
-class WebUserRegistrationTestCasesGenerator(UserRegistrationTestCasesGenerator):
+class WebUserRegistrationTestCaseGenerator(UserRegistrationTestCaseGenerator):
     @classmethod
     def _create_test_case(cls, random: bool = False, **kwargs) -> UserRegistrationTestCase:
         return super()._create_test_case(
@@ -71,32 +71,32 @@ class WebUserRegistrationTestCasesGenerator(UserRegistrationTestCasesGenerator):
         )
 
 
-class TelegramContracteeRegistrationTestCasesGenerator(TelegramUserRegistrationTestCasesGenerator):
+class TelegramContracteeRegistrationTestCaseGenerator(TelegramUserRegistrationTestCaseGenerator):
     creator = ContracteeCreator
     input_dto = TelegramContracteeRegistrationDTO
     output_dto = ContracteeDTO
 
 
-class TelegramContractorRegistrationTestCasesGenerator(TelegramUserRegistrationTestCasesGenerator):
+class TelegramContractorRegistrationTestCaseGenerator(TelegramUserRegistrationTestCaseGenerator):
     creator = ContractorCreator
     input_dto = TelegramContractorRegistrationDTO
     output_dto = ContractorDTO
 
 
-class WebContracteeRegistrationTestCasesGenerator(WebUserRegistrationTestCasesGenerator):
+class WebContracteeRegistrationTestCaseGenerator(WebUserRegistrationTestCaseGenerator):
     creator = ContracteeCreator
     input_dto = WebContracteeRegistrationDTO
     output_dto = ContracteeDTO
 
 
-class WebContractorRegistrationTestCasesGenerator(WebUserRegistrationTestCasesGenerator):
+class WebContractorRegistrationTestCaseGenerator(WebUserRegistrationTestCaseGenerator):
     creator = ContractorCreator
     input_dto = WebContractorRegistrationDTO
     output_dto = ContractorDTO
 
 
-class UserResetTestCasesGenerator(
-    TestCasesGenerator[UserResetTestCase]
+class UserResetTestCaseGenerator(
+    TestCaseGenerator[UserResetTestCase]
 ):
     creator: type[AggregatedUserCreator] = AggregatedUserCreator
     input_dto: type[UserResetDTO] = UserResetDTO
@@ -150,13 +150,13 @@ class UserResetTestCasesGenerator(
         )
 
 
-class ContracteeResetTestCasesGenerator(UserResetTestCasesGenerator):
+class ContracteeResetTestCaseGenerator(UserResetTestCaseGenerator):
     creator = ContracteeCreator
     input_dto = ContracteeResetDTO
     output_dto = ContracteeDTO
 
 
-class ContractorResetTestCasesGenerator(UserResetTestCasesGenerator):
+class ContractorResetTestCaseGenerator(UserResetTestCaseGenerator):
     creator = ContractorCreator
     input_dto = ContractorResetDTO
     output_dto = ContractorDTO

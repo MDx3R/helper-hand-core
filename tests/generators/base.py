@@ -6,7 +6,7 @@ from .test_cases import TestCase, ApplicationModelTestCase, BaseTestCase
 
 T = TypeVar("T", bound=TestCase)
 
-class TestCasesGenerator(ABC, Generic[T]):
+class TestCaseGenerator(ABC, Generic[T]):
     presets = {
         "default": {},
     }
@@ -40,7 +40,7 @@ class TestCasesGenerator(ABC, Generic[T]):
         pass
 
 
-class GenerateAllTestCasesMixin:
+class GenerateAllTestCaseMixin:
     """Миксин для генерации всех методов create"""
 
     @classmethod
@@ -63,7 +63,7 @@ class GenerateAllTestCasesMixin:
         return [method() for _ in range(count)]
 
 
-class ApplicationModelTestCasesGenerator(TestCasesGenerator[T], Generic[T, M]):
+class ApplicationModelTestCaseGenerator(TestCaseGenerator[T], Generic[T, M]):
     creator: type[ModelBaseCreator] = ModelBaseCreator
 
     @classmethod
@@ -79,7 +79,7 @@ class ApplicationModelTestCasesGenerator(TestCasesGenerator[T], Generic[T, M]):
         return cls.creator.create_model(**kwargs)
 
 
-class BaseTestCasesGenerator(TestCasesGenerator[T], Generic[T, B]):
+class BaseTestCaseGenerator(TestCaseGenerator[T], Generic[T, B]):
     creator: type[ModelBaseCreator] = ModelBaseCreator
 
     @classmethod
