@@ -64,8 +64,10 @@ class UserBase(Base):
     status: Mapped[UserStatusEnum]
     photos: Mapped[List[str]] = mapped_column(ARRAY(String))
 
-    # Будет перемещено в отдельное отношение TelegramUser
-    # На данный момент telegram_id выступает в роли Primary Key, хотя таковым не является: предусматривается, что пользователь может быть не только TelegramUser.
+class TelegramUserBase(Base):
+    __tablename__ = "TelegramUser"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("User.user_id"), primary_key=True)
     telegram_id: Mapped[int] = mapped_column(BigInteger, unique=True)
     chat_id: Mapped[int] = mapped_column(BigInteger, unique=True)
 
