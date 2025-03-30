@@ -9,7 +9,7 @@ class UserResetService(ABC):
     Интерфейс для сервисов повторной регистрации пользователей.
     """
     @abstractmethod
-    async def reset_user(self, user_input: UserResetDTO, user: UserContextDTO) -> UserDTO:
+    async def reset_user(self, user_input: UserResetDTO, context: UserContextDTO) -> UserDTO:
         """
         Повторно регистрирует пользователя.
 
@@ -20,7 +20,7 @@ class UserResetService(ABC):
 
         Args:
             user_input (UserResetDTO): Объект класса пользователя, производного от `UserResetDTO`, соответствующий полю `role` класса `UserResetDTO`.
-            user (UserContextDTO)
+            context (UserContextDTO)
 
         Returns:
             UserDTO: Объект класса пользователя, соответствующий роли повторно зарегистрированного пользователя.
