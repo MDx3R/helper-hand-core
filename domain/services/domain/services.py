@@ -48,7 +48,7 @@ class UserDomainService:
             case UserStatusEnum.dropped:
                 return cls.can_be_dropped(user)
             case UserStatusEnum.banned:
-                return cls.can_be_dropped(user)
+                return cls.can_be_banned(user)
 
         return False
 
@@ -58,11 +58,11 @@ class UserDomainService:
     
     @classmethod
     def can_be_dropped(cls, user: User) -> bool:
-        return not cls.is_dropped(user)
+        return not cls.is_dropped(user) and not cls.is_admin(user)
     
     @classmethod
     def can_be_banned(cls, user: User) -> bool:
-        return not cls.is_banned(user)
+        return not cls.is_banned(user) and not cls.is_admin(user)
 
     @classmethod
     def is_editable_by_others(cls, user: User) -> bool:
