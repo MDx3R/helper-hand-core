@@ -5,6 +5,6 @@ from .user_registration_service import (
     WebContractorRegistrationService
 )
 from .user_reset_service import (
-    ResetContracteeUseCase,
-    ResetContractorUseCase
+    ContracteeResetService,
+    ContractorResetService
 )

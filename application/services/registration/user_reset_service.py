@@ -13,6 +13,7 @@ from domain.dto.common import (
     ContractorDTO
 )
 from domain.dto.context import UserContextDTO
+from domain.exceptions.service import PermissionDeniedException
 
 from application.usecases.user import (
     ResetContracteeUseCase,
@@ -20,9 +21,7 @@ from application.usecases.user import (
 )
 from application.external.notification import AdminNotificationService
 
-from domain.dto.mappers import map_user_to_dto
-
-class BaseUserResetService(ABC, UserResetService):
+class BaseUserResetService(UserResetService, ABC):
     """Базовый класс для сервисов сброса пользователя."""
 
     def __init__(
@@ -32,10 +31,16 @@ class BaseUserResetService(ABC, UserResetService):
         self.notification_service = notification_service
 
     async def reset_user(self, user_input: UserResetDTO, context: UserContextDTO) -> UserDTO:
-        user = self._reset_user(user_input, context)
+        if user_input.user_id != context.user_id:
+            raise PermissionDeniedException(
+                f"Сброс пользователя {user_input.user_id}",
+                context.user_id
+            )
+        
+        user = await self._reset_user(user_input, context)
         await self._post_reset_hook(user)
 
-        return map_user_to_dto(user)
+        return user
     
     @abstractmethod
     async def _reset_user(self, user_input: UserResetDTO, context: UserContextDTO) -> UserDTO:
@@ -45,7 +50,7 @@ class BaseUserResetService(ABC, UserResetService):
         await self.notification_service.send_new_registration_notification()
 
 
-class ContracteeResetServiceImpl(BaseUserResetService):
+class ContracteeResetService(BaseUserResetService):
     """
     Класс реализации интерфейса `UserResetService`.
     
@@ -66,7 +71,7 @@ class ContracteeResetServiceImpl(BaseUserResetService):
         return await self.use_case.reset_contractee(user_input)
 
 
-class ContractorResetServiceImpl(BaseUserResetService):
+class ContractorResetService(BaseUserResetService):
     """
     Класс реализации интерфейса `UserResetService`.
     
