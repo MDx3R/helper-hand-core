@@ -1,7 +1,7 @@
 from typing import Optional, List, TypeVar, Generic
 from abc import ABC, abstractmethod
 
-from tests.creators import ModelBaseCreator, B, M
+from tests.factories import ModelBaseFactory, B, M
 from .test_cases import TestCase, ApplicationModelTestCase, BaseTestCase
 
 T = TypeVar("T", bound=TestCase)
@@ -14,8 +14,13 @@ class TestCaseGenerator(ABC, Generic[T]):
     @classmethod
     def create(cls, preset_name: str = "default", **kwargs) -> T:
         """Создает одиночный успешный тестовый кейс."""
-        data = cls._concat_data(cls.get_preset_data(preset_name), kwargs)
+        data = cls.get_preset_data(preset_name) | kwargs
         return cls._create_test_case(**data)
+
+    @classmethod
+    def create_list(cls, count: int = 3, preset_name: str = "default", **kwargs) -> List[T]:
+        """Создает список успешных тестовых случаев."""
+        return [cls.create(preset_name=preset_name, **kwargs) for _ in range(count)]
 
     @classmethod
     def get_preset_data(cls, preset_name: str = "default") -> dict:
@@ -23,16 +28,6 @@ class TestCaseGenerator(ABC, Generic[T]):
         if preset_name not in cls.presets:
             raise ValueError(f"'{preset_name}' не найден в {cls.__name__}.presets")
         return cls.presets[preset_name]
-
-    @classmethod
-    def create_list(cls, count: int = 3, preset_name: str = "default", **kwargs) -> List[T]:
-        """Создает список тестовых случаев."""
-        return [cls.create(preset_name=preset_name, **kwargs) for _ in range(count)]
-
-    @staticmethod
-    def _concat_data(d: dict, t: dict) -> dict:
-        """Объединяет два словаря."""
-        return d | t
     
     @classmethod
     @abstractmethod
@@ -63,8 +58,12 @@ class GenerateAllTestCaseMixin:
         return [method() for _ in range(count)]
 
 
-class ApplicationModelTestCaseGenerator(TestCaseGenerator[T], Generic[T, M]):
-    creator: type[ModelBaseCreator] = ModelBaseCreator
+class FactoryTestCaseGenerator(TestCaseGenerator[T], Generic[T]):
+    factory: type[ModelBaseFactory] = ModelBaseFactory
+
+
+class ApplicationModelTestCaseGenerator(FactoryTestCaseGenerator[T], Generic[T, M]):
+    factory: type[ModelBaseFactory] = ModelBaseFactory
 
     @classmethod
     def _create_test_case(cls, **kwargs) -> ApplicationModelTestCase:
@@ -74,13 +73,13 @@ class ApplicationModelTestCaseGenerator(TestCaseGenerator[T], Generic[T, M]):
     @classmethod
     def _create_model(cls, random: bool = False, **kwargs) -> M:
         if random:
-            return cls.creator.create_random_model(**kwargs)
+            return cls.factory.create_random_model(**kwargs)
         
-        return cls.creator.create_model(**kwargs)
+        return cls.factory.create_model(**kwargs)
 
 
-class BaseTestCaseGenerator(TestCaseGenerator[T], Generic[T, B]):
-    creator: type[ModelBaseCreator] = ModelBaseCreator
+class BaseTestCaseGenerator(FactoryTestCaseGenerator[T], Generic[T, B]):
+    factory: type[ModelBaseFactory] = ModelBaseFactory
 
     @classmethod
     def _create_test_case(cls, **kwargs) -> BaseTestCase:
@@ -90,6 +89,6 @@ class BaseTestCaseGenerator(TestCaseGenerator[T], Generic[T, B]):
     @classmethod
     def _create_base(cls, random: bool = False, **kwargs) -> B:
         if random:
-            return cls.creator.create_random_base(**kwargs)
+            return cls.factory.create_random_base(**kwargs)
 
-        return cls.creator.create_base(**kwargs)
+        return cls.factory.create_base(**kwargs)

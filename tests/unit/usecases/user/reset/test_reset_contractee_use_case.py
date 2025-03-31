@@ -11,7 +11,7 @@ from application.usecases.user import (
 
 from domain.exceptions.service import InvalidInputException
 
-from .generators import (
+from tests.generators.reset import (
     UserResetTestCaseGenerator,
     ContracteeResetTestCaseGenerator,
 )

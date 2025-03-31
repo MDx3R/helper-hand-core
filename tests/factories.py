@@ -20,7 +20,7 @@ fk = Faker("ru_RU")
 B = TypeVar("B", bound=Base)
 M = TypeVar("M", bound=ApplicationModel)
 
-class ModelBaseCreator(ABC, Generic[B, M]):
+class ModelBaseFactory(ABC, Generic[B, M]):
     model: type[ApplicationModel] = ApplicationModel
     base: type[Base] = Base
     fixed_data = {}
@@ -85,7 +85,7 @@ class ModelBaseCreator(ABC, Generic[B, M]):
     def get_random_data(cls, **kwargs) -> Dict[str, Any]:
         pass
 
-class UserCreator(ModelBaseCreator[UserBase, User]):
+class UserFactory(ModelBaseFactory[UserBase, User]):
     model = User
     base = UserBase
     fixed_data = {
@@ -121,7 +121,7 @@ class UserCreator(ModelBaseCreator[UserBase, User]):
         } | kwargs
 
 
-class OrderCreator(ModelBaseCreator[OrderBase, Order]):
+class OrderFactory(ModelBaseFactory[OrderBase, Order]):
     model = Order
     base = OrderBase
     fixed_data = {
@@ -148,7 +148,7 @@ class OrderCreator(ModelBaseCreator[OrderBase, Order]):
             "updated_at": fk.date_time_this_year(),
         } | kwargs
 
-class OrderDetailCreator(ModelBaseCreator[OrderDetailBase, OrderDetail]):
+class OrderDetailFactory(ModelBaseFactory[OrderDetailBase, OrderDetail]):
     model = OrderDetail
     base = OrderDetailBase
     fixed_data = {
@@ -181,7 +181,7 @@ class OrderDetailCreator(ModelBaseCreator[OrderDetailBase, OrderDetail]):
             "updated_at": fk.date_time_this_year(),
         } | kwargs
 
-class ReplyCreator(ModelBaseCreator[ReplyBase, Reply]):
+class ReplyFactory(ModelBaseFactory[ReplyBase, Reply]):
     model = Reply
     base = ReplyBase
     fixed_data = {
@@ -207,7 +207,7 @@ class ReplyCreator(ModelBaseCreator[ReplyBase, Reply]):
         } | kwargs
 
 
-class AggregatedUserCreator(ModelBaseCreator[B, M]):
+class AggregatedUserFactory(ModelBaseFactory[B, M]):
     role_id_field: str = "user_id"
 
     @classmethod
@@ -227,7 +227,7 @@ class AggregatedUserCreator(ModelBaseCreator[B, M]):
     @classmethod
     def _create_user_base(cls, data: Dict[str, Any]) -> UserBase:
         cls._assign_user_id_to_role_id_field(data)
-        return UserCreator._create_base(data)
+        return UserFactory._create_base(data)
     
     @classmethod
     def create_user_base(cls, **kwargs) -> UserBase:
@@ -250,11 +250,11 @@ class AggregatedUserCreator(ModelBaseCreator[B, M]):
         cls._assign_user_id_to_role_id_field(data)
         return data
 
-class ContracteeCreator(AggregatedUserCreator[ContracteeBase, Contractee]):
+class ContracteeFactory(AggregatedUserFactory[ContracteeBase, Contractee]):
     role_id_field: str = "contractee_id"
     model = Contractee
     base = ContracteeBase
-    fixed_data = UserCreator.fixed_data | {
+    fixed_data = UserFactory.fixed_data | {
         "role": RoleEnum.contractee,
         "birthday": date(1990, 5, 21),
         "height": 180,
@@ -265,7 +265,7 @@ class ContracteeCreator(AggregatedUserCreator[ContracteeBase, Contractee]):
 
     @classmethod
     def _get_random_data(cls, **kwargs) -> Dict[str, Any]:
-        return UserCreator.get_random_data() | {
+        return UserFactory.get_random_data() | {
             "role": RoleEnum.contractee,
             "birthday": fk.date_of_birth(minimum_age=18, maximum_age=60),
             "height": fk.random_int(min=150, max=200),
@@ -274,27 +274,27 @@ class ContracteeCreator(AggregatedUserCreator[ContracteeBase, Contractee]):
             "positions": fk.random_elements(elements=[e for e in PositionEnum], length=2),
         } | kwargs
 
-class ContractorCreator(AggregatedUserCreator[ContractorBase, Contractor]):
+class ContractorFactory(AggregatedUserFactory[ContractorBase, Contractor]):
     role_id_field: str = "contractor_id"
     model = Contractor
     base = ContractorBase
-    fixed_data = UserCreator.fixed_data | {
+    fixed_data = UserFactory.fixed_data | {
         "role": RoleEnum.contractor,
         "about": "Надежный заказчик",
     }
 
     @classmethod
     def _get_random_data(cls, **kwargs) -> Dict[str, Any]:
-        return UserCreator.get_random_data() | {
+        return UserFactory.get_random_data() | {
             "role": RoleEnum.contractor,
             "about": fk.paragraph(),
         } | kwargs
 
-class AdminCreator(AggregatedUserCreator[AdminBase, Admin]):
+class AdminFactory(AggregatedUserFactory[AdminBase, Admin]):
     role_id_field: str = "admin_id"
     model = Admin
     base = AdminBase
-    fixed_data = UserCreator.fixed_data | {
+    fixed_data = UserFactory.fixed_data | {
         "role": RoleEnum.admin,
         "about": "Опытный администратор",
         "contractor_id": None,
@@ -302,7 +302,7 @@ class AdminCreator(AggregatedUserCreator[AdminBase, Admin]):
 
     @classmethod
     def _get_random_data(cls, **kwargs) -> Dict[str, Any]:
-        return UserCreator.get_random_data() | {
+        return UserFactory.get_random_data() | {
             "role": RoleEnum.admin,
             "about": fk.paragraph(),
             "contractor_id": fk.random_element(elements=[None, fk.random_int(min=1, max=100)]),

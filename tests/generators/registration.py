@@ -9,25 +9,29 @@ from domain.dto.base import ApplicationDTO
 from domain.dto.context import UserContextDTO
 from domain.dto.common import UserDTO, ContracteeDTO, ContractorDTO
 
-from tests.creators import (
-    AggregatedUserCreator, ContracteeCreator, ContractorCreator
+from tests.factories import (
+    AggregatedUserFactory, ContracteeFactory, ContractorFactory
 )
-from tests.generators.base import TestCaseGenerator
+from tests.generators.base import FactoryTestCaseGenerator
 
 from .test_cases import UserRegistrationTestCase
 
 class UserRegistrationTestCaseGenerator(
-    TestCaseGenerator[UserRegistrationTestCase]
+    FactoryTestCaseGenerator[UserRegistrationTestCase]
 ):
-    creator: type[AggregatedUserCreator] = AggregatedUserCreator
+    factory: type[AggregatedUserFactory] = AggregatedUserFactory
     input_dto: type[UserRegistrationDTO] = UserRegistrationDTO
     output_dto: type[UserDTO] = UserDTO
 
     @classmethod
     def _create_test_case(cls, **kwargs) -> UserRegistrationTestCase:
-        data = cls._get_data(random=True, **kwargs)
+        data = cls._get_random_data(**kwargs)
 
         return cls._build_test_case(data, data)
+
+    @classmethod
+    def _get_random_data(cls, **kwargs):
+        return cls.factory.get_random_data(**kwargs)
 
     @classmethod
     def _build_test_case(cls, input, expected) -> UserRegistrationTestCase:
@@ -45,13 +49,6 @@ class UserRegistrationTestCaseGenerator(
         return cls.output_dto.model_validate(data)
 
     @classmethod
-    def _get_data(cls, random: bool = False, **kwargs):
-        if random:
-            return cls.creator.get_random_data(**kwargs)
-
-        return cls.creator.get_default_data(**kwargs)
-
-    @classmethod
     def create_invalid_input(cls) -> UserRegistrationTestCase:
         class UserInvalidInputDTO(ApplicationDTO):
             pass
@@ -63,7 +60,7 @@ class UserRegistrationTestCaseGenerator(
 
 
 class ContracteeRegistrationFromWebTestCaseGenerator(UserRegistrationTestCaseGenerator):
-    creator = ContracteeCreator
+    factory = ContracteeFactory
     input_dto = WebContracteeRegistrationDTO
     output_dto = ContracteeDTO
 
@@ -77,7 +74,7 @@ class ContracteeRegistrationFromWebTestCaseGenerator(UserRegistrationTestCaseGen
 
 
 class ContracteeRegistrationFromTelegramTestCaseGenerator(UserRegistrationTestCaseGenerator):
-    creator = ContracteeCreator
+    factory = ContracteeFactory
     input_dto = TelegramContracteeRegistrationDTO
     output_dto = ContracteeDTO
 
@@ -87,7 +84,7 @@ class ContracteeRegistrationFromTelegramTestCaseGenerator(UserRegistrationTestCa
 
 
 class ContractorRegistrationFromWebTestCaseGenerator(UserRegistrationTestCaseGenerator):
-    creator = ContractorCreator
+    factory = ContractorFactory
     input_dto = WebContractorRegistrationDTO
     output_dto = ContractorDTO
 
@@ -101,7 +98,7 @@ class ContractorRegistrationFromWebTestCaseGenerator(UserRegistrationTestCaseGen
 
 
 class ContractorRegistrationFromTelegramTestCaseGenerator(UserRegistrationTestCaseGenerator):
-    creator = ContractorCreator
+    factory = ContractorFactory
     input_dto = TelegramContractorRegistrationDTO
     output_dto = ContractorDTO
 
