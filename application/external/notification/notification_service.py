@@ -1,19 +1,45 @@
 from abc import ABC, abstractmethod
 
-from domain.entities import User, Admin
+from application.dto.notification import (
+    RegistrationApprovedNotificationDTO,
+    RegistrationDisapprovedNotificationDTO,
+    UserDroppedNotificationDTO,
+    UserBannedNotificationDTO
+)
+from application.dto.notification import AdminContactNotificationDTO
 
-class NotificationService(ABC):
-    async def send_registration_approved_notification(self, user: User):
+class UserNotificationService(ABC):
+    @abstractmethod
+    async def send_registration_approved_notification(
+        self, 
+        context: RegistrationApprovedNotificationDTO
+    ):
         pass
 
-    async def send_registration_disapproved_notification(self, user: User):
+    @abstractmethod
+    async def send_registration_disapproved_notification(
+        self, 
+        context: RegistrationDisapprovedNotificationDTO
+    ):
         pass
 
-    async def send_admin_contact_notification(self, user: User, admin: Admin):
+    @abstractmethod
+    async def send_admin_contact_notification(
+        self, 
+        context: AdminContactNotificationDTO
+    ):
         pass
 
-    async def send_user_dropped_notification(self, user: User):
+    @abstractmethod
+    async def send_user_dropped_notification(
+        self, 
+        context: UserDroppedNotificationDTO
+    ):
         pass
 
-    async def send_user_banned_notification(self, user: User):
+    @abstractmethod
+    async def send_user_banned_notification(
+        self, 
+        context: UserBannedNotificationDTO
+    ):
         pass
