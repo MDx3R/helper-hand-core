@@ -1,4 +1,4 @@
-from .status_change import (
+from .user_status_change import (
     RegistrationApprovedNotificationDTO,
     RegistrationDisapprovedNotificationDTO,
     UserDroppedNotificationDTO,
