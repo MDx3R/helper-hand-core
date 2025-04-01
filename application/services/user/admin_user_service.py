@@ -1,133 +1,121 @@
-from domain.entities import User, Admin
-from domain.entities.enums import RoleEnum, UserStatusEnum
-from domain.services.user import AdminUserService
-from domain.repositories import UserRepository
-from domain.exceptions.service import UserStatusChangeNotAllowedException, NotFoundException
-from domain.services.domain import UserDomainService
+from domain.services.user import (
+    AdminUserApprovalService,
+    AdminUserManagementService,
+    AdminUserQueryService,
+    AdminUserNotificationService
+)
 
-from application.transactions import TransactionManager
-from application.external.notification import NotificationService
+from application.usecases.user import (
+    DropUserUseCase,
+    BanUserUseCase,
+    ApproveUserUseCase,
+    DisapproveUserUseCase,
+)
+from application.dto.notification import (
+    RegistrationApprovedNotificationDTO,
+    RegistrationDisapprovedNotificationDTO,
+    UserDroppedNotificationDTO,
+    UserBannedNotificationDTO
+)
+from application.external.notification import UserNotificationService
+
+from domain.dto.context import UserContextDTO
 from domain.dto.common import UserDTO, ContracteeDTO, ContractorDTO, AdminDTO
-from domain.dto.mappers import map_user_to_dto
 
-class AdminUserServiceImpl(AdminUserService):
+class AdminUserManagementServiceImpl(AdminUserManagementService):
     def __init__(
-        self, 
-        user_repository: UserRepository,
-        transaction_manager: TransactionManager,
-        user_notification_service: NotificationService,
+        self,
+        drop_user_use_case: DropUserUseCase,
+        ban_user_use_case: BanUserUseCase,
+        notification_service: UserNotificationService
     ):
-        self.user_repository = user_repository
-        self.transaction_manager = transaction_manager
-        self.user_notification_service = user_notification_service
+        self.drop_user_use_case = drop_user_use_case
+        self.ban_user_use_case = ban_user_use_case
+        self.notification_service = notification_service
 
-    def _map_user_to_dto(self, user: User):
-        return map_user_to_dto(user)
-
-    async def get_user(self, user_id: int, admin: Admin) -> UserDTO | None:
-        user = await self.user_repository.get_user_with_role(user_id)
-        if not user:
-            return None
-        
-        return self._map_user_to_dto(user)
-
-    async def get_first_pending_user(self, admin: Admin) -> UserDTO | None:
-        user = await self.user_repository.get_first_pending_user_with_role()
-        if not user:
-            return None
-        
-        return self._map_user_to_dto(user)
-
-    async def approve_registration(self, user_id: int, admin: Admin) -> UserDTO:
-        async with self.transaction_manager:
-            user = await self._get_user_with_role_and_check_exists(user_id)
-            
-            await self._check_user_registration_can_be_approved(user, UserStatusEnum.registered)
-
-            user = await self._change_user_status(user, UserStatusEnum.registered)
-        
-        await self.user_notification_service.send_registration_approved_notification(user)
-
-        return self._map_user_to_dto(user)
-
-    async def disapprove_registration(self, user_id: int, admin: Admin) -> UserDTO:
-        async with self.transaction_manager:
-            user = await self._get_user_with_role_and_check_exists(user_id)
-            
-            await self._check_user_registration_can_be_approved(user, UserStatusEnum.dropped)
-
-            user = await self._change_user_status(user, UserStatusEnum.dropped)
-        
-        await self.user_notification_service.send_registration_disapproved_notification(user)
-
-        return self._map_user_to_dto(user)
-
-    async def _send_notifications_on_registration_approval(self, user: User):
-        if UserDomainService.is_registered(user):
-            await self._notify_registration_approved(user)
-        elif UserDomainService.is_dropped(user):
-            await self._notify_registration_disapproved(user)
-
-    async def _notify_registration_approved(self, user: User):
-        await self.user_notification_service.send_registration_approved_notification(user)
-
-    async def _notify_registration_disapproved(self, user: User):
-        await self.user_notification_service.send_registration_disapproved_notification(user)
-
-    async def drop_user(self, user_id: int, admin: Admin) -> UserDTO:
-        async with self.transaction_manager:
-            user = await self._get_user_with_role_and_check_exists(user_id)
-
-            await self._check_user_status_can_be_changed(user, UserStatusEnum.dropped)
-
-            user = await self._change_user_status(user, UserStatusEnum.dropped)
-        
-        await self._notify_dropped_user(user)
-
-        return self._map_user_to_dto(user)
-
-    async def ban_user(self, user_id: int, admin: Admin) -> UserDTO:
-        async with self.transaction_manager:
-            user = await self._get_user_with_role_and_check_exists(user_id)
-
-            await self._check_user_status_can_be_changed(user, UserStatusEnum.banned)
-
-            user = await self._change_user_status(user, UserStatusEnum.banned)
-        
-        await self._notify_banned_user(user)
-
-        return self._map_user_to_dto(user)
-
-    async def _notify_dropped_user(self, user: User):
-        await self.user_notification_service.send_user_dropped_notification(user)
-
-    async def _notify_banned_user(self, user: User):
-        await self.user_notification_service.send_user_banned_notification(user)
-
-    async def _get_user_with_role_and_check_exists(self, user_id: int) -> User:
-        user = await self.user_repository.get_user_with_role(user_id)
-        if not user:
-            return NotFoundException(user_id)
+    async def drop_user(self, user_id: int, context: UserContextDTO) -> UserDTO:
+        user = await self.drop_user_use_case.drop_user(user_id)
+        await self._notify_dropped_user(user, context)
         return user
 
-    async def _check_user_registration_can_be_approved(self, user: User, status: UserStatusEnum):
-        if not UserDomainService.is_pending(user):
-            raise UserStatusChangeNotAllowedException(user.user_id, status, "Пользователь не требует подтверждения регистрации")
+    async def ban_user(self, user_id: int, context: UserContextDTO) -> UserDTO:
+        user = await self.ban_user_use_case.ban_user(user_id)
+        await self._notify_banned_user(user, context)
+        return user
 
-    async def _check_user_status_can_be_changed(self, user: User, status: UserStatusEnum):
-        if not UserDomainService.is_editable_by_others(user):
-            raise UserStatusChangeNotAllowedException(
-                user.user_id, status, 
-                "Регистрация пользователя не может быть сброшена" if status == UserStatusEnum.dropped
-                else "Пользователь не может быть заблокирован" if status == UserStatusEnum.banned else ""
+    async def _notify_dropped_user(self, user: UserDTO, context: UserContextDTO):
+        await self.notification_service.send_user_dropped_notification(
+            UserDroppedNotificationDTO(
+                receiver_id=user.user_id,
+                executor_id=context.user_id
             )
+        )
 
-    async def _change_user_status(self, user: User, status: UserStatusEnum) -> User:
-        await self.user_repository.change_user_status(user.user_id, status)
-        user.status = status
-        
+    async def _notify_banned_user(self, user: UserDTO, context: UserContextDTO):
+        await self.notification_service.send_user_banned_notification(
+            UserBannedNotificationDTO(
+                receiver_id=user.user_id,
+                executor_id=context.user_id
+            )
+        )
+
+
+class AdminUserApprovalServiceImpl(AdminUserApprovalService):
+    def __init__(
+        self,
+        approve_user_use_case: ApproveUserUseCase,
+        disapprove_user_use_case: DisapproveUserUseCase,
+        notification_service: UserNotificationService
+    ):
+        self.approve_user_use_case = approve_user_use_case
+        self.disapprove_user_use_case = disapprove_user_use_case
+        self.notification_service = notification_service
+
+    async def approve_registration(
+        self, 
+        user_id: int, 
+        context: UserContextDTO
+    ) -> UserDTO:
+        user = await self.approve_user_use_case.approve_user(user_id)
+        await self._notify_registration_approved(user, context)
         return user
 
-    async def notify_user(self, user_id: int, admin: Admin):
-        user = await self.user_repository.get_user(user_id)
-        await self.user_notification_service.send_admin_contact_notification(user, admin)
+    async def disapprove_registration(
+        self, 
+        user_id: int, 
+        context: UserContextDTO
+    ) -> UserDTO:
+        user = await self.disapprove_user_use_case.disapprove_user(user_id)
+        await self._notify_registration_disapproved(user, context)
+        return user
+    
+    async def _notify_registration_approved(
+        self, 
+        user: UserDTO, 
+        context: UserContextDTO
+    ):
+        await self.notification_service.send_registration_approved_notification(
+            RegistrationApprovedNotificationDTO(
+                receiver_id=user.user_id,
+                executor_id=context.user_id
+            )
+        )
+
+    async def _notify_registration_disapproved(
+        self, 
+        user: UserDTO, 
+        context: UserContextDTO
+    ):
+        await self.notification_service.send_registration_disapproved_notification(
+            RegistrationDisapprovedNotificationDTO(
+                receiver_id=user.user_id,
+                executor_id=context.user_id
+            )
+        )
+
+class AdminUserQueryServiceImpl(AdminUserQueryService):
+    pass
+
+
+class AdminUserNotificationServiceImpl(AdminUserNotificationService):
+    pass
