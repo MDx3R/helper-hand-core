@@ -68,11 +68,13 @@ class TestWebResetContractorUseCase:
     @pytest.mark.asyncio
     async def test_register_contractor_raises_when_invalid_input(
         self, 
-        use_case: ResetContractorUseCase,
+        use_case: ResetUserUseCaseFacade,
         invalid_input
     ):
         with pytest.raises(InvalidInputException) as exc_info:
             await use_case.reset_contractor(invalid_input)
+
+        use_case.user_repository.save.assert_not_awaited()
 
     @pytest.mark.asyncio
     async def test_register_contractor_has_no_excessive_calls(
