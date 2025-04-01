@@ -12,4 +12,4 @@ class ContracteeUserQueryServiceImpl(ContracteeUserQueryService):
         self.get_contractee_use_case = get_contractee_use_case
 
     async def get_profile(self, context: UserContextDTO) -> ContracteeDTO:
-        return self.get_contractee_use_case.get_contractee(context.user_id)
+        return await self.get_contractee_use_case.get_contractee(context.user_id)

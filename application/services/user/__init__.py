@@ -4,5 +4,5 @@ from .admin_user_service import (
     AdminUserQueryServiceImpl,
     AdminUserNotificationServiceImpl
 )
-from .contractee_user_service import ContracteeUserServiceImpl
-from .contractor_user_service import ContractorUserServiceImpl
+from .contractee_user_service import ContracteeUserQueryServiceImpl
+from .contractor_user_service import ContractorUserQueryServiceImpl
