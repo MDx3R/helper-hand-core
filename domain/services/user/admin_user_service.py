@@ -9,7 +9,7 @@ class AdminUserQueryService(ABC):
         pass
 
     @abstractmethod
-    async def get_first_pending_user(self) -> ContracteeDTO | ContractorDTO | None:
+    async def get_pending_user(self) -> ContracteeDTO | ContractorDTO | None:
         pass
 
 class AdminUserManagementService(ABC):
