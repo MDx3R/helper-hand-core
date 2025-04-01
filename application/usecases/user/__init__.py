@@ -19,3 +19,12 @@ from .reset_user_use_case import (
     ResetContractorUseCase,
     ResetUserUseCaseFacade
 )
+
+from .user_query_use_case import (
+    GetAdminUseCase,
+    GetContracteeUseCase,
+    GetContractorUseCase,
+    GetPendingUserUseCase,
+    GetUserUseCase,
+    GetUserWithRoleUseCase
+)
