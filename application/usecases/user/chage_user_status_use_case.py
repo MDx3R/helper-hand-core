@@ -59,7 +59,7 @@ class ChangeUserStatusUseCaseFacade(
         return await self.change_user_status(user_id, UserStatusEnum.registered)
 
     async def disapprove_user(self, user_id: int) -> UserDTO:
-        return await self.change_user_status(user_id, UserStatusEnum.dropped)
+        return await self.change_user_status(user_id, UserStatusEnum.disapproved)
 
     async def drop_user(self, user_id: int) -> UserDTO:
         return await self.change_user_status(user_id, UserStatusEnum.dropped)
@@ -69,16 +69,16 @@ class ChangeUserStatusUseCaseFacade(
 
     @transactional
     async def change_user_status(self, user_id: int, status: UserStatusEnum) -> UserDTO:
-        user = await self._get_user_with_role_and_raise_if_not_exists(user_id)
+        user = await self._get_user_and_raise_if_not_exists(user_id)
 
         user = await self._change_user_status(user, status)
 
         return UserDTO.from_user(user)
     
-    async def _get_user_with_role_and_raise_if_not_exists(self, user_id: int) -> User:
-        user = await self.user_repository.get_user_with_role(user_id)
+    async def _get_user_and_raise_if_not_exists(self, user_id: int) -> User:
+        user = await self.user_repository.get_user(user_id)
         if not user:
-            return NotFoundException(user_id)
+            raise NotFoundException(user_id)
         return user
         
     async def _change_user_status(self, user: User, status: UserStatusEnum) -> User:
