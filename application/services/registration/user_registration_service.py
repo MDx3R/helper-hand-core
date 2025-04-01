@@ -124,7 +124,7 @@ class TelegramContractorRegistrationService(TelegramRegistrationMixin, Contracto
     
     def __init__(
         self,
-        use_case: RegisterContracteeFromTelegramUseCase,
+        use_case: RegisterContractorFromTelegramUseCase,
         notification_service: AdminNotificationService,
     ):
         self.use_case = use_case
