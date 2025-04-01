@@ -4,8 +4,6 @@ from unittest.mock import AsyncMock
 from application.transactions import TransactionManager
 from application.transactions.configuration import set_transaction_manager
 
-counter = 1
-
 @pytest.fixture(scope="session")
 def transaction_manager():
     mock = AsyncMock()

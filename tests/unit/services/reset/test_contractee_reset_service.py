@@ -1,61 +1,40 @@
 import pytest
 from unittest.mock import AsyncMock
-
 from domain.dto.input.registration import ContracteeResetDTO
 from domain.dto.context import UserContextDTO
 from domain.dto.common import ContracteeDTO
-
 from domain.entities.enums import UserStatusEnum
-
 from domain.exceptions.service import PermissionDeniedException
-
 from application.services.registration import ContracteeResetService
 
-from tests.generators.reset import (
-    ContracteeResetTestCaseGenerator,
+from .conftest import (
+    contractee_test_cases,
+    ContracteeResetTestCaseGenerator as generator
 )
 
-@pytest.fixture
-def use_case():
-    mock = AsyncMock()
-
-    async def reset_contractee( 
-        contractee: ContracteeResetDTO
-    ) -> ContracteeDTO:
-        data = contractee.get_fields() | {
-            "status": UserStatusEnum.pending
-        }
-
-        return ContracteeDTO.model_validate(data)
-
-    mock.reset_contractee.side_effect = reset_contractee
-    return mock
-
-@pytest.fixture
-def notification_service():
-    mock = AsyncMock()
-    mock.send_new_registration_notification = AsyncMock(return_value=None)
-    return mock
-
-@pytest.fixture
-def reset_service(use_case, notification_service):
-    service = ContracteeResetService(
-        use_case=use_case,
-        notification_service=notification_service
-    )
-    return service
-
-def generate_reset_contractee_test_cases():
-    return [
-        ContracteeResetTestCaseGenerator.create(),
-    ]
-
-def generate_contractee_test_cases():
-    return [(t.input, t.context, t.expected) for t in generate_reset_contractee_test_cases()]
-
 class TestUserResetService:
+    @pytest.fixture
+    def use_case(self):
+        mock = AsyncMock()
+        async def reset_contractee(contractee: ContracteeResetDTO) -> ContracteeDTO:
+            data = contractee.get_fields() | {
+                "status": UserStatusEnum.pending
+            }
+            
+            return ContracteeDTO.model_validate(data)
+        
+        mock.reset_contractee.side_effect = reset_contractee
+        return mock
+
+    @pytest.fixture
+    def reset_service(self, use_case, notification_service):
+        return ContracteeResetService(
+            use_case=use_case,
+            notification_service=notification_service
+        )
+
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("user_input, user_context, expected_user", generate_contractee_test_cases())
+    @pytest.mark.parametrize("user_input, user_context, expected_user", contractee_test_cases)
     async def test_reset_contractee_is_successful(
         self, 
         reset_service: ContracteeResetService, 
@@ -71,7 +50,7 @@ class TestUserResetService:
         assert isinstance(result.user_id, int)
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("user_input, user_context, expected_user", generate_contractee_test_cases())
+    @pytest.mark.parametrize("user_input, user_context, expected_user", contractee_test_cases)
     async def test_reset_contractee_result_is_correct(
         self, 
         reset_service: ContracteeResetService, 
@@ -84,11 +63,11 @@ class TestUserResetService:
         assert result == expected_user
 
     @pytest.mark.asyncio
-    async def test_reset_contractee_result_is_correct(
+    async def test_reset_contractee_raises_permission_denied(
         self, 
         reset_service: ContracteeResetService, 
     ):
-        test_case = ContracteeResetTestCaseGenerator.create_different_id()
+        test_case = generator.create_different_id()
 
         with pytest.raises(PermissionDeniedException) as exc_info:
             await reset_service.reset_user(test_case.input, test_case.context)
@@ -100,7 +79,7 @@ class TestUserResetService:
         reset_service.notification_service.send_new_registration_notification.assert_not_awaited()
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("user_input, user_context, expected_user", generate_contractee_test_cases())
+    @pytest.mark.parametrize("user_input, user_context, expected_user", contractee_test_cases)
     async def test_reset_contractee_has_no_excessive_calls(
         self, 
         reset_service: ContracteeResetService, 
