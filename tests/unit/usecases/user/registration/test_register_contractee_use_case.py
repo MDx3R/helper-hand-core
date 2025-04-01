@@ -87,11 +87,14 @@ class TestWebRegisterContracteeFromWebUseCase:
     @pytest.mark.asyncio
     async def test_register_contractee_raises_when_invalid_input(
         self, 
-        web_use_case: RegisterContracteeFromWebUseCase,
+        web_use_case: RegisterUserUseCaseFacade,
         invalid_input
     ):
         with pytest.raises(InvalidInputException) as exc_info:
             await web_use_case.register_contractee(invalid_input)
+
+        web_use_case.user_repository.save.assert_not_awaited()
+        web_use_case.user_repository.save_telegram_user.assert_not_awaited()
 
     @pytest.mark.asyncio
     async def test_register_contractee_has_no_excessive_calls(
@@ -135,19 +138,22 @@ class TestTelegramRegisterContracteeFromWebUseCase:
     @pytest.mark.asyncio
     async def test_register_contractee_raises_when_invalid_input(
         self, 
-        telegram_use_case: RegisterContracteeFromTelegramUseCase,
+        telegram_use_case: RegisterUserUseCaseFacade,
         invalid_input
     ):
         with pytest.raises(InvalidInputException) as exc_info:
             await telegram_use_case.register_contractee(invalid_input)
 
+        telegram_use_case.user_repository.save.assert_not_awaited()
+        telegram_use_case.user_repository.save_telegram_user.assert_not_awaited()
+
     @pytest.mark.asyncio
     async def test_register_contractee_has_no_excessive_calls(
         self, 
-        web_use_case: RegisterUserUseCaseFacade,
+        telegram_use_case: RegisterUserUseCaseFacade,
         telegram_contractee_input: ContracteeRegistrationDTO
     ):
-        await web_use_case.register_contractee(telegram_contractee_input)
+        await telegram_use_case.register_contractee(telegram_contractee_input)
 
-        web_use_case.user_repository.save.assert_awaited_once()
-        web_use_case.user_repository.save_telegram_user.assert_awaited_once()
+        telegram_use_case.user_repository.save.assert_awaited_once()
+        telegram_use_case.user_repository.save_telegram_user.assert_awaited_once()
