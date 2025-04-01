@@ -1,15 +1,15 @@
 from abc import ABC, abstractmethod
 
-from domain.dto.common import UserDTO
+from domain.dto.common import UserDTO, AdminDTO, ContracteeDTO, ContractorDTO
 from domain.dto.context import UserContextDTO
 
 class AdminUserQueryService(ABC):
     @abstractmethod
-    async def get_user(self, user_id: int) -> UserDTO | None:
+    async def get_user(self, user_id: int) -> AdminDTO | ContracteeDTO | ContractorDTO | None:
         pass
 
     @abstractmethod
-    async def get_first_pending_user(self) -> UserDTO | None:
+    async def get_first_pending_user(self) -> ContracteeDTO | ContractorDTO | None:
         pass
 
 class AdminUserManagementService(ABC):
