@@ -1,46 +1,25 @@
 import pytest
-
 from domain.dto.input.registration import ContracteeResetDTO
 from domain.dto.common import UserDTO
-
 from application.usecases.user import (
     ResetUserUseCaseFacade,
-    ResetContracteeUseCase,
     ResetContracteeUseCase
 )
-
 from domain.exceptions.service import InvalidInputException
-
-from tests.generators.reset import (
-    UserResetTestCaseGenerator,
-    ContracteeResetTestCaseGenerator,
+from .conftest import (
+    contractee_test_cases
 )
 
-def generate_test_cases():
-    return [
-        (t.input, t.expected) for t in [ContracteeResetTestCaseGenerator.create()]
-    ]
+class TestResetContracteeUseCase:
+    @pytest.fixture
+    def use_case(self, user_repository):
+        service = ResetUserUseCaseFacade(
+            user_repository=user_repository,
+        )
+        return service
 
-test_cases = generate_test_cases()
-
-@pytest.fixture
-def use_case(user_repository):
-    service = ResetUserUseCaseFacade(
-        user_repository=user_repository,
-    )
-    return service
-
-@pytest.fixture
-def invalid_input():
-    return UserResetTestCaseGenerator.create_invalid_input().input
-
-@pytest.fixture
-def contractee_input():
-    return ContracteeResetTestCaseGenerator.create().input
-
-class TestWebResetContracteeUseCase:
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("user_input, expected_user", test_cases)
+    @pytest.mark.parametrize("user_input, expected_user", contractee_test_cases)
     async def test_register_contractee_is_successful(
         self, 
         use_case: ResetContracteeUseCase,
@@ -54,7 +33,7 @@ class TestWebResetContracteeUseCase:
         assert isinstance(result.user_id, int)
     
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("user_input, expected_user", test_cases)
+    @pytest.mark.parametrize("user_input, expected_user", contractee_test_cases)
     async def test_register_contractee_result_is_correct(
         self, 
         use_case: ResetContracteeUseCase,

@@ -1,46 +1,25 @@
 import pytest
-
 from domain.dto.input.registration import ContractorResetDTO
 from domain.dto.common import UserDTO
-
 from application.usecases.user import (
     ResetUserUseCaseFacade,
-    ResetContractorUseCase,
     ResetContractorUseCase
 )
-
 from domain.exceptions.service import InvalidInputException
-
-from tests.generators.reset import (
-    UserResetTestCaseGenerator,
-    ContractorResetTestCaseGenerator,
+from .conftest import (
+    contractor_test_cases
 )
 
-def generate_test_cases():
-    return [
-        (t.input, t.expected) for t in [ContractorResetTestCaseGenerator.create()]
-    ]
-
-test_cases = generate_test_cases()
-
-@pytest.fixture
-def use_case(user_repository):
-    service = ResetUserUseCaseFacade(
-        user_repository=user_repository,
-    )
-    return service
-
-@pytest.fixture
-def invalid_input():
-    return UserResetTestCaseGenerator.create_invalid_input().input
-
-@pytest.fixture
-def contractor_input():
-    return ContractorResetTestCaseGenerator.create().input
-
 class TestWebResetContractorUseCase:
+    @pytest.fixture
+    def use_case(self, user_repository):
+        service = ResetUserUseCaseFacade(
+            user_repository=user_repository,
+        )
+        return service
+
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("user_input, expected_user", test_cases)
+    @pytest.mark.parametrize("user_input, expected_user", contractor_test_cases)
     async def test_register_contractor_is_successful(
         self, 
         use_case: ResetContractorUseCase,
@@ -54,7 +33,7 @@ class TestWebResetContractorUseCase:
         assert isinstance(result.user_id, int)
     
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("user_input, expected_user", test_cases)
+    @pytest.mark.parametrize("user_input, expected_user", contractor_test_cases)
     async def test_register_contractor_result_is_correct(
         self, 
         use_case: ResetContractorUseCase,
@@ -62,7 +41,7 @@ class TestWebResetContractorUseCase:
         expected_user: UserDTO
     ):
         result = await use_case.reset_contractor(user_input)
-
+        
         assert result == expected_user
 
     @pytest.mark.asyncio

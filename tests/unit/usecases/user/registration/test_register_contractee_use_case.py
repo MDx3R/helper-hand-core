@@ -1,64 +1,29 @@
 import pytest
-
 from domain.dto.input.registration import ContracteeRegistrationDTO
 from domain.dto.common import UserDTO
-
 from application.usecases.user import (
     RegisterUserUseCaseFacade,
     RegisterContracteeFromWebUseCase,
     RegisterContracteeFromTelegramUseCase
 )
-
 from domain.exceptions.service import InvalidInputException
 
-from tests.generators.registration import (
-    UserRegistrationTestCaseGenerator,
-    ContracteeRegistrationFromTelegramTestCaseGenerator,
-    ContracteeRegistrationFromWebTestCaseGenerator,
+from .conftest import (
+    contractee_web_test_cases,
+    contractee_telegram_test_cases,
 )
-
 from ..conftest import set_up_counter
 
-def generate_register_user_test_cases(generator: type[UserRegistrationTestCaseGenerator]):
-    return [
-        generator.create(),
-    ]
-
-def generate_contractee_telegram_test_cases():
-    return [(t.input, t.expected) for t in generate_register_user_test_cases(ContracteeRegistrationFromTelegramTestCaseGenerator)]
-
-def generate_contractee_web_test_cases():
-    return [(t.input, t.expected) for t in generate_register_user_test_cases(ContracteeRegistrationFromWebTestCaseGenerator)]
-
-@pytest.fixture
-def web_use_case(user_repository):
-    service = RegisterUserUseCaseFacade(
-        user_repository=user_repository,
-    )
-    return service
-
-@pytest.fixture
-def telegram_use_case(user_repository):
-    service = RegisterUserUseCaseFacade(
-        user_repository=user_repository,
-    )
-    return service
-
-@pytest.fixture
-def invalid_input():
-    return UserRegistrationTestCaseGenerator.create_invalid_input().input
-
-@pytest.fixture
-def web_contractee_input():
-    return ContracteeRegistrationFromWebTestCaseGenerator.create().input
-
-@pytest.fixture
-def telegram_contractee_input():
-    return ContracteeRegistrationFromTelegramTestCaseGenerator.create().input
-
 class TestWebRegisterContracteeFromWebUseCase:
+    @pytest.fixture
+    def web_use_case(self, user_repository):
+        service = RegisterUserUseCaseFacade(
+            user_repository=user_repository,
+        )
+        return service
+
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("user_input, expected_user", generate_contractee_web_test_cases())
+    @pytest.mark.parametrize("user_input, expected_user", contractee_web_test_cases)
     async def test_register_contractee_is_successful(
         self, 
         web_use_case: RegisterContracteeFromWebUseCase,
@@ -72,7 +37,7 @@ class TestWebRegisterContracteeFromWebUseCase:
         assert isinstance(result.user_id, int)
     
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("user_input, expected_user", generate_contractee_web_test_cases())
+    @pytest.mark.parametrize("user_input, expected_user", contractee_web_test_cases)
     async def test_register_contractee_result_is_correct(
         self, 
         web_use_case: RegisterContracteeFromWebUseCase,
@@ -108,8 +73,15 @@ class TestWebRegisterContracteeFromWebUseCase:
         web_use_case.user_repository.save_telegram_user.assert_not_awaited()
 
 class TestTelegramRegisterContracteeFromWebUseCase:
+    @pytest.fixture
+    def telegram_use_case(self, user_repository):
+        service = RegisterUserUseCaseFacade(
+            user_repository=user_repository,
+        )
+        return service
+
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("user_input, expected_user", generate_contractee_telegram_test_cases())
+    @pytest.mark.parametrize("user_input, expected_user", contractee_telegram_test_cases)
     async def test_register_contractee_is_successful(
         self, 
         telegram_use_case: RegisterContracteeFromTelegramUseCase,
@@ -123,7 +95,7 @@ class TestTelegramRegisterContracteeFromWebUseCase:
         assert isinstance(result.user_id, int)
     
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("user_input, expected_user", generate_contractee_telegram_test_cases())
+    @pytest.mark.parametrize("user_input, expected_user", contractee_telegram_test_cases)
     async def test_register_contractee_result_is_correct(
         self, 
         telegram_use_case: RegisterContracteeFromTelegramUseCase,
