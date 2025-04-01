@@ -19,6 +19,10 @@ class UserDomainService:
         return user.status == UserStatusEnum.registered
     
     @staticmethod
+    def is_disapproved(user: User) -> bool:
+        return user.status == UserStatusEnum.disapproved
+
+    @staticmethod
     def is_dropped(user: User) -> bool:
         return user.status == UserStatusEnum.dropped
     
@@ -40,11 +44,13 @@ class UserDomainService:
     
     @classmethod
     def can_status_be_changed(cls, user: User, change_to: UserStatusEnum) -> bool:
-        if not cls.is_editable_by_others():
+        if not cls.is_editable_by_others(user):
             return False
         match change_to:
-            case UserStatusEnum.registered:
+            case UserStatusEnum.registered: # approved
                 return cls.can_be_approved(user)
+            case UserStatusEnum.registered: # disapproved
+                return cls.can_be_disapproved(user)
             case UserStatusEnum.dropped:
                 return cls.can_be_dropped(user)
             case UserStatusEnum.banned:
@@ -56,6 +62,10 @@ class UserDomainService:
     def can_be_approved(cls, user: User) -> bool:
         return cls.is_pending(user)
     
+    @classmethod
+    def can_be_disapproved(cls, user: User) -> bool:
+        return cls.is_pending(user)
+
     @classmethod
     def can_be_dropped(cls, user: User) -> bool:
         return not cls.is_dropped(user) and not cls.is_admin(user)
@@ -75,7 +85,7 @@ class UserDomainService:
     
     @classmethod
     def is_allowed_to_register(cls, user: User) -> bool:
-        return cls.is_dropped(user)
+        return cls.is_dropped(user) or cls.is_disapproved(user)
 
 class AdminDomainService:
     @staticmethod
