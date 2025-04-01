@@ -49,7 +49,7 @@ class UserDomainService:
         match change_to:
             case UserStatusEnum.registered: # approved
                 return cls.can_be_approved(user)
-            case UserStatusEnum.registered: # disapproved
+            case UserStatusEnum.disapproved: # disapproved
                 return cls.can_be_disapproved(user)
             case UserStatusEnum.dropped:
                 return cls.can_be_dropped(user)
