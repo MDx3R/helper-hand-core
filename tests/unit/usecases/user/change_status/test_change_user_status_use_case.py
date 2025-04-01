@@ -17,8 +17,6 @@ from domain.exceptions.service import NotFoundException, UserStatusChangeNotAllo
 
 from tests.factories import UserFactory
 
-from ..conftest import set_transactional
-
 def create_user(user_id=1, status=UserStatusEnum.registered, role=RoleEnum.contractee):
     return UserFactory.create_model(user_id=user_id, status=status, role=role)
 
