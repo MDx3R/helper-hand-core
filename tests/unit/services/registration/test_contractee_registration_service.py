@@ -100,9 +100,12 @@ def generate_contractee_telegram_test_cases():
 def generate_contractee_web_test_cases():
     return [(t.input, t.expected) for t in generate_register_contractee_test_cases(ContracteeRegistrationFromWebTestCaseGenerator)]
 
+telegram_test_cases = generate_contractee_telegram_test_cases()
+web_test_cases = generate_contractee_web_test_cases()
+
 class TestTelegramContracteeRegistrationService:
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("user_input, expected_user", generate_contractee_telegram_test_cases())
+    @pytest.mark.parametrize("user_input, expected_user", telegram_test_cases)
     async def test_register_contractee_is_successful(
         self, 
         telegram_registration_service: TelegramContracteeRegistrationService, 
@@ -117,7 +120,7 @@ class TestTelegramContracteeRegistrationService:
         assert isinstance(result.user_id, int)
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("user_input, expected_user", generate_contractee_telegram_test_cases())
+    @pytest.mark.parametrize("user_input, expected_user", telegram_test_cases)
     async def test_register_contractee_result_is_correct(
         self, 
         telegram_registration_service: TelegramContracteeRegistrationService, 
@@ -131,21 +134,22 @@ class TestTelegramContracteeRegistrationService:
         assert result == expected_user
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("user_input, expected_user", generate_contractee_telegram_test_cases())
+    @pytest.mark.parametrize("user_input, expected_user", telegram_test_cases)
     async def test_register_contractee_has_no_excessive_calls(
         self, 
         telegram_registration_service: TelegramContracteeRegistrationService, 
         user_input: ContracteeRegistrationDTO, 
         expected_user: ContracteeDTO
     ):
-        result = await telegram_registration_service.register_user(user_input)
+        await telegram_registration_service.register_user(user_input)
 
+        telegram_registration_service.use_case.register_contractee.assert_awaited_once_with(user_input)
         telegram_registration_service.notification_service.send_new_registration_notification.assert_awaited_once()
 
 
 class TestWebContracteeRegistrationService:
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("user_input, expected_user", generate_contractee_web_test_cases())
+    @pytest.mark.parametrize("user_input, expected_user", web_test_cases)
     async def test_register_contractee_is_successful(
         self, 
         web_registration_service: WebContracteeRegistrationService, 
@@ -160,7 +164,7 @@ class TestWebContracteeRegistrationService:
         assert isinstance(result.user_id, int)
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("user_input, expected_user", generate_contractee_web_test_cases())
+    @pytest.mark.parametrize("user_input, expected_user", web_test_cases)
     async def test_register_contractee_result_is_correct(
         self, 
         web_registration_service: WebContracteeRegistrationService, 
@@ -172,3 +176,15 @@ class TestWebContracteeRegistrationService:
         result = await web_registration_service.register_user(user_input)
 
         assert result == expected_user
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("user_input, expected_user", web_test_cases)
+    async def test_register_contractee_has_no_excessive_calls(
+        self, 
+        web_registration_service: WebContracteeRegistrationService, 
+        user_input: ContracteeRegistrationDTO, 
+        expected_user: ContracteeDTO
+    ):
+        await web_registration_service.register_user(user_input)
+
+        web_registration_service.use_case.register_contractee.assert_awaited_once_with(user_input)

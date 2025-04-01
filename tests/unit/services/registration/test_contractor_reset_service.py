@@ -72,19 +72,6 @@ class TestUserResetService:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("user_input, user_context, expected_user", generate_contractor_test_cases())
-    async def test_reset_contractor_has_no_excessive_calls(
-        self, 
-        reset_service: ContractorResetService, 
-        user_input: ContractorResetDTO, 
-        user_context: UserContextDTO,
-        expected_user: ContractorDTO
-    ):
-        result = await reset_service.reset_user(user_input, user_context)
-
-        reset_service.notification_service.send_new_registration_notification.assert_awaited_once()
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize("user_input, user_context, expected_user", generate_contractor_test_cases())
     async def test_reset_contractor_result_is_correct(
         self, 
         reset_service: ContractorResetService, 
@@ -109,3 +96,20 @@ class TestUserResetService:
         exc = exc_info.value
         assert exc.user_id == test_case.context.user_id
         assert str(test_case.input.user_id) in exc.message
+
+        reset_service.notification_service.send_new_registration_notification.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("user_input, user_context, expected_user", generate_contractor_test_cases())
+    async def test_reset_contractor_has_no_excessive_calls(
+        self, 
+        reset_service: ContractorResetService, 
+        user_input: ContractorResetDTO, 
+        user_context: UserContextDTO,
+        expected_user: ContractorDTO
+    ):
+        await reset_service.reset_user(user_input, user_context)
+
+        reset_service.use_case.reset_contractor.assert_awaited_once_with(user_input)
+        reset_service.notification_service.send_new_registration_notification.assert_awaited_once()
+        
