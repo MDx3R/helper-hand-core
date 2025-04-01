@@ -127,10 +127,10 @@ class AdminUserQueryServiceImpl(AdminUserQueryService):
         self.get_pending_user_use_case = get_pending_user_use_case
     
     async def get_user(self, user_id: int) -> AdminDTO | ContracteeDTO | ContractorDTO | None:
-        return self.get_user_use_case.get_user_with_role(user_id)
+        return await self.get_user_use_case.get_user_with_role(user_id)
 
-    async def get_first_pending_user(self) -> ContracteeDTO | ContractorDTO | None:
-        return self.get_pending_user_use_case.get_pending_user()
+    async def get_pending_user(self) -> ContracteeDTO | ContractorDTO | None:
+        return await self.get_pending_user_use_case.get_pending_user()
 
 
 class AdminUserNotificationServiceImpl(AdminUserNotificationService):
@@ -141,7 +141,7 @@ class AdminUserNotificationServiceImpl(AdminUserNotificationService):
         self.notification_service = notification_service
 
     async def notify_user(self, user_id: int, context: UserContextDTO):
-        return self.notification_service.send_admin_contact_notification(
+        await self.notification_service.send_admin_contact_notification(
             AdminContactNotificationDTO(
                 receiver_id=user_id,
                 executor_id=context.user_id
