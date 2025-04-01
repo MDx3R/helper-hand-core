@@ -26,5 +26,6 @@ from .user_query_use_case import (
     GetContractorUseCase,
     GetPendingUserUseCase,
     GetUserUseCase,
-    GetUserWithRoleUseCase
+    GetUserWithRoleUseCase,
+    UserQueryUseCaseFacade
 )
