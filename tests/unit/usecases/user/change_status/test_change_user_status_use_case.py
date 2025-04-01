@@ -12,15 +12,15 @@ from application.usecases.user import (
 from domain.repositories import UserRepository
 from domain.dto.common import UserDTO
 from domain.entities import User
-from domain.entities.enums import UserStatusEnum
+from domain.entities.enums import UserStatusEnum, RoleEnum
 from domain.exceptions.service import NotFoundException, UserStatusChangeNotAllowedException
 
 from tests.factories import UserFactory
 
 from ..conftest import set_transactional
 
-def create_user(user_id=1, status=UserStatusEnum.registered):
-    return UserFactory.create_model(user_id=user_id, status=status)
+def create_user(user_id=1, status=UserStatusEnum.registered, role=RoleEnum.contractee):
+    return UserFactory.create_model(user_id=user_id, status=status, role=role)
 
 def setup_repository(repository: AsyncMock, user: User):
     async def change_user_status(
@@ -256,6 +256,30 @@ class TestBanUserUseCase:
 
         user_repository.change_user_status.assert_not_awaited()
 
+class TestChangeAdminStatusUseCase:
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "status", 
+        [
+            UserStatusEnum.dropped, 
+            UserStatusEnum.banned, 
+            UserStatusEnum.disapproved, # admin не может быть pending 
+            UserStatusEnum.registered # admin не может быть pending 
+        ]
+    )
+    async def test_admin_status_cannot_be_changed(
+        self,
+        use_case: ChangeUserStatusUseCaseFacade,
+        user_repository: UserRepository,
+        status: UserStatusEnum
+    ):
+        user = create_user(role=RoleEnum.admin)
+        setup_repository(user_repository, user)
+
+        with pytest.raises(UserStatusChangeNotAllowedException):
+            await use_case.change_user_status(user.user_id, status)
+
+        user_repository.change_user_status.assert_not_awaited()
 
 class TestChangeUserStatusUseCaseCalls:
     @pytest.mark.asyncio
