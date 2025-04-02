@@ -13,6 +13,7 @@ from domain.dto.common import (
     ContractorDTO
 )
 from domain.dto.context import UserContextDTO
+from domain.dto.internal import ResetDTO
 from domain.exceptions.service import PermissionDeniedException
 
 from application.usecases.user import (
@@ -30,7 +31,10 @@ class BaseUserResetService(UserResetService, ABC):
     ):
         self.notification_service = notification_service
 
-    async def reset_user(self, user_input: UserResetDTO, context: UserContextDTO) -> UserDTO:
+    async def reset_user(self, request: ResetDTO) -> ContracteeDTO | ContractorDTO:
+        user_input = request.user
+        context = request.context
+
         if user_input.user_id != context.user_id:
             raise PermissionDeniedException(
                 f"Сброс пользователя {user_input.user_id}",
