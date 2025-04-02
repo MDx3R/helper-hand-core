@@ -11,6 +11,6 @@ class ExecutorNotificationDTO(NotificationDTO):
     """Базовый класс для DTO уведомлений с указанием исполнителя"""
     executor_id: int
 
-class NotificationContextDTO(NotificationDTO):
+class NotificationMessageDTO(NotificationDTO):
     """Базовый класс для контекста DTO уведомлений"""
-    context: str = ""
+    message: str = ""

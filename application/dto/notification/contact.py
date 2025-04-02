@@ -1,9 +1,9 @@
-from .base import ReceiverNotificationDTO, ExecutorNotificationDTO, NotificationContextDTO
+from .base import ReceiverNotificationDTO, ExecutorNotificationDTO, NotificationMessageDTO
 
 class ContactNotificationDTO(
     ReceiverNotificationDTO, 
     ExecutorNotificationDTO, 
-    NotificationContextDTO
+    NotificationMessageDTO
 ):
     pass
 
