@@ -13,6 +13,9 @@ class ResetDTO(ContextDTO):
 class GetUserDTO(UserIdDTO):
     pass
 
+class GetUserWithContextDTO(GetUserDTO, ContextDTO):
+    pass
+
 class UserManagementDTO(UserIdDTO, ContextDTO):
     pass
 

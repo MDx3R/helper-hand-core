@@ -7,6 +7,7 @@ from .base import (
 from .user import (
     ResetDTO,
     GetUserDTO,
+    GetUserWithContextDTO,
     UserManagementDTO,
     UserNotificationDTO,
     ApproveUserDTO,

@@ -2,10 +2,11 @@ from abc import ABC, abstractmethod
 
 from domain.dto.common import UserDTO, ContracteeDTO, ContractorDTO
 from domain.dto.context import UserContextDTO
+from domain.dto.internal import GetUserWithContextDTO
 
 class ContractorUserQueryService(ABC):
     @abstractmethod
-    async def get_user(self, user_id: int, context: UserContextDTO) -> ContractorDTO | ContracteeDTO | None:
+    async def get_user(self, query: GetUserWithContextDTO) -> ContractorDTO | ContracteeDTO | None:
         pass
 
     @abstractmethod
