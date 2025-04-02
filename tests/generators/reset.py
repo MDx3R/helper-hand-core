@@ -6,6 +6,7 @@ from domain.dto.input.registration import (
     ContractorResetDTO, ContractorResetDTO
 )
 from domain.dto.base import ApplicationDTO
+from domain.dto.internal import ResetDTO
 from domain.dto.context import UserContextDTO
 from domain.dto.common import UserDTO, ContracteeDTO, ContractorDTO
 
@@ -38,8 +39,10 @@ class UserResetTestCaseGenerator(
     @classmethod
     def _build_test_case(cls, input, context, expected) -> UserResetTestCase:
         return UserResetTestCase(
-            cls._build_input(input),
-            cls._build_context(context),
+            ResetDTO(
+                user=cls._build_input(input),
+                context=cls._build_context(context)
+            ),
             cls._build_output(expected),
         )
     
@@ -63,8 +66,10 @@ class UserResetTestCaseGenerator(
         data = UserFactory.get_random_data()
 
         return UserResetTestCase(
-            UserInvalidInputDTO(),
-            cls._build_context(data),
+            ResetDTO(
+                user=UserInvalidInputDTO(),
+                context=cls._build_context(data),
+            ),
             None
         )
     
@@ -74,8 +79,10 @@ class UserResetTestCaseGenerator(
         context = data | {"user_id": data["user_id"]+1}
 
         return UserResetTestCase(
-            cls._build_input(data),
-            cls._build_context(context),
+            ResetDTO(
+                user=cls._build_input(data),
+                context=cls._build_context(context)
+            ),
             None
         )
 

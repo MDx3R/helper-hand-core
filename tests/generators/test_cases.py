@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 from domain.entities import ApplicationModel
 from domain.dto.input.registration import UserRegistrationDTO, UserResetDTO
+from domain.dto.internal import ResetDTO
 from domain.dto.context import UserContextDTO
 from domain.dto.common import UserDTO
 
@@ -33,8 +34,7 @@ class UserRegistrationTestCase(TestCase):
 
 @dataclass
 class UserResetTestCase(TestCase):
-    input: UserResetDTO
-    context: UserContextDTO
+    reset: ResetDTO
     expected: UserDTO
 
 @dataclass
