@@ -14,6 +14,9 @@ class CreateOrderDTO(ContextDTO):
     order_input: OrderInputDTO
     details_input: List[OrderDetailInputDTO]
 
+class GetOrderDTO(OrderIdDTO):
+    pass
+
 class OrderManagementDTO(OrderIdDTO, ContextDTO):
     pass
 

@@ -17,6 +17,7 @@ from .user import (
 )
 from .order import (
     CreateOrderDTO,
+    GetOrderDTO,
     OrderManagementDTO,
     GetUserOrdersDTO
 )
