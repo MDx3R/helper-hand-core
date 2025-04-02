@@ -8,7 +8,11 @@ from .user import (
     ResetDTO,
     GetUserDTO,
     UserManagementDTO,
-    UserNotificationDTO
+    UserNotificationDTO,
+    ApproveUserDTO,
+    DisapproveUserDTO,
+    DropUserDTO,
+    BanUserDTO
 )
 from .order import (
     CreateOrderDTO,

@@ -16,5 +16,17 @@ class GetUserDTO(UserIdDTO):
 class UserManagementDTO(UserIdDTO, ContextDTO):
     pass
 
+class ApproveUserDTO(UserIdDTO):
+    pass
+
+class DisapproveUserDTO(UserIdDTO):
+    pass
+
+class DropUserDTO(UserIdDTO):
+    pass
+
+class BanUserDTO(UserIdDTO):
+    pass
+
 class UserNotificationDTO(UserIdDTO, ContextDTO):
     message: str = ""
