@@ -1,11 +1,15 @@
 from abc import ABC, abstractmethod
 
 from domain.dto.common import UserDTO, AdminDTO, ContracteeDTO, ContractorDTO
-from domain.dto.context import UserContextDTO
+from domain.dto.internal import (
+    GetUserDTO, 
+    UserManagementDTO, 
+    UserNotificationDTO
+)
 
 class AdminUserQueryService(ABC):
     @abstractmethod
-    async def get_user(self, user_id: int) -> AdminDTO | ContracteeDTO | ContractorDTO | None:
+    async def get_user(self, query: GetUserDTO) -> AdminDTO | ContracteeDTO | ContractorDTO | None:
         pass
 
     @abstractmethod
@@ -14,23 +18,23 @@ class AdminUserQueryService(ABC):
 
 class AdminUserManagementService(ABC):
     @abstractmethod
-    async def drop_user(self, user_id: int, context: UserContextDTO) -> UserDTO:
+    async def drop_user(self, query: UserManagementDTO) -> UserDTO:
         pass
 
     @abstractmethod
-    async def ban_user(self, user_id: int, context: UserContextDTO) -> UserDTO:
+    async def ban_user(self, query: UserManagementDTO) -> UserDTO:
         pass
 
 class AdminUserApprovalService(ABC):
     @abstractmethod
-    async def approve_registration(self, user_id: int, context: UserContextDTO) -> UserDTO:
+    async def approve_registration(self, query: UserManagementDTO) -> UserDTO:
         pass
 
     @abstractmethod
-    async def disapprove_registration(self, user_id: int, context: UserContextDTO) -> UserDTO:
+    async def disapprove_registration(self, query: UserManagementDTO) -> UserDTO:
         pass
 
 class AdminUserNotificationService(ABC):
     @abstractmethod
-    async def notify_user(self, user_id: int, context: UserContextDTO):
+    async def notify_user(self, notification: UserNotificationDTO):
         pass
