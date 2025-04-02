@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock
 
 from domain.dto.common import ContracteeDTO
 from domain.dto.context import UserContextDTO
+from domain.dto.internal import GetUserDTO
 
 from application.usecases.user import GetContracteeUseCase
 from application.services.user import ContracteeUserQueryServiceImpl
@@ -77,4 +78,8 @@ class TestContracteeUserQueryServiceImpl:
         setup_contractee_query_mocks(service)
         await service.get_profile(context)
 
-        service.get_contractee_use_case.get_contractee.assert_awaited_once_with(context.user_id)
+        service.get_contractee_use_case.get_contractee.assert_awaited_once_with(
+            GetUserDTO(
+                user_id=context.user_id
+            )
+        )

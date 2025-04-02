@@ -14,6 +14,12 @@ from domain.dto.common import UserDTO
 from domain.entities import User
 from domain.entities.enums import UserStatusEnum, RoleEnum
 from domain.exceptions.service import NotFoundException, UserStatusChangeNotAllowedException
+from domain.dto.internal import (
+    ApproveUserDTO,
+    DisapproveUserDTO,
+    DropUserDTO,
+    BanUserDTO
+)
 
 from tests.factories import UserFactory
 
@@ -75,7 +81,9 @@ class TestApproveUserUseCase:
         user = create_user(status=UserStatusEnum.pending)
         setup_repository(user_repository, user)
 
-        result = await approve_use_case.approve_user(user.user_id)
+        result = await approve_use_case.approve_user(
+            ApproveUserDTO(user_id=user.user_id)
+        )
 
         assert result.status == UserStatusEnum.registered
 
@@ -88,7 +96,9 @@ class TestApproveUserUseCase:
         setup_repository_no_user(user_repository)
 
         with pytest.raises(NotFoundException):
-            await approve_use_case.approve_user(999)
+            await approve_use_case.approve_user(
+                ApproveUserDTO(user_id=999)
+            )
 
         user_repository.change_user_status.assert_not_awaited()
 
@@ -113,7 +123,9 @@ class TestApproveUserUseCase:
         setup_repository(user_repository, user)
 
         with pytest.raises(UserStatusChangeNotAllowedException):
-            await approve_use_case.approve_user(user.user_id)
+            await approve_use_case.approve_user(
+                ApproveUserDTO(user_id=user.user_id)
+            )
 
         user_repository.change_user_status.assert_not_awaited()
 
@@ -128,7 +140,9 @@ class TestDisapproveUserUseCase:
         user = create_user(status=UserStatusEnum.pending)
         setup_repository(user_repository, user)
 
-        result = await disapprove_use_case.disapprove_user(user.user_id)
+        result = await disapprove_use_case.disapprove_user(
+                DisapproveUserDTO(user_id=user.user_id)
+            )
 
         assert result.status == UserStatusEnum.disapproved
 
@@ -141,7 +155,9 @@ class TestDisapproveUserUseCase:
         setup_repository_no_user(user_repository)
 
         with pytest.raises(NotFoundException):
-            await disapprove_use_case.disapprove_user(999)
+            await disapprove_use_case.disapprove_user(
+                DisapproveUserDTO(user_id=999)
+            )
 
         user_repository.change_user_status.assert_not_awaited()
 
@@ -166,7 +182,9 @@ class TestDisapproveUserUseCase:
         setup_repository(user_repository, user)
 
         with pytest.raises(UserStatusChangeNotAllowedException):
-            await disapprove_use_case.disapprove_user(user.user_id)
+            await disapprove_use_case.disapprove_user(
+                DisapproveUserDTO(user_id=user.user_id)
+            )
 
         user_repository.change_user_status.assert_not_awaited()
 
@@ -181,7 +199,9 @@ class TestDropUserUseCase:
         user = create_user()
         setup_repository(user_repository, user)
 
-        result = await drop_use_case.drop_user(user.user_id)
+        result = await drop_use_case.drop_user(
+                DropUserDTO(user_id=user.user_id)
+            )
 
         assert result.status == UserStatusEnum.dropped
 
@@ -194,7 +214,9 @@ class TestDropUserUseCase:
         setup_repository_no_user(user_repository)
 
         with pytest.raises(NotFoundException):
-            await drop_use_case.drop_user(999)
+            await drop_use_case.drop_user(
+                DropUserDTO(user_id=999)
+            )
 
         user_repository.change_user_status.assert_not_awaited()
 
@@ -208,7 +230,9 @@ class TestDropUserUseCase:
         setup_repository(user_repository, user)
 
         with pytest.raises(UserStatusChangeNotAllowedException):
-            await drop_use_case.drop_user(user.user_id)
+            await drop_use_case.drop_user(
+                DropUserDTO(user_id=user.user_id)
+            )
 
         user_repository.change_user_status.assert_not_awaited()
 
@@ -223,7 +247,9 @@ class TestBanUserUseCase:
         user = create_user()
         setup_repository(user_repository, user)
 
-        result = await ban_use_case.ban_user(user.user_id)
+        result = await ban_use_case.ban_user(
+                BanUserDTO(user_id=user.user_id)
+            )
 
         assert result.status == UserStatusEnum.banned
 
@@ -236,7 +262,9 @@ class TestBanUserUseCase:
         setup_repository_no_user(user_repository)
 
         with pytest.raises(NotFoundException):
-            await ban_use_case.ban_user(999)
+            await ban_use_case.ban_user(
+                BanUserDTO(user_id=999)
+            )
 
         user_repository.change_user_status.assert_not_awaited()
 
@@ -250,7 +278,9 @@ class TestBanUserUseCase:
         setup_repository(user_repository, user)
 
         with pytest.raises(UserStatusChangeNotAllowedException):
-            await ban_use_case.ban_user(user.user_id)
+            await ban_use_case.ban_user(
+                BanUserDTO(user_id=user.user_id)
+            )
 
         user_repository.change_user_status.assert_not_awaited()
 

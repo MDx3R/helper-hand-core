@@ -1,6 +1,8 @@
 import pytest
 
 from domain.repositories import UserRepository
+from domain.dto.internal import GetUserDTO
+
 from application.usecases.user import (
     UserQueryUseCaseFacade
 )
@@ -32,7 +34,9 @@ class TestGetUserWithRoleUseCase:
     ):
         setup_repository(user_repository, user)
 
-        result = await use_case.get_user_with_role(user.user_id)
+        result = await use_case.get_user_with_role(
+            GetUserDTO(user_id=user.user_id)
+        )
 
         assert isinstance(result, type(expected))
         assert result == expected
@@ -45,7 +49,9 @@ class TestGetUserWithRoleUseCase:
     ):
         setup_repository(user_repository, None)
 
-        result = await use_case.get_user_with_role(999)
+        result = await use_case.get_user_with_role(
+            GetUserDTO(user_id=999)
+        )
 
         assert result is None
 
@@ -55,7 +61,9 @@ class TestGetUserWithRoleUseCase:
         use_case: UserQueryUseCaseFacade, 
         user_repository: UserRepository
     ):
-        await use_case.get_user_with_role(1)
+        await use_case.get_user_with_role(
+            GetUserDTO(user_id=1)
+        )
 
         user_repository.get_user_with_role.assert_awaited_once_with(1)
 
@@ -73,7 +81,9 @@ class TestGetAdminUseCase:
         admin, expected = generate_user_test_case(AdminFactory, AdminDTO)
         setup_repository(user_repository, admin)
 
-        result = await use_case.get_admin(admin.user_id)
+        result = await use_case.get_admin(
+            GetUserDTO(user_id=admin.user_id)
+        )
 
         assert isinstance(result, type(expected))
         assert result == expected
@@ -86,7 +96,9 @@ class TestGetAdminUseCase:
     ):
         setup_repository(user_repository, None)
 
-        result = await use_case.get_admin(999)
+        result = await use_case.get_admin(
+            GetUserDTO(user_id=999)
+        )
 
         assert result is None
 
@@ -96,7 +108,7 @@ class TestGetAdminUseCase:
         use_case: UserQueryUseCaseFacade, 
         user_repository: UserRepository
     ):
-        await use_case.get_admin(1)
+        await use_case.get_admin(GetUserDTO(user_id=1))
 
         user_repository.get_admin.assert_awaited_once_with(1)
 
@@ -114,7 +126,9 @@ class TestGetContracteeUseCase:
         contractee, expected = generate_user_test_case(ContracteeFactory, ContracteeDTO)
         setup_repository(user_repository, contractee)
 
-        result = await use_case.get_contractee(contractee.user_id)
+        result = await use_case.get_contractee(
+            GetUserDTO(user_id=contractee.user_id)
+        )
 
         assert isinstance(result, type(expected))
         assert result == expected
@@ -127,7 +141,9 @@ class TestGetContracteeUseCase:
     ):
         setup_repository(user_repository, None)
 
-        result = await use_case.get_contractee(999)
+        result = await use_case.get_contractee(
+            GetUserDTO(user_id=999)
+        )
 
         assert result is None
 
@@ -137,7 +153,9 @@ class TestGetContracteeUseCase:
         use_case: UserQueryUseCaseFacade, 
         user_repository: UserRepository
     ):
-        await use_case.get_contractee(1)
+        await use_case.get_contractee(
+            GetUserDTO(user_id=1)
+        )
 
         user_repository.get_contractee.assert_awaited_once_with(1)
 
@@ -155,7 +173,9 @@ class TestGetContractorUseCase:
         contractor, expected = generate_user_test_case(ContractorFactory, ContractorDTO)
         setup_repository(user_repository, contractor)
 
-        result = await use_case.get_contractor(contractor.user_id)
+        result = await use_case.get_contractor(
+            GetUserDTO(user_id=contractor.user_id)
+        )
 
         assert isinstance(result, type(expected))
         assert result == expected
@@ -168,7 +188,9 @@ class TestGetContractorUseCase:
     ):
         setup_repository(user_repository, None)
 
-        result = await use_case.get_contractor(999)
+        result = await use_case.get_contractor(
+            GetUserDTO(user_id=999)
+        )
 
         assert result is None
 
@@ -178,6 +200,6 @@ class TestGetContractorUseCase:
         use_case: UserQueryUseCaseFacade, 
         user_repository: UserRepository
     ):
-        await use_case.get_contractor(1)
+        await use_case.get_contractor(GetUserDTO(user_id=1))
 
         user_repository.get_contractor.assert_awaited_once_with(1)

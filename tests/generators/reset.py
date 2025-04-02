@@ -63,10 +63,14 @@ class UserResetTestCaseGenerator(
         class UserInvalidInputDTO(ApplicationDTO):
             pass
 
+        class InputDTO(ApplicationDTO):
+            user: UserInvalidInputDTO
+            context: UserContextDTO
+
         data = UserFactory.get_random_data()
 
         return UserResetTestCase(
-            ResetDTO(
+            InputDTO(
                 user=UserInvalidInputDTO(),
                 context=cls._build_context(data),
             ),

@@ -1,4 +1,7 @@
 import pytest
+
+from domain.dto.internal import UserManagementDTO
+
 from tests.unit.services.user.admin.conftest import (
     AdminUserManagementServiceImpl,
     UserContextDTO,
@@ -33,7 +36,12 @@ class TestAdminUserManagementServiceImpl:
         user, expected = generate_user_test_case(UserFactory, UserDTO)
         setup_management_mocks(service, user=expected)
 
-        result = await service.drop_user(user.user_id, context)
+        result = await service.drop_user(
+            UserManagementDTO(
+                user_id=user.user_id,
+                context=context
+            )
+        )
 
         assert isinstance(result, type(expected))
         assert result == expected
@@ -47,7 +55,12 @@ class TestAdminUserManagementServiceImpl:
         user, expected = generate_user_test_case(UserFactory, UserDTO)
         setup_management_mocks(service, user=expected)
 
-        result = await service.ban_user(user.user_id, context)
+        result = await service.ban_user(
+            UserManagementDTO(
+                user_id=user.user_id,
+                context=context
+            )
+        )
 
         assert isinstance(result, type(expected))
         assert result == expected
@@ -61,9 +74,14 @@ class TestAdminUserManagementServiceImpl:
         user, expected = generate_user_test_case(UserFactory, UserDTO)
         setup_management_mocks(service, user=expected)
 
-        await service.drop_user(user.user_id, context)
+        await service.drop_user(
+            UserManagementDTO(
+                user_id=user.user_id,
+                context=context
+            )
+        )
 
-        service.drop_user_use_case.drop_user.assert_awaited_once_with(user.user_id)
+        service.drop_user_use_case.drop_user.assert_awaited_once()
         service.notification_service.send_user_dropped_notification.assert_awaited_once_with(
             UserDroppedNotificationDTO(
                 receiver_id=user.user_id, 
@@ -80,9 +98,14 @@ class TestAdminUserManagementServiceImpl:
         user, expected = generate_user_test_case(UserFactory, UserDTO)
         setup_management_mocks(service, user=expected)
 
-        await service.ban_user(user.user_id, context)
+        await service.ban_user(
+            UserManagementDTO(
+                user_id=user.user_id,
+                context=context
+            )
+        )
 
-        service.ban_user_use_case.ban_user.assert_awaited_once_with(user.user_id)
+        service.ban_user_use_case.ban_user.assert_awaited_once()
         service.notification_service.send_user_banned_notification.assert_awaited_once_with(
             UserBannedNotificationDTO(
                 receiver_id=user.user_id, 

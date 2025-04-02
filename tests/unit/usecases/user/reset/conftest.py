@@ -11,24 +11,24 @@ from tests.generators.reset import (
 
 @pytest.fixture
 def invalid_input():
-    return UserResetTestCaseGenerator.create_invalid_input().input
+    return UserResetTestCaseGenerator.create_invalid_input().reset.user
 
 @pytest.fixture
 def contractee_input():
-    return ContracteeResetTestCaseGenerator.create().input
+    return ContracteeResetTestCaseGenerator.create().reset.user
 
 @pytest.fixture
 def contractor_input():
-    return ContractorResetTestCaseGenerator.create().input
+    return ContractorResetTestCaseGenerator.create().reset.user
 
 def generate_contractee_test_cases():
     return [
-        (t.input, t.expected) for t in [ContracteeResetTestCaseGenerator.create()]
+        (t.reset.user, t.expected) for t in [ContracteeResetTestCaseGenerator.create()]
     ]
 
 def generate_contractor_test_cases():
     return [
-        (t.input, t.expected) for t in [ContractorResetTestCaseGenerator.create()]
+        (t.reset.user, t.expected) for t in [ContractorResetTestCaseGenerator.create()]
     ]
 
 contractee_test_cases = generate_contractee_test_cases()

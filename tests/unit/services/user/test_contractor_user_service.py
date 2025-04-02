@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock
 
 from domain.dto.common import ContractorDTO, ContracteeDTO
 from domain.dto.context import UserContextDTO
+from domain.dto.internal import GetUserDTO, GetUserWithContextDTO
 
 from application.usecases.user import GetContracteeUseCase, GetContractorUseCase
 from application.services.user import ContractorUserQueryServiceImpl
@@ -87,8 +88,14 @@ class TestContractorUserQueryServiceImpl:
         expected
     ):
         setup_contractor_query_mocks(service, user=expected)
-
-        result = await service.get_user(context.user_id, context)
+        user_id = context.user_id
+        
+        result = await service.get_user(
+            GetUserWithContextDTO(
+                user_id=user_id,
+                context=context
+            )
+        )
 
         assert isinstance(result, type(expected))
         assert result == expected
@@ -104,7 +111,12 @@ class TestContractorUserQueryServiceImpl:
         different_user_id = context.user_id + 1  # Другой ID, чтобы вызвать get_contractee
         setup_contractor_query_mocks(service, user=expected)
 
-        result = await service.get_user(different_user_id, context)
+        result = await service.get_user(
+            GetUserWithContextDTO(
+                user_id=different_user_id,
+                context=context
+            )
+        )
 
         assert isinstance(result, type(expected))
         assert result == expected
@@ -118,7 +130,12 @@ class TestContractorUserQueryServiceImpl:
         different_user_id = context.user_id + 1  # Другой ID, чтобы вызвать get_contractee
         setup_contractor_query_mocks(service, user=None)
 
-        result = await service.get_user(different_user_id, context)
+        result = await service.get_user(
+            GetUserWithContextDTO(
+                user_id=different_user_id,
+                context=context
+            )
+        )
 
         assert result is None
 
@@ -131,7 +148,11 @@ class TestContractorUserQueryServiceImpl:
         setup_contractor_query_mocks(service)
         await service.get_profile(context)
 
-        service.get_contractor_use_case.get_contractor.assert_awaited_once_with(context.user_id)
+        service.get_contractor_use_case.get_contractor.assert_awaited_once_with(
+            GetUserDTO(
+                user_id=context.user_id
+            )
+        )
 
     @pytest.mark.asyncio
     async def test_get_contractee_use_case_is_called(
@@ -141,6 +162,10 @@ class TestContractorUserQueryServiceImpl:
     ):
         different_user_id = context.user_id + 1  # Другой ID, чтобы вызвать get_contractee
         setup_contractor_query_mocks(service)
-        await service.get_user(different_user_id, context)
+        dto = GetUserWithContextDTO(
+            user_id=different_user_id,
+            context=context
+        )
+        await service.get_user(dto)
 
-        service.get_contractee_use_case.get_contractee.assert_awaited_once_with(different_user_id)
+        service.get_contractee_use_case.get_contractee.assert_awaited_once()

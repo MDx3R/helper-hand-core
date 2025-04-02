@@ -1,6 +1,8 @@
 import pytest
 
 from domain.repositories import UserRepository
+from domain.dto.internal import GetUserDTO
+
 from application.usecases.user import (
     UserQueryUseCaseFacade
 )
@@ -25,7 +27,9 @@ class TestGetUserUseCase:
         user, expected = generate_user_test_case(UserFactory, UserDTO)
         setup_repository(user_repository, user)
 
-        result = await use_case.get_user(user.user_id)
+        result = await use_case.get_user(
+            GetUserDTO(user_id=user.user_id)
+        )
 
         assert isinstance(result, type(expected))
         assert result == expected
@@ -38,7 +42,9 @@ class TestGetUserUseCase:
     ):
         setup_repository(user_repository, None)
 
-        result = await use_case.get_user(999)
+        result = await use_case.get_user(
+            GetUserDTO(user_id=999)
+        )
 
         assert result is None
 
@@ -48,6 +54,6 @@ class TestGetUserUseCase:
         use_case: UserQueryUseCaseFacade, 
         user_repository: UserRepository
     ):
-        await use_case.get_user(1)
+        await use_case.get_user(GetUserDTO(user_id=1))
 
         user_repository.get_user.assert_awaited_once_with(1)

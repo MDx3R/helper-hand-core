@@ -1,4 +1,7 @@
 import pytest
+
+from domain.dto.internal import UserNotificationDTO
+
 from tests.unit.services.user.admin.conftest import (
     AdminUserNotificationServiceImpl,
     UserContextDTO,
@@ -19,7 +22,12 @@ class TestAdminUserNotificationServiceImpl:
     ):
         user_id = 1
         setup_notification_mocks(service)
-        result = await service.notify_user(user_id, context)
+        result = await service.notify_user(
+            UserNotificationDTO(
+                user_id=user_id,
+                context=context
+            )
+        )
 
         # Здесь нет возвращаемого значения для проверки
         assert result is None
@@ -32,7 +40,12 @@ class TestAdminUserNotificationServiceImpl:
     ):
         user_id = 1
         setup_notification_mocks(service)
-        await service.notify_user(user_id, context)
+        await service.notify_user(
+            UserNotificationDTO(
+                user_id=user_id,
+                context=context
+            )
+        )
 
         service.notification_service.send_admin_contact_notification.assert_awaited_once_with(
             AdminContactNotificationDTO(

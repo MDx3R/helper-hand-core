@@ -1,4 +1,7 @@
 import pytest
+
+from domain.dto.internal import GetUserDTO
+
 from tests.unit.services.user.admin.conftest import (
     AdminUserQueryServiceImpl,
     UserStatusEnum,
@@ -29,7 +32,9 @@ class TestAdminUserQueryServiceImpl:
     ):
         setup_query_mocks(service, user=expected)
 
-        result = await service.get_user(user.user_id)
+        result = await service.get_user(
+            GetUserDTO(user_id=user.user_id)
+        )
 
         assert isinstance(result, type(expected))
         assert result == expected
@@ -41,7 +46,9 @@ class TestAdminUserQueryServiceImpl:
     ):
         setup_query_mocks(service, user=None)
 
-        result = await service.get_user(999)
+        result = await service.get_user(
+            GetUserDTO(user_id=999)
+        )
 
         assert result is None
 
@@ -79,9 +86,11 @@ class TestAdminUserQueryServiceImpl:
         service: AdminUserQueryServiceImpl
     ):
         setup_query_mocks(service)
-        await service.get_user(1)
+        dto = GetUserDTO(user_id=1)
+        
+        await service.get_user(dto)
 
-        service.get_user_use_case.get_user_with_role.assert_awaited_once_with(1)
+        service.get_user_use_case.get_user_with_role.assert_awaited_once_with(dto)
 
     @pytest.mark.asyncio
     async def test_get_pending_user_use_case_is_called(
