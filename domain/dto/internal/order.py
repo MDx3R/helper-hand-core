@@ -5,8 +5,8 @@ from domain.dto.input import OrderInputDTO, OrderDetailInputDTO
 
 from .base import (
     ContextDTO,
-    GetOrderDTO,
-    GetUserDTO,
+    OrderIdDTO,
+    UserIdDTO,
     PaginationDTO
 )
 
@@ -14,10 +14,10 @@ class CreateOrderDTO(ContextDTO):
     order_input: OrderInputDTO
     details_input: List[OrderDetailInputDTO]
 
-class OrderManagementDTO(GetOrderDTO, ContextDTO):
+class OrderManagementDTO(OrderIdDTO, ContextDTO):
     pass
 
-class GetUserOrdersDTO(GetUserDTO, PaginationDTO):
+class GetUserOrdersDTO(UserIdDTO, PaginationDTO):
     pass
 
 class GetUserOrdersWithStatusDTO(GetUserOrdersDTO):

@@ -6,10 +6,10 @@ from domain.dto.context import UserContextDTO
 class InternalDTO(ApplicationDTO):
     pass
 
-class GetUserDTO(InternalDTO):
+class UserIdDTO(InternalDTO):
     user_id: int
 
-class GetOrderDTO(InternalDTO):
+class OrderIdDTO(InternalDTO):
     order_id: int
 
 class LastObjectDTO(InternalDTO):

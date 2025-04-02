@@ -1,6 +1,6 @@
 from .base import (
-    GetUserDTO,
-    GetOrderDTO,
+    UserIdDTO,
+    OrderIdDTO,
     LastObjectDTO,
     PaginationDTO,
 )
