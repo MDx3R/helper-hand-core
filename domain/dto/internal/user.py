@@ -9,3 +9,12 @@ from .base import (
 
 class ResetDTO(ContextDTO):
     user: UserResetDTO
+
+class GetUserDTO(UserIdDTO):
+    pass
+
+class UserManagementDTO(UserIdDTO, ContextDTO):
+    pass
+
+class UserNotificationDTO(UserIdDTO, ContextDTO):
+    message: str = ""

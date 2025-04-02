@@ -6,6 +6,9 @@ from .base import (
 )
 from .user import (
     ResetDTO,
+    GetUserDTO,
+    UserManagementDTO,
+    UserNotificationDTO
 )
 from .order import (
     CreateOrderDTO,
