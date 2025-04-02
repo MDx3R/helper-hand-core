@@ -1,6 +1,7 @@
 from domain.services.user import ContracteeUserQueryService
 from domain.dto.common import ContracteeDTO
 from domain.dto.context import UserContextDTO
+from domain.dto.internal import GetUserDTO
 
 from application.usecases.user import GetContracteeUseCase
 
@@ -12,4 +13,6 @@ class ContracteeUserQueryServiceImpl(ContracteeUserQueryService):
         self.get_contractee_use_case = get_contractee_use_case
 
     async def get_profile(self, context: UserContextDTO) -> ContracteeDTO:
-        return await self.get_contractee_use_case.get_contractee(context.user_id)
+        return await self.get_contractee_use_case.get_contractee(
+            GetUserDTO(user_id=context.user_id)
+        )
