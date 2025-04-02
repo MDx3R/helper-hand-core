@@ -11,35 +11,36 @@ from domain.exceptions.service import (
 
 from application.transactions import transactional
 
+from domain.dto.internal import (
+    ApproveUserDTO,
+    DisapproveUserDTO,
+    DropUserDTO,
+    BanUserDTO
+)
+
 from abc import ABC, abstractmethod
-
-class ChangeUserStatusUseCase(ABC):
-    @abstractmethod
-    async def change_user_status(self, user_id: int, status: UserStatusEnum) -> UserDTO:
-        pass
-
 
 class ApproveUserUseCase(ABC):
     @abstractmethod
-    async def approve_user(self, user_id: int) -> UserDTO:
+    async def approve_user(self, request: ApproveUserDTO) -> UserDTO:
         pass
 
 
 class DisapproveUserUseCase(ABC):
     @abstractmethod
-    async def disapprove_user(self, user_id: int) -> UserDTO:
+    async def disapprove_user(self, request: DisapproveUserDTO) -> UserDTO:
         pass
 
 
 class DropUserUseCase(ABC):
     @abstractmethod
-    async def drop_user(self, user_id: int) -> UserDTO:
+    async def drop_user(self, request: DropUserDTO) -> UserDTO:
         pass
 
 
 class BanUserUseCase(ABC):
     @abstractmethod
-    async def ban_user(self, user_id: int) -> UserDTO:
+    async def ban_user(self, request: BanUserDTO) -> UserDTO:
         pass
 
 
@@ -48,24 +49,25 @@ class ChangeUserStatusUseCaseFacade(
     DisapproveUserUseCase, 
     DropUserUseCase, 
     BanUserUseCase, 
-    #ChangeUserStatusUseCase
 ):
     def __init__(
         self, user_repository: UserRepository,
     ):
         self.user_repository = user_repository
 
-    async def approve_user(self, user_id: int) -> UserDTO:
-        return await self.change_user_status(user_id, UserStatusEnum.registered)
+    async def approve_user(self, request: ApproveUserDTO) -> UserDTO:
+        return await self.change_user_status(request.user_id, UserStatusEnum.registered)
 
-    async def disapprove_user(self, user_id: int) -> UserDTO:
-        return await self.change_user_status(user_id, UserStatusEnum.disapproved)
+    async def disapprove_user(self, request: DisapproveUserDTO) -> UserDTO:
+        return await self.change_user_status(request.user_id, UserStatusEnum.disapproved)
 
-    async def drop_user(self, user_id: int) -> UserDTO:
-        return await self.change_user_status(user_id, UserStatusEnum.dropped)
+    async def drop_user(self, request: DropUserDTO) -> UserDTO:
+        # TODO: Отменять все отклики
+        return await self.change_user_status(request.user_id, UserStatusEnum.dropped)
 
-    async def ban_user(self, user_id: int) -> UserDTO:
-        return await self.change_user_status(user_id, UserStatusEnum.banned)
+    async def ban_user(self, request: BanUserDTO) -> UserDTO:
+        # TODO: Отменять все отклики
+        return await self.change_user_status(request.user_id, UserStatusEnum.banned)
 
     @transactional
     async def change_user_status(self, user_id: int, status: UserStatusEnum) -> UserDTO:
