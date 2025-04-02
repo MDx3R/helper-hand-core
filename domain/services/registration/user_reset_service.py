@@ -1,15 +1,15 @@
 from abc import ABC, abstractmethod
 
-from domain.dto.input.registration import UserResetDTO
-from domain.dto.common import UserDTO
-from domain.dto.context import UserContextDTO
+from domain.dto.common import ContracteeDTO, ContractorDTO
+
+from domain.dto.internal import ResetDTO
 
 class UserResetService(ABC):
     """
     Интерфейс для сервисов повторной регистрации пользователей.
     """
     @abstractmethod
-    async def reset_user(self, user_input: UserResetDTO, context: UserContextDTO) -> UserDTO:
+    async def reset_user(self, request: ResetDTO) -> ContracteeDTO | ContractorDTO:
         """
         Повторно регистрирует пользователя.
 
@@ -18,16 +18,9 @@ class UserResetService(ABC):
         - Номер телефона пользователя должен соответствовать ранее установленному или быть уникальным.
         - Повторная регистрация требует подтверждения Администратора.
 
-        Args:
-            user_input (UserResetDTO): Объект класса пользователя, производного от `UserResetDTO`, соответствующий полю `role` класса `UserResetDTO`.
-            context (UserContextDTO)
-
-        Returns:
-            UserDTO: Объект класса пользователя, соответствующий роли повторно зарегистрированного пользователя.
-
         Raises:
-            PermissionDeniedException: Возникает при попытке изменить чужой профиль.
-            DuplicateEntryException: Возникает, если контактные данные пользователя (например, номер телефона) уже используются другим пользователем.
-            IntegrityException: Возникает при нарушении целостности данных.
+            PermissionDeniedException
+            DuplicateEntryException
+            IntegrityException
         """
         pass
