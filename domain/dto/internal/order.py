@@ -7,8 +7,8 @@ from .base import ContextDTO, OrderIdDTO, PaginationDTO, UserIdDTO
 
 
 class CreateOrderDTO(ContextDTO):
-    order_input: OrderInputDTO
-    details_input: List[OrderDetailInputDTO]
+    order: OrderInputDTO
+    details: List[OrderDetailInputDTO]
 
 
 class GetOrderDTO(OrderIdDTO):
