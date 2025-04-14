@@ -1,6 +1,21 @@
-from .auth import PermissionDeniedException, AlreadyAuthenticatedException, UserBlockedException, UnauthorizedAccessException
-from .orders import MissingOrderDetailsException, OrderStatusChangeNotAllowedException, OrderActionNotAllowedException
+from .auth import (
+    AlreadyAuthenticatedException,
+    PermissionDeniedException,
+    UnauthorizedAccessException,
+    UserBlockedException,
+)
 from .common import NotFoundException
-from .replies import InvalidReplyException, DetailFullException, ReplyStatusChangeNotAllowedException, ReplySubmitNotAllowedException
-from .users import UserStatusChangeNotAllowedException
 from .input import InvalidInputException
+from .orders import (
+    MissingOrderDetailsException,
+    OrderActionNotAllowedException,
+    OrderStatusChangeNotAllowedException,
+    OrderSupervisorAssignmentNotAllowedException,
+)
+from .replies import (
+    DetailFullException,
+    InvalidReplyException,
+    ReplyStatusChangeNotAllowedException,
+    ReplySubmitNotAllowedException,
+)
+from .users import UserStatusChangeNotAllowedException

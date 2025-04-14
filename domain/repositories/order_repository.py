@@ -6,7 +6,7 @@ from domain.entities.enums import OrderStatusEnum
 
 class OrderRepository(ABC):
     @abstractmethod
-    async def get_order_by_id(self, order_id: int) -> Order | None:
+    async def get_order(self, order_id: int) -> Order | None:
         """
         Получает заказ по его ID.
         

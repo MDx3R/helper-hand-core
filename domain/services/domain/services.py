@@ -1,9 +1,23 @@
-from typing import overload, List, Union
+from typing import List, Union, overload
 
-from domain.entities import Order, OrderDetail, Reply, User, Admin, Contractee, AvailableRepliesForDetail
-from domain.entities.enums import RoleEnum, UserStatusEnum, OrderStatusEnum, GenderEnum, ReplyStatusEnum
-
+from domain.entities import (
+    Admin,
+    AvailableRepliesForDetail,
+    Contractee,
+    Order,
+    OrderDetail,
+    Reply,
+    User,
+)
+from domain.entities.enums import (
+    GenderEnum,
+    OrderStatusEnum,
+    ReplyStatusEnum,
+    RoleEnum,
+    UserStatusEnum,
+)
 from domain.time import is_current_time_valid_for_reply
+
 
 class UserDomainService:
     @staticmethod
@@ -13,11 +27,11 @@ class UserDomainService:
     @staticmethod
     def is_pending(user: User) -> bool:
         return user.status == UserStatusEnum.pending
-    
+
     @staticmethod
     def is_registered(user: User) -> bool:
         return user.status == UserStatusEnum.registered
-    
+
     @staticmethod
     def is_disapproved(user: User) -> bool:
         return user.status == UserStatusEnum.disapproved
@@ -25,31 +39,33 @@ class UserDomainService:
     @staticmethod
     def is_dropped(user: User) -> bool:
         return user.status == UserStatusEnum.dropped
-    
+
     @staticmethod
     def is_banned(user: User) -> bool:
         return user.status == UserStatusEnum.banned
 
     @staticmethod
     def is_contractee(user: User) -> bool:
-        return user.role == RoleEnum.contractee 
+        return user.role == RoleEnum.contractee
 
     @staticmethod
     def is_contractor(user: User) -> bool:
-        return user.role == RoleEnum.contractor 
-    
+        return user.role == RoleEnum.contractor
+
     @staticmethod
     def is_admin(user: User) -> bool:
-        return user.role == RoleEnum.admin 
-    
+        return user.role == RoleEnum.admin
+
     @classmethod
-    def can_status_be_changed(cls, user: User, change_to: UserStatusEnum) -> bool:
+    def can_status_be_changed(
+        cls, user: User, change_to: UserStatusEnum
+    ) -> bool:
         if not cls.is_editable_by_others(user):
             return False
         match change_to:
-            case UserStatusEnum.registered: # approved
+            case UserStatusEnum.registered:  # approved
                 return cls.can_be_approved(user)
-            case UserStatusEnum.disapproved: # disapproved
+            case UserStatusEnum.disapproved:  # disapproved
                 return cls.can_be_disapproved(user)
             case UserStatusEnum.dropped:
                 return cls.can_be_dropped(user)
@@ -61,7 +77,7 @@ class UserDomainService:
     @classmethod
     def can_be_approved(cls, user: User) -> bool:
         return cls.is_pending(user)
-    
+
     @classmethod
     def can_be_disapproved(cls, user: User) -> bool:
         return cls.is_pending(user)
@@ -69,7 +85,7 @@ class UserDomainService:
     @classmethod
     def can_be_dropped(cls, user: User) -> bool:
         return not cls.is_dropped(user) and not cls.is_admin(user)
-    
+
     @classmethod
     def can_be_banned(cls, user: User) -> bool:
         return not cls.is_banned(user) and not cls.is_admin(user)
@@ -82,25 +98,27 @@ class UserDomainService:
         Профили администраторов доступны для редактирования только владельцу этого профиля.
         """
         return not cls.is_admin(user)
-    
+
     @classmethod
     def is_allowed_to_register(cls, user: User) -> bool:
         return cls.is_dropped(user) or cls.is_disapproved(user)
+
 
 class AdminDomainService:
     @staticmethod
     def is_contractor(admin: Admin) -> bool:
         return admin.contractor_id is not None
 
+
 class OrderDomainService:
     @staticmethod
     def is_owned_by(order: Order, contractor_id: int) -> bool:
         return contractor_id == order.contractor_id
-    
+
     @staticmethod
     def is_supervised_by(order: Order, user_id: int) -> bool:
         return user_id == order.supervisor_id
-    
+
     @staticmethod
     def has_supervisor(order: Order) -> bool:
         return order.supervisor_id is not None
@@ -112,7 +130,7 @@ class OrderDomainService:
     @staticmethod
     def is_open(order: Order) -> bool:
         return order.status == OrderStatusEnum.open
-    
+
     @staticmethod
     def is_closed(order: Order) -> bool:
         return order.status == OrderStatusEnum.closed
@@ -139,20 +157,42 @@ class OrderDomainService:
 
     @classmethod
     def can_be_approved(cls, order: Order) -> bool:
+        """
+        Проверяет как и возможность подтвердить заказ (`approve`),
+        так и отменить (`disapprove`)
+        """
         return cls.is_created(order)
+
+    @classmethod
+    def can_status_be_changed(
+        cls, order: Order, change_to: OrderStatusEnum
+    ) -> bool:
+        match change_to:
+            case OrderStatusEnum.open:
+                return cls.can_be_opened(order)
+            case OrderStatusEnum.cancelled:
+                return cls.can_be_cancelled(order)
+            case OrderStatusEnum.closed:
+                return cls.can_be_closed(order)
+            case OrderStatusEnum.active:
+                return cls.can_be_set_active(order)
+            case OrderStatusEnum.fulfilled:
+                return cls.can_be_fulfilled(order)
+
+        return False
 
     @classmethod
     def can_be_cancelled(cls, order: Order) -> bool:
         return not cls.is_fulfilled(order) and not cls.is_cancelled(order)
-    
+
     @classmethod
     def can_be_closed(cls, order: Order) -> bool:
         return cls.is_open(order)
-    
+
     @classmethod
     def can_be_opened(cls, order: Order) -> bool:
         return cls.is_closed(order)
-    
+
     @classmethod
     def can_be_set_active(cls, order: Order) -> bool:
         return cls.is_open(order) or cls.is_closed(order)
@@ -160,20 +200,22 @@ class OrderDomainService:
     @classmethod
     def can_be_fulfilled(cls, order: Order) -> bool:
         return cls.is_active(order)
-    
+
     @classmethod
     def can_have_replies(cls, order: Order) -> bool:
         return cls.is_open(order)
-    
+
+
 class OrderDetailDomainService:
     @staticmethod
     def is_suitable(detail: OrderDetail, contractee: Contractee) -> bool:
         return not detail.gender or detail.gender == contractee.gender
-    
+
     @staticmethod
     def is_relevant_at_current_time(detail: OrderDetail) -> bool:
         return is_current_time_valid_for_reply(detail.date)
-    
+
+
 class ReplyDomainService:
     @staticmethod
     def is_created(reply: Reply) -> bool:
@@ -182,28 +224,31 @@ class ReplyDomainService:
     @staticmethod
     def is_accepted(reply: Reply) -> bool:
         return reply.status == ReplyStatusEnum.accepted
-    
+
     @staticmethod
     def is_dropped(reply: Reply) -> bool:
         return reply.status == ReplyStatusEnum.dropped
-    
+
     @staticmethod
     def is_paid(reply: Reply) -> bool:
         return reply.status == ReplyStatusEnum.paid
-    
+
     @classmethod
     def can_be_approved(cls, reply: Reply) -> bool:
         return cls.is_created(reply)
-    
+
     @classmethod
     def can_be_dropped(cls, reply: Reply) -> bool:
         return cls.is_created(reply)
+
 
 class AvailabilityDomainService:
     @staticmethod
     def is_full(availability: AvailableRepliesForDetail) -> bool:
         return availability.quantity <= 0
-    
+
     @classmethod
-    def are_all_full(cls, availabilities: List[AvailableRepliesForDetail]) -> bool:
+    def are_all_full(
+        cls, availabilities: List[AvailableRepliesForDetail]
+    ) -> bool:
         return all(cls.is_full(av) for av in availabilities)
