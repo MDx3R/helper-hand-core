@@ -3,7 +3,13 @@ from typing import List, Optional
 from domain.dto.input import OrderDetailInputDTO, OrderInputDTO
 from domain.entities.enums import OrderStatusEnum
 
-from .base import ContextDTO, OrderIdDTO, PaginationDTO, UserIdDTO
+from .base import (
+    ContextDTO,
+    LastObjectDTO,
+    OrderIdDTO,
+    PaginationDTO,
+    UserIdDTO,
+)
 
 
 class CreateOrderDTO(ContextDTO):
@@ -12,6 +18,10 @@ class CreateOrderDTO(ContextDTO):
 
 
 class GetOrderDTO(OrderIdDTO):
+    pass
+
+
+class GetUserOrderDTO(OrderIdDTO, UserIdDTO):
     pass
 
 
@@ -52,6 +62,10 @@ class FulfillOrderDTO(OrderManagementDTO):
 
 
 class GetUserOrdersDTO(UserIdDTO, PaginationDTO):
+    pass
+
+
+class GetUserOrderAfterDTO(UserIdDTO, LastObjectDTO):
     pass
 
 

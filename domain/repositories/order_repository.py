@@ -58,9 +58,7 @@ class OrderRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_detailed_order_by_id(
-        self, order_id: int
-    ) -> DetailedOrder | None:
+    async def get_detailed_order(self, order_id: int) -> DetailedOrder | None:
         """
         Получает заказ и сведения о нем по его ID.
 
@@ -488,29 +486,7 @@ class OrderRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_detailed_unassigned_orders_by_page(
-        self, page: int = 1, size: int = None
-    ) -> List[DetailedOrder]:
-        """
-        Получает неприкрепленные к администратору заказы и сведения о них, ID которых больше `last_order_id`.
-        На основе параметров `page` и `size` рассчитывается `offset` (`offset = (page-1)*size`) и `limit` (`limit = size`).
-        Если параметр `page` равен 1, то элементы берутся с начала.
-        Если параметр `size` равен `None`, то возвращаются все элементы после отступа.
-
-        Args:
-            page (int): номер страницы.
-            size (int): количество элементов на возврат.
-
-        Returns:
-            List[DetailedOrder]: Список открытых заказов вместе со сведениями о них. Результат может быть пустым, если заказы не найдены.
-
-        Raises:
-            RepositoryException: При всех непредвиденных ошибках.
-        """
-        pass
-
-    @abstractmethod
-    async def get_detailed_unassigned_orders_by_last_order_id(
+    async def get_detailed_unassigned_orders_after(
         self, last_order_id: int = None, size: int = None
     ) -> List[DetailedOrder]:
         """

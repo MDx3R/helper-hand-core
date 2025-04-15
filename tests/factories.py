@@ -14,6 +14,7 @@ from domain.entities import (
     Reply,
     User,
 )
+from domain.entities.detailed_order import DetailedOrder
 from domain.entities.enums import (
     CitizenshipEnum,
     GenderEnum,
@@ -41,42 +42,63 @@ B = TypeVar("B", bound=Base)
 M = TypeVar("M", bound=ApplicationModel)
 
 
-class ModelBaseFactory(ABC, Generic[B, M]):
-    model: type[ApplicationModel] = ApplicationModel
-    base: type[Base] = Base
+class Factory(ABC):
     fixed_data = {}
+
+    @classmethod
+    def get_default_data(cls, **kwargs) -> Dict[str, Any]:
+        return cls.fixed_data | kwargs
+
+    @classmethod
+    @abstractmethod
+    def get_random_data(cls, **kwargs) -> Dict[str, Any]:
+        pass
+
+
+class ModelFactory(Factory, Generic[M]):
+    model: type[ApplicationModel] = ApplicationModel
 
     @classmethod
     def _create_model(cls, data: Dict[str, Any]) -> M:
         return cls.model.model_validate(data)
 
     @classmethod
-    def _create_base(cls, data: Dict[str, Any]) -> B:
-        return cls.base.base_validate(data)
-
-    @classmethod
     def create_model(cls, **kwargs) -> M:
         return cls._create_model(cls.fixed_data | kwargs)
-
-    @classmethod
-    def create_base(cls, **kwargs) -> B:
-        return cls._create_base(cls.fixed_data | kwargs)
 
     @classmethod
     def create_random_model(cls, **kwargs) -> M:
         return cls._create_model(cls.get_random_data(**kwargs))
 
     @classmethod
+    def get_random_model_list(cls, _count: int = 3, **kwargs) -> List[M]:
+        return [cls.create_random_model(**kwargs) for _ in range(_count)]
+
+
+class BaseFactory(Factory, Generic[B]):
+    base: type[Base] = Base
+
+    @classmethod
+    def _create_base(cls, data: Dict[str, Any]) -> B:
+        return cls.base.base_validate(data)
+
+    @classmethod
+    def create_base(cls, **kwargs) -> B:
+        return cls._create_base(cls.fixed_data | kwargs)
+
+    @classmethod
     def create_random_base(cls, **kwargs) -> B:
         return cls._create_base(cls.get_random_data(**kwargs))
 
     @classmethod
-    def get_random_model_list(cls, _count: int = 3, **kwargs) -> List[M]:
-        return [cls.create_random_model(**kwargs) for _ in range(_count)]
-
-    @classmethod
     def get_random_base_list(cls, _count: int = 3, **kwargs) -> List[B]:
         return [cls.create_random_base(**kwargs) for _ in range(_count)]
+
+
+class ModelBaseFactory(ModelFactory, BaseFactory, Generic[B, M]):
+    model: type[ApplicationModel] = ApplicationModel
+    base: type[Base] = Base
+    fixed_data = {}
 
     @classmethod
     def get_pair_list(
@@ -98,15 +120,6 @@ class ModelBaseFactory(ABC, Generic[B, M]):
         base = cls._create_base(data)
         model = cls._create_model(data)
         return base, model
-
-    @classmethod
-    def get_default_data(cls, **kwargs) -> Dict[str, Any]:
-        return cls.fixed_data | kwargs
-
-    @classmethod
-    @abstractmethod
-    def get_random_data(cls, **kwargs) -> Dict[str, Any]:
-        pass
 
 
 class UserFactory(ModelBaseFactory[UserBase, User]):
@@ -363,3 +376,25 @@ class AdminFactory(AggregatedUserFactory[AdminBase, Admin]):
             }
             | kwargs
         )
+
+
+class DetailedOrderFactory(ModelFactory[DetailedOrder]):
+    model = DetailedOrder
+    order = OrderFactory.fixed_data
+    details = [OrderDetailFactory.fixed_data]
+    fixed_data = order | {
+        "details": details,
+    }
+
+    @classmethod
+    def get_random_data(cls, **kwargs) -> Dict[str, Any]:
+        order = OrderFactory.get_random_data(**kwargs)
+        details = [
+            OrderDetailFactory.get_random_data(
+                order_id=order["order_id"], **kwargs
+            )
+            for _ in range(3)
+        ]
+        return order | {
+            "details": details,
+        }

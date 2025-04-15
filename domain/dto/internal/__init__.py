@@ -8,6 +8,8 @@ from .order import (
     DisapproveOrderDTO,
     FulfillOrderDTO,
     GetOrderDTO,
+    GetUserOrderAfterDTO,
+    GetUserOrderDTO,
     GetUserOrdersDTO,
     OpenOrderDTO,
     OrderManagementDTO,

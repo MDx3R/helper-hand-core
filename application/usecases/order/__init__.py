@@ -15,3 +15,20 @@ from .create_order_use_case import (
     CreateOrderDetailsUseCase,
     CreateOrderUseCase,
 )
+from .order_query_use_case import (
+    GetAdminOrdersUseCase,
+    GetAvailableDetailsUseCase,
+    GetAvailableOrInvolvedOrderUseCase,
+    GetContracteeOrdersUseCase,
+    GetContractorDetailedOrderUseCase,
+    GetContractorOrdersUseCase,
+    GetContractorOrderUseCase,
+    GetContractorOrderUseCaseFacade,
+    GetDetailedOrderUseCase,
+    GetOpenAndSuitableOrderUseCase,
+    GetOrderUseCase,
+    GetOrderUseCaseFacade,
+    GetUnassignedOrderUseCase,
+    GetUserOrdersUseCaseFacade,
+    HasContracteeRepliedToOrderUseCase,
+)
