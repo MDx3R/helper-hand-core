@@ -1,4 +1,5 @@
 from .base import LastObjectDTO, OrderIdDTO, PaginationDTO, UserIdDTO
+from .detail import CreateOrderDetailDTO, CreateOrderDetailsDTO
 from .order import (
     ApproveOrderDTO,
     CancelOrderDTO,

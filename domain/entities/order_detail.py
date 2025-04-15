@@ -1,9 +1,9 @@
+from datetime import date, datetime, time, timedelta
 from typing import Optional
+
 from .base import ApplicationModel
+from .enums import GenderEnum, PositionEnum
 
-from datetime import datetime, time, timedelta, date
-
-from .enums import PositionEnum, GenderEnum
 
 class OrderDetail(ApplicationModel):
     """
@@ -30,12 +30,15 @@ class OrderDetail(ApplicationModel):
 
     position: PositionEnum
     """Требуемая позиция."""
-    
+
     count: int
     """Требуемое количество сотрудников на данную позицию."""
 
     wager: int
     """Полная часовая ставка на данную позицию."""
+
+    fee: int
+    """Комиссия сервиса на позицию."""
 
     gender: Optional[GenderEnum] = None
     """Требуемый пол сотрудников."""
@@ -43,12 +46,12 @@ class OrderDetail(ApplicationModel):
     @property
     def start_date(self):
         return datetime.combine(self.date, self.start_at)
-    
+
     @property
     def end_date(self):
         dt = self.date
 
         if self.start_at > self.end_at:
             dt += timedelta(days=1)
-        
+
         return datetime.combine(dt, self.end_at)

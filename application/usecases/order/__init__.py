@@ -10,4 +10,8 @@ from .change_order_status_use_case import (
     SetActiveOrderUseCase,
     TakeOrderUseCase,
 )
-from .create_order_use_case import CreateAdminOrderUseCase, CreateOrderUseCase
+from .create_order_use_case import (
+    CreateAdminOrderUseCase,
+    CreateOrderDetailsUseCase,
+    CreateOrderUseCase,
+)

@@ -2,32 +2,32 @@ import pytest
 
 from application.usecases.order import (
     CreateAdminOrderUseCase,
+    CreateOrderDetailsUseCase,
     CreateOrderUseCase,
 )
 from domain.dto.common import DetailedOrderDTO
-from domain.dto.internal.order import CreateOrderDTO
-from domain.repositories.order_detail_repository import OrderDetailRepository
-from domain.repositories.order_repository import OrderRepository
+from domain.dto.internal import CreateOrderDTO
+from domain.repositories import OrderDetailRepository, OrderRepository
+from domain.wager import calculate_wager
 from tests.generators.create_order import CreateOrderTestCaseGenerator
 
 from .conftest import create_context, set_up_counter
 
 
 @pytest.fixture
-def create_order_use_case(order_repository, order_detail_repository):
-    return CreateOrderUseCase(order_repository, order_detail_repository)
-
-
-@pytest.fixture
-def create_admin_order_use_case(order_repository, order_detail_repository):
-    return CreateAdminOrderUseCase(order_repository, order_detail_repository)
+def create_details_use_case(order_detail_repository):
+    return CreateOrderDetailsUseCase(order_detail_repository)
 
 
 class TestCreateOrderUseCase:
+    @pytest.fixture
+    def use_case(self, order_repository, create_details_use_case):
+        return CreateOrderUseCase(order_repository, create_details_use_case)
+
     @pytest.mark.asyncio
     async def test_create_order_success(
         self,
-        create_order_use_case: CreateOrderUseCase,
+        use_case: CreateOrderUseCase,
         order_repository: OrderRepository,
         order_detail_repository: OrderDetailRepository,
     ):
@@ -45,7 +45,7 @@ class TestCreateOrderUseCase:
         set_up_counter(expected.order_id)
 
         # Act
-        result = await create_order_use_case.create_order(
+        result = await use_case.create_order(
             CreateOrderDTO(
                 order=order,
                 details=details,
@@ -61,15 +61,26 @@ class TestCreateOrderUseCase:
             order.to_order(context.user_id)
         )
         order_detail_repository.create_details.assert_awaited_once_with(
-            [d.to_order_detail(expected.order_id) for d in details]
+            [
+                d.to_order_detail(
+                    expected.order_id, d.wager - calculate_wager(d.wager)
+                )
+                for d in details
+            ]
         )
 
 
 class TestCreateAdminOrderUseCase:
+    @pytest.fixture
+    def use_case(self, order_repository, create_details_use_case):
+        return CreateAdminOrderUseCase(
+            order_repository, create_details_use_case
+        )
+
     @pytest.mark.asyncio
     async def test_create_admin_order_success(
         self,
-        create_admin_order_use_case: CreateAdminOrderUseCase,
+        use_case: CreateAdminOrderUseCase,
         order_repository: OrderRepository,
         order_detail_repository: OrderDetailRepository,
     ):
@@ -87,7 +98,7 @@ class TestCreateAdminOrderUseCase:
         set_up_counter(expected.order_id)
 
         # Act
-        result = await create_admin_order_use_case.create_order(
+        result = await use_case.create_order(
             CreateOrderDTO(
                 order=order,
                 details=details,
@@ -103,5 +114,10 @@ class TestCreateAdminOrderUseCase:
         passed_order.admin_id = context.user_id
         order_repository.save.assert_awaited_once_with(passed_order)
         order_detail_repository.create_details.assert_awaited_once_with(
-            [d.to_order_detail(expected.order_id) for d in details]
+            [
+                d.to_order_detail(
+                    expected.order_id, d.wager - calculate_wager(d.wager)
+                )
+                for d in details
+            ]
         )

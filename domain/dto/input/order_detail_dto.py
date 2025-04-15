@@ -1,11 +1,12 @@
+from datetime import date, time
 from typing import Optional
+
 from pydantic import BaseModel
 
-from datetime import date, time
-
-from domain.entities import OrderDetail 
-from domain.entities.enums import PositionEnum, GenderEnum
+from domain.entities import OrderDetail
 from domain.entities.base import ApplicationModel
+from domain.entities.enums import GenderEnum, PositionEnum
+
 
 class OrderDetailInputDTO(BaseModel):
     date: date
@@ -16,8 +17,10 @@ class OrderDetailInputDTO(BaseModel):
     count: int
     wager: int
 
-    def to_order_detail(self, order_id: int) -> OrderDetail:
+    def to_order_detail(self, order_id: int, fee: int) -> OrderDetail:
         """
-        Поле `order_id` должно быть установлено с целью поддержки целостности данных.
+        Поле `order_id` и `fee` должны быть установлены с целью поддержки целостности данных.
         """
-        return OrderDetail.model_validate(self.model_dump() | {"order_id": order_id})
+        return OrderDetail.model_validate(
+            self.model_dump() | {"order_id": order_id, "fee": fee}
+        )
