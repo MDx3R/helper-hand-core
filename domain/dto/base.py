@@ -1,8 +1,26 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
-from domain.entities.base import ApplicationModel
 
 class ApplicationDTO(BaseModel):
-    @classmethod
-    def from_model(cls, model: ApplicationModel) -> 'ApplicationDTO':
-        return cls.model_validate(model.get_fields())
+    pass
+
+
+class InternalDTO(ApplicationDTO):
+    pass
+
+
+class LastObjectDTO(InternalDTO):
+    last_id: Optional[int] = None
+
+
+class PaginationDTO(InternalDTO):
+    page: int = 1
+    size: int = 15  # TODO: Добавить ограничение по размеру
+
+
+class ContextDTO(InternalDTO):
+    "Следует использовать только для создания производных DTO."
+
+    pass
