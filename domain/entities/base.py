@@ -1,7 +1,8 @@
-from typing import Optional, Any
+from datetime import datetime
+from typing import Any, Optional
+
 from pydantic import BaseModel
 
-from datetime import datetime
 
 class ApplicationModel(BaseModel):
     """
@@ -11,10 +12,7 @@ class ApplicationModel(BaseModel):
     """
 
     created_at: Optional[datetime] = None
-    """Дата создания сущности"""
-
     updated_at: Optional[datetime] = None
-    """Дата создания сущности"""
 
     def get_fields(self) -> dict[str, Any]:
         return self.model_dump(by_alias=True)
