@@ -16,7 +16,7 @@ from domain.dto.internal import (
 )
 from domain.entities import Order, OrderDetail
 from domain.repositories import OrderDetailRepository, OrderRepository
-from domain.wager import calculate_wager
+from domain.wager import calculate_pay
 
 
 class CreateOrderDetailsUseCase:
@@ -62,7 +62,7 @@ class CreateOrderDetailsUseCase:
         return details
 
     def calculate_fee(self, detail: OrderDetailInputDTO) -> int:
-        return detail.wager - calculate_wager(detail.wager)
+        return detail.wager - calculate_pay(detail.wager)
 
 
 class CreateOrderUseCase:

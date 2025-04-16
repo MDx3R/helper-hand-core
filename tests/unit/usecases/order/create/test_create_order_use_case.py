@@ -8,7 +8,7 @@ from application.usecases.order import (
 from domain.dto.common import DetailedOrderDTO
 from domain.dto.internal import CreateOrderDTO
 from domain.repositories import OrderDetailRepository, OrderRepository
-from domain.wager import calculate_wager
+from domain.wager import calculate_pay
 from tests.generators.create_order import CreateOrderTestCaseGenerator
 
 from .conftest import create_context, set_up_counter
@@ -63,7 +63,7 @@ class TestCreateOrderUseCase:
         order_detail_repository.create_details.assert_awaited_once_with(
             [
                 d.to_order_detail(
-                    expected.order_id, d.wager - calculate_wager(d.wager)
+                    expected.order_id, d.wager - calculate_pay(d.wager)
                 )
                 for d in details
             ]
@@ -116,7 +116,7 @@ class TestCreateAdminOrderUseCase:
         order_detail_repository.create_details.assert_awaited_once_with(
             [
                 d.to_order_detail(
-                    expected.order_id, d.wager - calculate_wager(d.wager)
+                    expected.order_id, d.wager - calculate_pay(d.wager)
                 )
                 for d in details
             ]

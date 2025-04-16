@@ -24,7 +24,7 @@ from domain.entities.enums import (
     RoleEnum,
     UserStatusEnum,
 )
-from domain.wager import calculate_wager
+from domain.wager import calculate_pay
 from infrastructure.database.models import (
     AdminBase,
     Base,
@@ -218,7 +218,7 @@ class OrderDetailFactory(ModelBaseFactory[OrderDetailBase, OrderDetail]):
             "position": fk.random_element(elements=[e for e in PositionEnum]),
             "count": fk.random_int(min=1, max=10),
             "wager": wager,
-            "fee": wager - calculate_wager(wager),
+            "fee": wager - calculate_pay(wager),
             "gender": fk.random_element(
                 elements=[e for e in GenderEnum] + [None]
             ),

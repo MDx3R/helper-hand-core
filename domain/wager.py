@@ -1,4 +1,4 @@
-def calculate_wager(price: int) -> int:
+def calculate_pay(wager: int) -> int:
     """
     Вычисляет размер оплаты для исполнителя на основе входной ставки, применяя следующие правила округления.
 
@@ -11,26 +11,26 @@ def calculate_wager(price: int) -> int:
     2. Округление вниз до ближайшего числа, кратного 25:
 
     Args:
-        price: Исходная ставка (целое число).
+        wager: Исходная ставка (целое число).
 
     Returns:
         Вычисленный размер оплаты (целое число), округленный в соответствии с описанными правилами.
 
     Examples:
-        - calculate_wager(350) == 350
-        - calculate_wager(450) == 400
-        - calculate_wager(550) == 500
-        - calculate_wager(551) == 450
-        - calculate_wager(574) == 450
-        - calculate_wager(576) == 475
-        - calculate_wager(600) == 500
-    """ 
+        - calculate_pay(350) == 350
+        - calculate_pay(450) == 400
+        - calculate_pay(550) == 500
+        - calculate_pay(551) == 450
+        - calculate_pay(574) == 450
+        - calculate_pay(576) == 475
+        - calculate_pay(600) == 500
+    """
 
-    if (price <= 350):
-        price-=0
-    elif (price <= 550):
-        price-=50
+    if wager <= 350:
+        wager -= 0
+    elif wager <= 550:
+        wager -= 50
     else:
-        price-=100
-    
-    return (price - price % 25)
+        wager -= 100
+
+    return wager - wager % 25
