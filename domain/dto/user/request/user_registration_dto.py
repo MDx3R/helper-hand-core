@@ -1,4 +1,5 @@
 from domain.dto.user.base import TelegramCredentialsDTO
+from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.dto.user.request.user_input_dto import UserInputDTO
 
 
@@ -16,3 +17,4 @@ class TelegramUserRegistrationDTO(UserRegistrationDTO, TelegramCredentialsDTO):
 
 class UserResetDTO(UserInputDTO):
     user_id: int
+    context: UserContextDTO
