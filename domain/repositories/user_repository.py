@@ -91,10 +91,18 @@ class UserCommandRepository(ABC):
     async def create_telegram_user(self, user: TelegramUser) -> TelegramUser:
         pass
 
+    @abstractmethod
+    async def update_user(self, user: User) -> User:
+        pass
+
 
 class AdminCommandRepository(ABC):
     @abstractmethod
     async def create_admin(self, admin: Admin) -> Admin:
+        pass
+
+    @abstractmethod
+    async def update_admin(self, admin: Admin) -> Admin:
         pass
 
 
@@ -103,14 +111,26 @@ class ContractorCommandRepository(ABC):
     async def create_contractor(self, contractor: Contractor) -> Contractor:
         pass
 
+    @abstractmethod
+    async def update_contractor(self, contractor: Contractor) -> Contractor:
+        pass
+
 
 class ContracteeCommandRepository(ABC):
     @abstractmethod
     async def create_contractee(self, contractee: Contractee) -> Contractee:
         pass
 
+    @abstractmethod
+    async def update_contractor(self, contractee: Contractee) -> Contractee:
+        pass
+
 
 class UserRoleCommandRepository(ABC):
+    @abstractmethod
+    async def create_user(self, role: Role) -> Role:
+        pass
+
     @abstractmethod
     async def update_user(self, role: Role) -> Role:
         pass
