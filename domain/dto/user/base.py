@@ -12,8 +12,3 @@ class UserBaseDTO(ApplicationDTO):
 class TelegramCredentialsDTO(ApplicationDTO):
     telegram_id: int
     chat_id: int
-
-
-class UserInputDTO(UserBaseDTO):
-    phone_number: str
-    photos: List[str]
