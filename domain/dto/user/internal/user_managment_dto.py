@@ -6,17 +6,17 @@ class UserManagementDTO(UserIdDTO):
     context: UserContextDTO
 
 
-class ApproveUserDTO(UserIdDTO):
+class ApproveUserDTO(UserManagementDTO):
     pass
 
 
-class DisapproveUserDTO(UserIdDTO):
+class DisapproveUserDTO(UserManagementDTO):
     pass
 
 
-class DropUserDTO(UserIdDTO):
+class DropUserDTO(UserManagementDTO):
     pass
 
 
-class BanUserDTO(UserIdDTO):
+class BanUserDTO(UserManagementDTO):
     pass
