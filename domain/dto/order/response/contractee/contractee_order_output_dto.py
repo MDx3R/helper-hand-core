@@ -6,14 +6,14 @@ from domain.dto.order.response.order_output_dto import (
 )
 
 
-class ContracteeOrderOutputDTO(OrderOutputDTO):
+class OrderOutputForContracteeDTO(OrderOutputDTO):
     pass
 
 
-class ContracteeOrderDetailOutputDTO(OrderDetailOutputDTO):
+class OrderDetailOutputForContracteeDTO(OrderDetailOutputDTO):
     pass
 
 
-class ContracteeOrderWithDetailsOutputDTO(ApplicationDTO):
-    order: ContracteeOrderOutputDTO
-    details: List[ContracteeOrderDetailOutputDTO]
+class OrderWithDetailsOutputForContracteeDTO(ApplicationDTO):
+    order: OrderOutputForContracteeDTO
+    details: List[OrderDetailOutputForContracteeDTO]
