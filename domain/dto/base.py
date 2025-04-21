@@ -15,8 +15,7 @@ class LastObjectDTO(InternalDTO):
     last_id: Optional[int] = None
 
 
-class PaginationDTO(InternalDTO):
-    page: int = 1
+class PaginationDTO(LastObjectDTO):
     size: int = 15  # TODO: Добавить ограничение по размеру
 
 
