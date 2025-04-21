@@ -4,7 +4,7 @@ from domain.entities.enums import CitizenshipEnum, GenderEnum, PositionEnum
 from domain.entities.user.enums import RoleEnum, UserStatusEnum
 
 
-class UserBaseFilterDTO(InternalDTO, PaginationDTO):
+class UserBaseFilterDTO(PaginationDTO):
     status: Optional[UserStatusEnum] = None
 
 
