@@ -6,7 +6,7 @@ from domain.entities.user.contractee import Contractee
 from .reply import Reply
 
 
-class DetailedReply(ApplicationDTO):
+class CompleteReply(ApplicationDTO):
     """
     Композитная модель отклика на заказ.
     """
@@ -23,9 +23,9 @@ class DetailedReply(ApplicationDTO):
         contractee: Contractee,
         detail: OrderDetail,
         order: Order,
-    ) -> "DetailedReply":
+    ) -> "CompleteReply":
         """
-        Преобразует `Reply`, `Contractee`, `OrderDetail` и `Order` в `DetailedReply`.
+        Преобразует `Reply`, `Contractee`, `OrderDetail` и `Order` в `CompleteReply`.
         """
         return cls(
             reply=reply,
