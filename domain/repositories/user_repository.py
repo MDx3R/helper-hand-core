@@ -56,7 +56,9 @@ class ContractorQueryRepository(ABC):
         pass
 
     @abstractmethod
-    async def filter_contractors(self, query: ContractorFilterDTO) -> List[Contractor]:
+    async def filter_contractors(
+        self, query: ContractorFilterDTO
+    ) -> List[Contractor]:
         pass
 
 
@@ -66,7 +68,9 @@ class ContracteeQueryRepository(ABC):
         pass
 
     @abstractmethod
-    async def filter_contractees(self, query: ContracteeFilterDTO) -> List[Contractee]:
+    async def filter_contractees(
+        self, query: ContracteeFilterDTO
+    ) -> List[Contractee]:
         pass
 
 

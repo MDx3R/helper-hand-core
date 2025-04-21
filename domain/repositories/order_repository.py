@@ -1,7 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from domain.dto.order.internal.base import DetailIdDTO, OrderIdDTO, OrderSignatureDTO
+from domain.dto.order.internal.base import (
+    DetailIdDTO,
+    OrderIdDTO,
+    OrderSignatureDTO,
+)
 from domain.dto.order.internal.order_filter_dto import (
     ContracteeOrderFilterDTO,
     OrderFilterDTO,
@@ -49,7 +53,9 @@ class CompositeOrderQueryRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_complete_order(self, query: OrderIdDTO) -> CompleteOrder | None:
+    async def get_complete_order(
+        self, query: OrderIdDTO
+    ) -> CompleteOrder | None:
         pass
 
     @abstractmethod
@@ -66,18 +72,22 @@ class CompositeOrderQueryRepository(ABC):
 
     @abstractmethod
     async def get_unassigned_orders(
-        self, query: OrderFilterDTO
+        self, query: OrderFilterDTO  # TODO: Revise
     ) -> List[OrderWithDetailsAndContractor]:
         pass
 
 
 class ContractorOrderQueryRepository(ABC):
     @abstractmethod
-    async def get_contractor_by_order_id(self, query: OrderIdDTO) -> Contractor | None:
+    async def get_contractor_by_order_id(
+        self, query: OrderIdDTO
+    ) -> Contractor | None:
         pass
 
     @abstractmethod
-    async def filter_contractor_orders(self, query: OrderFilterDTO) -> List[Order]:
+    async def filter_contractor_orders(
+        self, query: OrderFilterDTO
+    ) -> List[Order]:
         pass
 
     @abstractmethod

@@ -11,11 +11,15 @@ class OrderDetailQueryRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_details_by_order_id(self, query: OrderIdDTO) -> List[OrderDetail]:
+    async def get_details_by_order_id(
+        self, query: OrderIdDTO
+    ) -> List[OrderDetail]:
         pass
 
     @abstractmethod
-    async def get_available_order_details(self, query: OrderIdDTO) -> List[OrderDetail]:
+    async def get_available_order_details(
+        self, query: OrderIdDTO
+    ) -> List[OrderDetail]:
         pass
 
 
@@ -29,5 +33,7 @@ class OrderDetailCommandRepository(ABC):
         pass
 
     @abstractmethod
-    async def create_details(self, details: List[OrderDetail]) -> List[OrderDetail]:
+    async def create_details(
+        self, details: List[OrderDetail]
+    ) -> List[OrderDetail]:
         pass
