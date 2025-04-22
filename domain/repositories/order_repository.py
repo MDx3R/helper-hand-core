@@ -7,7 +7,7 @@ from domain.dto.order.internal.base import (
     OrderSignatureDTO,
 )
 from domain.dto.order.internal.order_filter_dto import (
-    ContracteeOrderFilterDTO,
+    DetailFilterDTO,
     OrderFilterDTO,
 )
 from domain.dto.order.internal.user_command_dto import (
@@ -22,6 +22,7 @@ from domain.entities.order.order_with_details import (
     OrderWithDetailsAndSupervisor,
 )
 from domain.entities.user.admin import Admin
+from domain.entities.user.contractee import Contractee
 from domain.entities.user.contractor import Contractor
 
 
@@ -31,11 +32,11 @@ class OrderQueryRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_order_by_detail_id(self, query: DetailIdDTO) -> Order | None:
+    async def get_order_for_detail(self, query: DetailIdDTO) -> Order | None:
         pass
 
     @abstractmethod
-    async def get_order_by_id_and_contractor_id(
+    async def get_order_by_signature(
         self, query: OrderSignatureDTO
     ) -> Order | None:
         pass
@@ -97,35 +98,21 @@ class CompositeOrderQueryRepository(ABC):
 
 class ContractorOrderQueryRepository(ABC):
     @abstractmethod
-    async def get_contractor_by_order_id(
-        self, query: OrderIdDTO
-    ) -> Contractor | None:
+    async def get_contractor(self, query: OrderIdDTO) -> Contractor | None:
         pass
 
 
 class AdminOrderQueryRepository(ABC):
     @abstractmethod
-    async def get_admin_by_order_id(self, query: OrderIdDTO) -> Admin | None:
+    async def get_admin(self, query: OrderIdDTO) -> Admin | None:
         pass
 
 
 class ContracteeOrderQueryRepository(ABC):
     @abstractmethod
-    async def filter_contractee_orders(
-        self, query: ContracteeOrderFilterDTO
-    ) -> List[Order]:
-        pass
-
-    @abstractmethod
-    async def filter_contractee_orders_with_details(
-        self, query: ContracteeOrderFilterDTO
-    ) -> List[OrderWithDetails]:
-        pass
-
-    @abstractmethod
-    async def filter_contractee_complete_orders(
-        self, query: ContracteeOrderFilterDTO
-    ) -> List[CompleteOrder]:
+    async def get_contractees(
+        self, query: DetailFilterDTO
+    ) -> List[Contractee]:
         pass
 
 
