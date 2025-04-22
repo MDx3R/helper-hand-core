@@ -3,6 +3,6 @@ from domain.entities.user.admin import Admin
 from domain.entities.user.contractor import Contractor
 
 
-class AdminWithContractor(ApplicationModel):
+class AdminWithContractorProfile(ApplicationModel):
     admin: Admin
     contractor: Contractor
