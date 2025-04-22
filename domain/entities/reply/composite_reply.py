@@ -1,4 +1,4 @@
-from domain.dto.base import ApplicationDTO
+from domain.entities.base import ApplicationModel
 from domain.entities.order.detail import OrderDetail
 from domain.entities.order.order import Order
 from domain.entities.user.contractee import Contractee
@@ -6,7 +6,7 @@ from domain.entities.user.contractee import Contractee
 from .reply import Reply
 
 
-class CompleteReply(ApplicationDTO):
+class CompleteReply(ApplicationModel):
     """
     Композитная модель отклика на заказ.
     """
