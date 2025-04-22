@@ -128,13 +128,3 @@ class ContracteeCommandRepository(ABC):
     @abstractmethod
     async def update_contractor(self, contractee: Contractee) -> Contractee:
         pass
-
-
-class UserRoleCommandRepository(ABC):
-    @abstractmethod
-    async def create_user(self, role: Role) -> Role:
-        pass
-
-    @abstractmethod
-    async def update_user(self, role: Role) -> Role:
-        pass
