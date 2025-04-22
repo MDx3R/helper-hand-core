@@ -3,7 +3,7 @@ from typing import List
 
 from domain.dto.order.internal.base import OrderIdDTO
 from domain.dto.order.internal.order_filter_dto import OrderFilterDTO
-from domain.entities.order.order_with_details import (
+from domain.entities.order.composite_order import (
     CompleteOrder,
     OrderWithDetails,
     OrderWithDetailsAndContractor,

@@ -3,7 +3,7 @@ from typing import List
 
 from domain.dto.reply.internal.base import ReplyIdDTO
 from domain.dto.reply.internal.reply_filter_dto import ReplyFilterDTO
-from domain.entities.reply.detailed_reply import CompleteReply
+from domain.entities.reply.composite_reply import CompleteReply
 
 
 class CompositeReplyQueryRepository(ABC):
