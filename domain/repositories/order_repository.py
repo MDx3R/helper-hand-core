@@ -53,6 +53,18 @@ class CompositeOrderQueryRepository(ABC):
         pass
 
     @abstractmethod
+    async def get_order_with_details_and_contractor(
+        self, query: OrderIdDTO
+    ) -> OrderWithDetailsAndContractor | None:
+        pass
+
+    @abstractmethod
+    async def get_order_with_details_and_supervisor(
+        self, query: OrderIdDTO
+    ) -> OrderWithDetailsAndSupervisor | None:
+        pass
+
+    @abstractmethod
     async def get_complete_order(
         self, query: OrderIdDTO
     ) -> CompleteOrder | None:
@@ -65,15 +77,21 @@ class CompositeOrderQueryRepository(ABC):
         pass
 
     @abstractmethod
-    async def filter_complete_orders(
+    async def filter_orders_with_details_and_contractor(
         self, query: OrderFilterDTO
-    ) -> List[CompleteOrder]:
+    ) -> List[OrderWithDetailsAndContractor]:
         pass
 
     @abstractmethod
-    async def get_unassigned_orders(
-        self, query: OrderFilterDTO  # TODO: Revise
-    ) -> List[OrderWithDetailsAndContractor]:
+    async def filter_orders_with_details_and_supervisor(
+        self, query: OrderFilterDTO
+    ) -> List[OrderWithDetailsAndSupervisor]:
+        pass
+
+    @abstractmethod
+    async def filter_complete_orders(
+        self, query: OrderFilterDTO
+    ) -> List[CompleteOrder]:
         pass
 
 
@@ -84,32 +102,10 @@ class ContractorOrderQueryRepository(ABC):
     ) -> Contractor | None:
         pass
 
-    @abstractmethod
-    async def filter_contractor_orders(
-        self, query: OrderFilterDTO
-    ) -> List[Order]:
-        pass
-
-    @abstractmethod
-    async def filter_contractor_detailed_orders(
-        self, query: OrderFilterDTO
-    ) -> List[OrderWithDetailsAndSupervisor]:
-        pass
-
 
 class AdminOrderQueryRepository(ABC):
     @abstractmethod
     async def get_admin_by_order_id(self, query: OrderIdDTO) -> Admin | None:
-        pass
-
-    @abstractmethod
-    async def filter_admin_orders(self, query: OrderFilterDTO) -> List[Order]:
-        pass
-
-    @abstractmethod
-    async def filter_admin_detailed_orders(
-        self, query: OrderFilterDTO
-    ) -> List[OrderWithDetailsAndContractor]:
         pass
 
 
