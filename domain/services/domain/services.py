@@ -1,21 +1,17 @@
 from typing import List, Union, overload
 
-from domain.entities import (
-    Admin,
+from domain.entities.order.detail import OrderDetail
+from domain.entities.order.enums import OrderStatusEnum
+from domain.entities.order.order import Order
+from domain.entities.reply.available_replies_for_detail import (
     AvailableRepliesForDetail,
-    Contractee,
-    Order,
-    OrderDetail,
-    Reply,
-    User,
 )
-from domain.entities.enums import (
-    GenderEnum,
-    OrderStatusEnum,
-    ReplyStatusEnum,
-    RoleEnum,
-    UserStatusEnum,
-)
+from domain.entities.reply.enums import ReplyStatusEnum
+from domain.entities.reply.reply import Reply
+from domain.entities.user.admin.admin import Admin
+from domain.entities.user.contractee.contractee import Contractee
+from domain.entities.user.enums import RoleEnum, UserStatusEnum
+from domain.entities.user.user import User
 from domain.time import is_current_time_valid_for_reply
 
 
@@ -226,12 +222,16 @@ class ReplyDomainService:
         return reply.status == ReplyStatusEnum.accepted
 
     @staticmethod
-    def is_dropped(reply: Reply) -> bool:
-        return reply.status == ReplyStatusEnum.dropped
+    def is_disapproved(reply: Reply) -> bool:
+        return reply.status == ReplyStatusEnum.accepted
 
     @staticmethod
     def is_paid(reply: Reply) -> bool:
         return reply.status == ReplyStatusEnum.paid
+
+    @staticmethod
+    def is_dropped(reply: Reply) -> bool:
+        return reply.dropped
 
     @classmethod
     def can_be_approved(cls, reply: Reply) -> bool:

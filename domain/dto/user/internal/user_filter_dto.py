@@ -9,7 +9,7 @@ class UserBaseFilterDTO(PaginationDTO):
 
 
 class UserFilterDTO(UserBaseFilterDTO):
-    number: Optional[str] = None
+    phone_number: Optional[str] = None
     role: Optional[RoleEnum] = None
 
 

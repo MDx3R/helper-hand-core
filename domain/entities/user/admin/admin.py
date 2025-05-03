@@ -2,8 +2,8 @@ from typing import Literal, Optional
 
 from pydantic import Field
 
-from .enums import RoleEnum
-from .user import User
+from domain.entities.user.enums import RoleEnum
+from domain.entities.user.user import User
 
 
 class Admin(User):
@@ -19,15 +19,13 @@ class Admin(User):
     """
 
     about: str
-
-    role: Literal[RoleEnum.admin] = RoleEnum.admin
-    """Роль администратора. Всегда имеет значение `RoleEnum.admin`."""
-
     contractor_id: Optional[int] = None
     """
     Прокси профиль администратора для создания заказов. 
     Указывает, является ли администратор заказчиком (имеет профиль заказчика) и может ли он создавать заказы.
     """
+
+    role: RoleEnum = RoleEnum.admin
 
     @property
     def admin_id(self) -> int:

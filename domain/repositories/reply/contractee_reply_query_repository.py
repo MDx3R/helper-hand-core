@@ -8,7 +8,7 @@ from domain.dto.reply.internal.reply_filter_dto import (
 )
 from domain.dto.user.internal.base import UserIdDTO
 from domain.entities.reply.reply import Reply
-from domain.entities.user.contractee import Contractee
+from domain.entities.user.contractee.contractee import Contractee
 
 
 class ContracteeReplyQueryRepository(ABC):
@@ -22,6 +22,7 @@ class ContracteeReplyQueryRepository(ABC):
     async def get_contractee_future_replies(
         self, query: UserIdDTO
     ) -> List[Reply]:
+        # NOTE: !dropped, status == accepted, date >= now() descending by date
         pass
 
     @abstractmethod

@@ -1,26 +1,32 @@
 from abc import ABC, abstractmethod
-from typing import List
 
-from domain.dto.common import OrderDTO, DetailedOrderDTO
-
-from domain.dto.internal import (
-    CreateOrderDTO,
-    OrderManagementDTO,
-    PaginationDTO,
-    GetOrderDTO,
-    GetUserOrdersDTO,
-    LastObjectDTO
+from domain.dto.base import LastObjectDTO
+from domain.dto.order.internal.order_managment_dto import (
+    ApproveOrderDTO,
+    CancelOrderDTO,
+    CloseOrderDTO,
+    FulfillOrderDTO,
+    OpenOrderDTO,
+    SetOrderActiveDTO,
+    TakeOrderDTO,
+)
+from domain.dto.order.internal.order_query_dto import GetOrderDTO
+from domain.dto.order.request.create_order_dto import CreateOrderDTO
+from domain.dto.order.response.order_output_dto import (
+    CompleteOrderOutputDTO,
+    OrderOutputDTO,
+    OrderWithDetailsOutputDTO,
 )
 
-class AdminOrderCreationService(ABC):
+
+class AdminOrderManagementService(ABC):
     @abstractmethod
     async def create_order(
-        self,
-        request: CreateOrderDTO
-    ) -> DetailedOrderDTO:
+        self, request: CreateOrderDTO
+    ) -> OrderWithDetailsOutputDTO:
         """
-        Создает заказ от имени администратора. 
-        Администратор должен иметь профиль заказчика. 
+        Создает заказ от имени администратора.
+        Администратор должен иметь профиль заказчика.
         Назначает куратора и публикует заказ сразу.
 
         Raises:
@@ -28,11 +34,10 @@ class AdminOrderCreationService(ABC):
         """
         pass
 
-class AdminOrderManagementService(ABC):
     @abstractmethod
-    async def take_order(self, action: OrderManagementDTO) -> OrderDTO:
+    async def take_order(self, request: TakeOrderDTO) -> OrderOutputDTO:
         """
-        Назначает администратора куратором заказа. 
+        Назначает администратора куратором заказа.
         Только для статуса `created` без куратора.
 
         Raises:
@@ -42,9 +47,9 @@ class AdminOrderManagementService(ABC):
         pass
 
     @abstractmethod
-    async def approve_order(self, action: OrderManagementDTO) -> OrderDTO:
+    async def approve_order(self, request: ApproveOrderDTO) -> OrderOutputDTO:
         """
-        Подтверждает заказ. 
+        Подтверждает заказ.
         Назначает куратора, если его нет.
 
         Raises:
@@ -55,10 +60,10 @@ class AdminOrderManagementService(ABC):
         pass
 
     @abstractmethod
-    async def cancel_order(self, action: OrderManagementDTO) -> OrderDTO:
+    async def cancel_order(self, request: CancelOrderDTO) -> OrderOutputDTO:
         """
-        Отменяет заказ (статус `cancelled`). 
-        Доступно без куратора или только куратору. 
+        Отменяет заказ (статус `cancelled`).
+        Доступно без куратора или только куратору.
 
         Raises:
             NotFoundException
@@ -68,9 +73,9 @@ class AdminOrderManagementService(ABC):
         pass
 
     @abstractmethod
-    async def lock_order(self, action: OrderManagementDTO) -> OrderDTO:
+    async def close_order(self, request: CloseOrderDTO) -> OrderOutputDTO:
         """
-        Закрывает заказ (статус `closed`). 
+        Закрывает заказ (статус `closed`).
         Доступно только для куратора.
 
         Raises:
@@ -81,9 +86,9 @@ class AdminOrderManagementService(ABC):
         pass
 
     @abstractmethod
-    async def open_order(self, action: OrderManagementDTO) -> OrderDTO:
+    async def open_order(self, request: OpenOrderDTO) -> OrderOutputDTO:
         """
-        Открывает заказ (статус `open`). 
+        Открывает заказ (статус `open`).
         Доступно только для куратора.
 
         Raises:
@@ -94,9 +99,15 @@ class AdminOrderManagementService(ABC):
         pass
 
     @abstractmethod
-    async def fulfill_order(self, action: OrderManagementDTO) -> OrderDTO:
+    async def set_order_active(
+        self, request: SetOrderActiveDTO
+    ) -> OrderOutputDTO:
+        pass
+
+    @abstractmethod
+    async def fulfill_order(self, request: FulfillOrderDTO) -> OrderOutputDTO:
         """
-        Завершает заказ. 
+        Завершает заказ.
         Доступно только для куратора.
 
         Raises:
@@ -105,37 +116,17 @@ class AdminOrderManagementService(ABC):
             OrderStatusChangeNotAllowedException
         """
         pass
+
 
 class AdminOrderQueryService(ABC):
     @abstractmethod
-    async def get_order(self, query: GetOrderDTO) -> OrderDTO | None:
+    async def get_order(
+        self, query: GetOrderDTO
+    ) -> CompleteOrderOutputDTO | None:
         pass
 
     @abstractmethod
-    async def get_detailed_order(self, query: GetOrderDTO) -> DetailedOrderDTO | None:
-        pass
-
-    @abstractmethod
-    async def get_unassigned_order(self, query: LastObjectDTO) -> DetailedOrderDTO | None:
-        pass
-
-    @abstractmethod
-    async def get_orders(self, query: PaginationDTO) -> List[OrderDTO]:
-        pass
-
-    @abstractmethod
-    async def get_detailed_orders(self, query: PaginationDTO) -> List[DetailedOrderDTO]:
-        pass
-
-class AdminRoleAssociatedOrderQueryService(ABC):
-    @abstractmethod
-    async def get_contractee_orders(self, query: GetUserOrdersDTO) -> List[OrderDTO]:
-        pass
-
-    @abstractmethod
-    async def get_contractor_orders(self, query: GetUserOrdersDTO) -> List[OrderDTO]:
-        pass
-
-    @abstractmethod
-    async def get_admin_orders(self, query: GetUserOrdersDTO) -> List[OrderDTO]:
+    async def get_unassigned_order(
+        self, query: LastObjectDTO
+    ) -> CompleteOrderOutputDTO | None:
         pass

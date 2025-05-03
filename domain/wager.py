@@ -26,11 +26,13 @@ def calculate_pay(wager: int) -> int:
         - calculate_pay(600) == 500
     """
 
+    deduction = 0
     if wager <= 350:
-        wager -= 0
+        deduction = 0
     elif wager <= 550:
-        wager -= 50
+        deduction = 50
     else:
-        wager -= 100
+        deduction = 100
 
+    wager -= deduction
     return wager - wager % 25

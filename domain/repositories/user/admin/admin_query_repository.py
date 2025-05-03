@@ -5,8 +5,11 @@ from domain.dto.user.internal.base import UserIdDTO
 from domain.dto.user.internal.user_filter_dto import (
     AdminFilterDTO,
 )
-from domain.entities.user.admin import Admin
-from domain.entities.user.composite_admin import AdminWithContractorProfile
+from domain.entities.user.admin.admin import Admin
+from domain.entities.user.admin.composite_admin import (
+    AdminWithContractor,
+    CompleteAdmin,
+)
 
 
 class AdminQueryRepository(ABC):
@@ -15,9 +18,15 @@ class AdminQueryRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_admin_and_contractor_profile(
+    async def get_admin_and_contractor(
         self, query: UserIdDTO
-    ) -> AdminWithContractorProfile | None:
+    ) -> AdminWithContractor | None:
+        pass
+
+    @abstractmethod
+    async def get_complete_admin(
+        self, query: UserIdDTO
+    ) -> CompleteAdmin | None:
         pass
 
     @abstractmethod

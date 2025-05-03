@@ -9,7 +9,7 @@ from domain.dto.reply.response.reply_output_dto import ReplyOutputDTO
 
 
 class ContracteeViewReplyDTO(ReplyOutputDTO):
-    wager: Optional[int]
+    wager: int
     paid: Optional[datetime]
 
 

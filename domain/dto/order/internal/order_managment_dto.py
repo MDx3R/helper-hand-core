@@ -1,7 +1,8 @@
-from domain.dto.order.internal.base import OrderIdDTO, OrderWithUserContextDTO
+from domain.dto.order.internal.base import OrderIdDTO
+from domain.dto.user.internal.user_context_dto import WithUserContextDTO
 
 
-class OrderManagementDTO(OrderIdDTO, OrderWithUserContextDTO):
+class OrderManagementDTO(OrderIdDTO, WithUserContextDTO):
     pass
 
 
@@ -17,7 +18,7 @@ class ApproveOrderDTO(OrderManagementDTO):
     pass
 
 
-class DisapproveOrderDTO(OrderManagementDTO):
+class DisapproveOrderDTO(ApproveOrderDTO):
     pass
 
 

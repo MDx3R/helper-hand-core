@@ -1,79 +1,104 @@
-from domain.dto.input.registration import (
-    UserResetDTO,
-    ContracteeResetDTO,
-    ContractorResetDTO
+from typing import Generic, TypeVar
+from domain.dto.user.request.contractee.contractee_registration_dto import (
+    ResetContracteeDTO,
 )
-
-from domain.entities import Contractee, Contractor
-from domain.entities.enums import UserStatusEnum
-from domain.dto.common import ContracteeDTO, ContractorDTO
-from domain.repositories import UserRepository
-from domain.exceptions.service import InvalidInputException
+from domain.dto.user.request.contractor.contractor_registration_dto import (
+    ResetContractorDTO,
+)
+from domain.dto.user.response.contractee.contractee_output_dto import (
+    ContracteeOutputDTO,
+)
+from domain.dto.user.response.contractor.contractor_output_dto import (
+    ContractorOutputDTO,
+)
+from domain.entities.user.contractee.contractee import Contractee
+from domain.entities.user.contractor.contractor import Contractor
+from domain.entities.user.enums import UserStatusEnum
 
 from application.transactions import transactional
 
 from abc import ABC, abstractmethod
 
-from domain.dto.mappers import map_user_to_dto
+from domain.mappers.user_mappers import ContracteeMapper, ContractorMapper
+from domain.repositories.user.contractee.contractee_command_repository import (
+    ContracteeCommandRepository,
+)
+from domain.repositories.user.contractor.contractor_command_repository import (
+    ContractorCommandRepository,
+)
 
-class ResetContracteeUseCase(ABC):
+
+E = TypeVar("E", Contractee, Contractor)
+D = TypeVar("D", ResetContracteeDTO, ResetContractorDTO)
+O = TypeVar("O", ContracteeOutputDTO, ContractorOutputDTO)
+
+
+class ResetUserUseCase(ABC, Generic[E, D, O]):
+    @transactional
+    async def execute(self, request: D) -> O:
+        user = self._map_to_entity(request)
+        user.user_id = request.context.user_id
+        user = await self._reset_user(user)
+        return self._map_to_output(user)
+
+    async def _reset_user(self, user: E) -> E:
+        user.status = UserStatusEnum.pending
+        return await self._save_user(user)
+
     @abstractmethod
-    async def reset_contractee(
-        self, 
-        contractee_input: ContracteeResetDTO
-    ) -> ContracteeDTO:
+    def _map_to_entity(self, request: D) -> E:
+        pass
+
+    @abstractmethod
+    def _map_to_output(self, user: E) -> O:
+        pass
+
+    @abstractmethod
+    async def _save_user(self, user: E) -> E:
         pass
 
 
-class ResetContractorUseCase(ABC):
-    @abstractmethod
-    async def reset_contractor(
-        self, 
-        contractor_input: ContractorResetDTO
-    ) -> ContractorDTO:
-        pass
-
-
-class ResetUserUseCaseFacade(
-    ResetContracteeUseCase,
-    ResetContractorUseCase,
+class ResetContracteeUseCase(
+    ResetUserUseCase[
+        Contractee,
+        ResetContracteeDTO,
+        ContracteeOutputDTO,
+    ]
 ):
     def __init__(
-        self, user_repository: UserRepository,
+        self,
+        repository: ContracteeCommandRepository,
     ):
-        self.user_repository = user_repository
+        self.repository = repository
 
-    async def reset_contractee(
-        self, 
-        contractee_input: ContracteeResetDTO
-    ) -> ContracteeDTO:
-        return await self.reset_user(contractee_input)
+    def _map_to_entity(self, request: ResetContracteeDTO) -> Contractee:
+        return ContracteeMapper.from_input(request.user)
 
-    async def reset_contractor(
+    def _map_to_output(self, user: Contractee) -> ContracteeOutputDTO:
+        return ContracteeMapper.to_output(user)
+
+    async def _save_user(self, user: Contractee) -> Contractee:
+        return await self.repository.update_contractee(user)
+
+
+class ResetContractorUseCase(
+    ResetUserUseCase[
+        Contractor,
+        ResetContractorDTO,
+        ContractorOutputDTO,
+    ]
+):
+    def __init__(
         self,
-        contractor_input: ContractorResetDTO
-    ) -> ContractorDTO:
-        return await self.reset_user(contractor_input)
+        repository: ContractorCommandRepository,
+    ):
+        self.repository = repository
 
-    @transactional
-    async def reset_user(
-        self, 
-        user_input: UserResetDTO,
-    ) -> ContracteeDTO | ContracteeDTO:
-        if isinstance(user_input, ContracteeResetDTO):
-            user = user_input.to_contractee()
-        elif isinstance(user_input, ContractorResetDTO):
-            user = user_input.to_contractor()
-        else:
-            raise InvalidInputException(f"Неподходящий тип {type(user_input).__name__} для DTO пользователя")
+    def _map_to_entity(self, request: ResetContractorDTO) -> Contractor:
+        return ContractorMapper.from_input(request.user)
 
-        user.status = UserStatusEnum.pending
-        user = await self._save_user(user)
+    def _map_to_output(self, user: Contractor) -> ContractorOutputDTO:
+        return ContractorMapper.to_output(user)
 
-        return map_user_to_dto(user)
-
-    async def _save_user(
-        self,
-        user: Contractee | Contractor
-    ) -> Contractee | Contractor:
-        return await self.user_repository.save(user)
+    async def _save_user(self, user: Contractor) -> Contractor:
+        return await self.repository.update_contractor(user)

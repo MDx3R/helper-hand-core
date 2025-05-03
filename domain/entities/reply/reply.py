@@ -17,5 +17,8 @@ class Reply(ApplicationModel):
     detail_id: int
     wager: int
     status: ReplyStatusEnum = ReplyStatusEnum.created
+    dropped: bool = False
+    """Флаг, определяющий, был ли отклик отменен системой."""
+
     paid: Optional[datetime] = None
     """Дата и время произведения оплаты. Может быть `None`, если оплата еще не произведена."""

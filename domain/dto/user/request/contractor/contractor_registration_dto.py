@@ -1,9 +1,7 @@
-from domain.dto.user.request.user_input_dto import UserInputDTO
-from domain.dto.user.request.user_registration_dto import (
-    TelegramUserRegistrationDTO,
-    UserRegistrationDTO,
-    UserResetDTO,
-    WebUserRegistrationDTO,
+from domain.dto.user.internal.user_context_dto import WithUserContextDTO
+from domain.dto.user.request.user_input_dto import (
+    UserInputDTO,
+    WithCredentialsInputDTO,
 )
 
 
@@ -11,21 +9,9 @@ class ContractorInputDTO(UserInputDTO):
     about: str
 
 
-class ContractorRegistrationDTO(ContractorInputDTO, UserRegistrationDTO):
-    pass
+class RegisterContractorDTO(WithCredentialsInputDTO):
+    user: ContractorInputDTO
 
 
-class ContractorResetDTO(ContractorInputDTO, UserResetDTO):
-    pass
-
-
-class WebContractorRegistrationDTO(
-    WebUserRegistrationDTO, ContractorRegistrationDTO
-):
-    pass
-
-
-class TelegramContractorRegistrationDTO(
-    TelegramUserRegistrationDTO, ContractorRegistrationDTO
-):
-    pass
+class ResetContractorDTO(WithUserContextDTO):
+    user: ContractorInputDTO

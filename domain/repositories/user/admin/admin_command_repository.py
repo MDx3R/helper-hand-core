@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from domain.entities.user.admin import Admin
+from domain.entities.user.admin.admin import Admin
 
 
 class AdminCommandRepository(ABC):

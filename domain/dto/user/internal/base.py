@@ -1,5 +1,6 @@
-from domain.dto.base import InternalDTO
+from domain.dto.base import ApplicationDTO, InternalDTO
 from domain.dto.user.base import TelegramCredentialsDTO
+from domain.dto.user.response.user_output_dto import UserCredentialsOutputDTO
 
 
 class UserIdDTO(InternalDTO):
@@ -10,6 +11,5 @@ class PhoneNumberDTO(InternalDTO):
     number: str
 
 
-class UserWithCredentialsDTO(InternalDTO):
-    telegram: TelegramCredentialsDTO
-    # TODO: Добавить WebCredentialsDTO
+class UserWithCredentialsDTO(ApplicationDTO):
+    pass

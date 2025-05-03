@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from domain.entities.user.contractee import Contractee
+from domain.entities.user.contractee.contractee import Contractee
 
 
 class ContracteeCommandRepository(ABC):
@@ -9,5 +9,5 @@ class ContracteeCommandRepository(ABC):
         pass
 
     @abstractmethod
-    async def update_contractor(self, contractee: Contractee) -> Contractee:
+    async def update_contractee(self, contractee: Contractee) -> Contractee:
         pass

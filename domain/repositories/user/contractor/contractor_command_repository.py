@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from domain.entities.user.contractor import Contractor
+from domain.entities.user.contractor.contractor import Contractor
 
 
 class ContractorCommandRepository(ABC):

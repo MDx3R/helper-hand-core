@@ -1,136 +1,198 @@
-from typing import Literal
-
-from domain.dto.input.registration import (
-    UserRegistrationDTO,
-    TelegramUserRegistrationDTO,
-    WebUserRegistrationDTO,
-    WebContracteeRegistrationDTO, 
-    TelegramContracteeRegistrationDTO, 
-    WebContractorRegistrationDTO,
-    TelegramContractorRegistrationDTO,
-    ContracteeRegistrationDTO,
-    ContractorRegistrationDTO
+from abc import ABC, abstractmethod
+from typing import Generic, TypeVar
+from domain.dto.user.request.contractee.contractee_registration_dto import (
+    RegisterContracteeDTO,
 )
-
-from domain.entities import Contractee, Contractor, TelegramUser
-from domain.entities.enums import UserStatusEnum
-from domain.dto.common import ContracteeDTO, ContractorDTO
-from domain.repositories import UserRepository
+from domain.dto.user.request.contractor.contractor_registration_dto import (
+    RegisterContractorDTO,
+)
+from domain.dto.user.request.user_input_dto import CredentialsInputDTO
+from domain.dto.user.response.contractee.contractee_output_dto import (
+    CompleteContracteeOutputDTO,
+)
+from domain.dto.user.response.contractor.contractor_output_dto import (
+    CompleteContractorOutputDTO,
+)
+from domain.entities.user.contractee.composite_contractee import (
+    CompleteContractee,
+)
+from domain.entities.user.contractee.contractee import Contractee
+from domain.entities.user.contractor.composite_contractor import (
+    CompleteContractor,
+)
+from domain.entities.user.contractor.contractor import Contractor
+from domain.entities.user.credentials import (
+    TelegramCredentials,
+    UserCredentials,
+    WebCredentials,
+)
+from domain.entities.user.enums import UserStatusEnum
+from domain.entities.user.user import User
 from domain.exceptions.service import InvalidInputException
 
 from application.transactions import transactional
 
-from abc import ABC, abstractmethod
-
-from domain.dto.mappers import map_user_to_dto
-
-class RegisterContracteeFromWebUseCase(ABC):
-    @abstractmethod
-    async def register_contractee(
-        self, 
-        contractee_input: WebContracteeRegistrationDTO
-    ) -> ContracteeDTO:
-        pass
-
-
-class RegisterContracteeFromTelegramUseCase(ABC):
-    @abstractmethod
-    async def register_contractee(
-        self, 
-        contractee_input: TelegramContractorRegistrationDTO
-    ) -> ContracteeDTO:
-        pass
+from domain.mappers.user_mappers import (
+    ContracteeMapper,
+    ContractorMapper,
+    TelegramCredentialsMapper,
+    WebCredentialsMapper,
+)
+from domain.repositories.user.contractee.contractee_command_repository import (
+    ContracteeCommandRepository,
+)
+from domain.repositories.user.contractor.contractor_command_repository import (
+    ContractorCommandRepository,
+)
+from domain.repositories.user.user_command_repository import (
+    UserCommandRepository,
+)
 
 
-class RegisterContractorFromWebUseCase(ABC):
-    @abstractmethod
-    async def register_contractor(
-        self, 
-        contractor_input: WebContractorRegistrationDTO
-    ) -> ContractorDTO:
-        pass
+E = TypeVar("E", Contractee, Contractor)
+C = TypeVar("C", CompleteContractee, CompleteContractor)
+D = TypeVar("D", RegisterContracteeDTO, RegisterContractorDTO)
+O = TypeVar("O", CompleteContracteeOutputDTO, CompleteContractorOutputDTO)
 
 
-class RegisterContractorFromTelegramUseCase(ABC):
-    @abstractmethod
-    async def register_contractor(
-        self, 
-        contractor_input: TelegramContractorRegistrationDTO
-    ) -> ContractorDTO:
-        pass
-
-
-class RegisterUserUseCaseFacade(
-    RegisterContracteeFromWebUseCase,
-    RegisterContracteeFromTelegramUseCase,
-    RegisterContractorFromWebUseCase,
-    RegisterContractorFromTelegramUseCase
-):
-    def __init__(
-        self, user_repository: UserRepository,
-    ):
+class BaseRegisterUserUseCase(ABC, Generic[E, C, D, O]):
+    def __init__(self, user_repository: UserCommandRepository):
         self.user_repository = user_repository
 
-    async def register_contractee(
-        self, 
-        contractee_input: WebContracteeRegistrationDTO | TelegramContracteeRegistrationDTO
-    ) -> ContracteeDTO:
-        return await self.register_user(contractee_input)
+    async def execute(self, request: D) -> O:
+        self._validate_request_and_raise_if_invalid(request)
+        user = await self._register_user(request)
+        return self._map_to_output(user)
 
-    async def register_contractor(
-        self,
-        contractor_input: WebContractorRegistrationDTO | TelegramContractorRegistrationDTO
-    ) -> ContractorDTO:
-        return await self.register_user(contractor_input)
+    def _validate_request_and_raise_if_invalid(self, request: D) -> None:
+        if not request.credentials.web and not request.credentials.telegram:
+            raise InvalidInputException("Отсутствуют данные аутентификации")
+        if request.credentials.web and request.credentials.telegram:
+            raise InvalidInputException(
+                "Одновременная регистрация с двух ресурсов недопустима"
+            )
 
     @transactional
-    async def register_user(
-        self, 
-        user_input: UserRegistrationDTO,
-    ) -> ContracteeDTO | ContracteeDTO:
-        if isinstance(user_input, ContracteeRegistrationDTO):
-            user = user_input.to_contractee()
-        elif isinstance(user_input, ContractorRegistrationDTO):
-            user = user_input.to_contractor()
-        else:
-            raise InvalidInputException(f"Неподходящий тип {type(user_input).__name__} для DTO пользователя")
+    async def _register_user(self, request: D) -> C:
+        user = self._map_to_entity(request)
+        credentials = await self._create_credentials(user, request.credentials)
+        user = self._assign_status(user, credentials)
+        user = await self._create_entity(user)
+        return self._build_complete_entity(user, credentials)
 
-        if isinstance(user_input, WebUserRegistrationDTO):
-            user = self._assign_status(user, "web")
-        elif isinstance(user_input, TelegramUserRegistrationDTO):
-            user = self._assign_status(user, "telegram")
-        else:
-            raise InvalidInputException(f"Неподходящий тип {type(user_input).__name__} для DTO источника пользователя")
+    async def _create_credentials(
+        self, user: User, credentials: CredentialsInputDTO
+    ) -> UserCredentials:
+        web = None
+        telegram = None
+        if credentials.web:
+            web = await self._create_web_user(
+                WebCredentialsMapper.from_input(credentials.web, user.user_id)
+            )
+        if credentials.telegram:
+            telegram = await self._create_telegram_user(
+                TelegramCredentialsMapper.from_input(
+                    credentials.telegram, user.user_id
+                )
+            )
+        return UserCredentials(telegram=telegram, web=web)
 
-        user = await self._create_user(user)
-
-        if isinstance(user_input, TelegramUserRegistrationDTO):
-            await self._create_telegram_user(user_input.to_telegram_user(user.user_id))
-
-        return map_user_to_dto(user)
-
-    def _assign_status(
-        self, 
-        user: Contractee | Contractor, 
-        source: Literal["telegram", "web"]
-    ) -> Contractee | Contractor:
-        if source == "telegram":
-            user.status = UserStatusEnum.pending
-        elif source == "web":
-            user.status = UserStatusEnum.created
-        else:
-            raise
-
-        return user
-
-    async def _create_user(
-        self,
-        user: Contractee | Contractor
-    ) -> Contractee | Contractor:
-        return await self.user_repository.save(user)
-    
     async def _create_telegram_user(
+        self, user: TelegramCredentials
+    ) -> TelegramCredentials:
+        return await self.user_repository.create_telegram_user(user)
+
+    async def _create_web_user(self, user: WebCredentials) -> WebCredentials:
+        return await self.user_repository.create_web_user(user)
+
+    @abstractmethod
+    def _map_to_entity(self, request: D) -> E:
+        pass
+
+    @abstractmethod
+    async def _create_entity(self, entity: E) -> E:
+        pass
+
+    @abstractmethod
+    def _build_complete_entity(
+        self, user: E, credentials: UserCredentials
+    ) -> C:
+        pass
+
+    @abstractmethod
+    def _map_to_output(self, user: O) -> O:
+        pass
+
+    def _assign_status(self, entity: E, credentials: UserCredentials) -> E:
+        entity.status = (
+            UserStatusEnum.pending
+            if credentials.telegram
+            else UserStatusEnum.created
+        )
+        return entity
+
+
+class RegisterContracteeUseCase(
+    BaseRegisterUserUseCase[
+        Contractee,
+        CompleteContractee,
+        RegisterContracteeDTO,
+        CompleteContracteeOutputDTO,
+    ]
+):
+    def __init__(
         self,
-        user: TelegramUser
-    ) -> TelegramUser:
-        return await self.user_repository.save_telegram_user(user)
+        contractee_repository: ContracteeCommandRepository,
+        user_repository: UserCommandRepository,
+    ):
+        super().__init__(user_repository)
+        self.contractee_repository = contractee_repository
+
+    def _map_to_entity(self, request: RegisterContracteeDTO) -> Contractee:
+        return ContracteeMapper.from_input(request.user)
+
+    async def _create_entity(self, entity: Contractee) -> Contractee:
+        return await self.contractee_repository.create_contractee(entity)
+
+    def _build_complete_entity(
+        self, user: Contractee, credentials: UserCredentials
+    ) -> CompleteContractee:
+        return CompleteContractee(user=user, credentials=credentials)
+
+    def _map_to_output(
+        self, user: CompleteContractee
+    ) -> CompleteContracteeOutputDTO:
+        return ContracteeMapper.to_complete(user)
+
+
+class RegisterContractorUseCase(
+    BaseRegisterUserUseCase[
+        Contractor,
+        CompleteContractor,
+        RegisterContractorDTO,
+        CompleteContractorOutputDTO,
+    ]
+):
+    def __init__(
+        self,
+        contractor_repository: ContractorCommandRepository,
+        user_repository: UserCommandRepository,
+    ):
+        super().__init__(user_repository)
+        self.contractor_repository = contractor_repository
+
+    def _map_to_entity(self, request: RegisterContractorDTO) -> Contractor:
+        return ContractorMapper.from_input(request.user)
+
+    async def _create_entity(self, entity: Contractor) -> Contractor:
+        return await self.contractor_repository.create_contractor(entity)
+
+    def _build_complete_entity(
+        self, user: Contractor, credentials: UserCredentials
+    ) -> CompleteContractor:
+        return CompleteContractor(user=user, credentials=credentials)
+
+    def _map_to_output(
+        self, user: CompleteContractor
+    ) -> CompleteContractorOutputDTO:
+        return ContractorMapper.to_complete(user)

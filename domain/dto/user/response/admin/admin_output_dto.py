@@ -1,5 +1,22 @@
-from domain.dto.user.response.user_output_dto import UserOutputDTO
+from typing import Optional
+from domain.dto.user.response.contractor.contractor_output_dto import (
+    ContractorOutputDTO,
+)
+from domain.dto.user.response.user_output_dto import (
+    UserOutputDTO,
+    UserProfileOutputDTO,
+    WithCredentialsOutputDTO,
+)
 
 
-class AdminOutputDTO(UserOutputDTO):
+class AdminProfileOutputDTO(UserProfileOutputDTO):
     about: str
+
+
+class AdminOutputDTO(AdminProfileOutputDTO, UserOutputDTO):
+    pass
+
+
+class CompleteAdminOutputDTO(WithCredentialsOutputDTO):
+    admin: AdminOutputDTO
+    contractor: Optional[ContractorOutputDTO]

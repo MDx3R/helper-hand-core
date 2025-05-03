@@ -2,8 +2,8 @@ from typing import Literal, Optional
 
 from pydantic import Field
 
-from .enums import RoleEnum
-from .user import User
+from domain.entities.user.enums import RoleEnum
+from domain.entities.user.user import User
 
 
 class Contractor(User):
@@ -19,9 +19,7 @@ class Contractor(User):
     """
 
     about: str
-
-    role: Literal[RoleEnum.contractor] = RoleEnum.contractor
-    """Роль заказчика. Всегда имеет значение `RoleEnum.contractor`."""
+    role: RoleEnum = RoleEnum.contractor
 
     @property
     def contractor_id(self) -> int:

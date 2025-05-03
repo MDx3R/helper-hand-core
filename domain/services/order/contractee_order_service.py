@@ -1,19 +1,27 @@
 from typing import List
 from abc import ABC, abstractmethod
 
-from domain.entities import Contractee
+from domain.dto.order.internal.order_query_dto import (
+    GetOrderAfterDTO,
+    GetOrderDTO,
+)
+from domain.dto.order.response.order_output_dto import (
+    CompleteOrderOutputDTO,
+    OrderDetailOutputDTO,
+)
 
-from domain.dto.common import DetailedOrderDTO, OrderDTO, OrderDetailDTO
 
-class ContracteeOrderService(ABC):
+class ContracteeOrderQueryService(ABC):
     """
     Интерфейс для сервисов заказов исполнителя.
 
     Этот класс определяет интерфейс для сервисов, отвечающих за возможности исполнителя по работе с заказами.
     """
-    
+
     @abstractmethod
-    async def get_order(self, order_id: int, contractee: Contractee) -> DetailedOrderDTO | None:
+    async def get_order(
+        self, query: GetOrderDTO
+    ) -> CompleteOrderOutputDTO | None:
         """
         Получает заказ по его ID.
 
@@ -34,7 +42,9 @@ class ContracteeOrderService(ABC):
         pass
 
     @abstractmethod
-    async def get_one_open_order(self, contractee: Contractee, last_order_id: int = None) -> DetailedOrderDTO | None:
+    async def get_suitable_order(
+        self, query: GetOrderAfterDTO
+    ) -> CompleteOrderOutputDTO | None:
         """
         Получает открытый заказ.
 
@@ -53,43 +63,9 @@ class ContracteeOrderService(ABC):
         pass
 
     @abstractmethod
-    async def get_open_orders(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[OrderDTO]:
-        """
-        Получает все открытые заказы постранично.
-
-        Args:
-            contractee (Contractee): Объект исполнителя.
-            page (int): Номер страницы.
-            size (int): Размер страницы. По умолчанию размер страницы равен 15.
-
-        Returns:
-            List[DetailedOrderDTO]: Список DTO с данными открытых заказов.
-
-        Raises:
-            Exception: Если произошла ошибка при получении списка открытых заказов.
-        """
-        pass
-
-    @abstractmethod
-    async def get_contractee_orders(self, contractee: Contractee, page: int = 1, size: int = 15) -> List[OrderDTO]:
-        """
-        Получает все заказы исполнителя по его объекту постранично.
-
-        Args:
-            contractee (Contractee): Объект исполнителя.
-            page (int): Номер страницы.
-            size (int): Размер страницы. По умолчанию размер страницы равен 15.
-
-        Returns:
-            List[OrderDTO]: Список DTO с данными заказов исполнителя.
-
-        Raises:
-            Exception: Если произошла ошибка при получении списка заказов исполнителя.
-        """
-        pass
-
-    @abstractmethod
-    async def get_available_details(self, order_id: int, contractee: Contractee) -> List[OrderDetailDTO]:
+    async def get_suitable_details(
+        self, query: GetOrderDTO
+    ) -> List[OrderDetailOutputDTO]:
         """
         Получает доступные позиции для исполнителя по ID заказа и объекту исполнителя.
 

@@ -12,3 +12,7 @@ class UserBaseDTO(ApplicationDTO):
 class TelegramCredentialsDTO(ApplicationDTO):
     telegram_id: int
     chat_id: int
+
+
+class WebCredentialsDTO(ApplicationDTO):
+    email: str

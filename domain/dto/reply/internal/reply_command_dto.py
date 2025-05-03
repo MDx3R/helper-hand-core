@@ -5,7 +5,3 @@ from domain.entities.reply.enums import ReplyStatusEnum
 
 class SetReplyStatusDTO(ReplyIdDTO):
     status: ReplyStatusEnum
-
-
-class DropRepliesDTO(ReplyFilterDTO):
-    pass

@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
 
 from domain.dto.user.internal.user_command_dto import SetUserStatusDTO
-from domain.entities.user.telegram_user import TelegramUser
+from domain.entities.user.credentials import (
+    TelegramCredentials,
+    WebCredentials,
+)
 from domain.entities.user.user import User
 
 
@@ -11,7 +14,13 @@ class UserCommandRepository(ABC):
         pass
 
     @abstractmethod
-    async def create_telegram_user(self, user: TelegramUser) -> TelegramUser:
+    async def create_telegram_user(
+        self, user: TelegramCredentials
+    ) -> TelegramCredentials:
+        pass
+
+    @abstractmethod
+    async def create_web_user(self, user: WebCredentials) -> WebCredentials:
         pass
 
     @abstractmethod

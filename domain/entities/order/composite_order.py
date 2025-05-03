@@ -1,8 +1,8 @@
 from typing import List, Optional
 
 from domain.entities.base import ApplicationModel
-from domain.entities.user.admin import Admin
-from domain.entities.user.contractor import Contractor
+from domain.entities.user.admin.admin import Admin
+from domain.entities.user.contractor.contractor import Contractor
 
 from .detail import OrderDetail
 from .order import Order

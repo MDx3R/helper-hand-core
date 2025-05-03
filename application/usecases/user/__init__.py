@@ -1,9 +1,6 @@
 from .register_user_use_case import (
-    RegisterContracteeFromWebUseCase,
-    RegisterContracteeFromTelegramUseCase,
-    RegisterContractorFromWebUseCase,
-    RegisterContractorFromTelegramUseCase,
-    RegisterUserUseCaseFacade
+    RegisterContracteeUseCase,
+    RegisterContractorUseCase,
 )
 
 from .chage_user_status_use_case import (
@@ -11,13 +8,11 @@ from .chage_user_status_use_case import (
     DisapproveUserUseCase,
     DropUserUseCase,
     BanUserUseCase,
-    ChangeUserStatusUseCaseFacade
 )
 
 from .reset_user_use_case import (
     ResetContracteeUseCase,
     ResetContractorUseCase,
-    ResetUserUseCaseFacade
 )
 
 from .user_query_use_case import (
@@ -27,5 +22,4 @@ from .user_query_use_case import (
     GetPendingUserUseCase,
     GetUserUseCase,
     GetUserWithRoleUseCase,
-    UserQueryUseCaseFacade
 )

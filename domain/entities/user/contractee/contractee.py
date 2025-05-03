@@ -4,9 +4,8 @@ from typing import List, Literal, Optional
 from pydantic import Field
 
 from domain.entities.enums import CitizenshipEnum, GenderEnum, PositionEnum
-
-from .enums import RoleEnum
-from .user import User
+from domain.entities.user.enums import RoleEnum
+from domain.entities.user.user import User
 
 
 class Contractee(User):
@@ -26,9 +25,7 @@ class Contractee(User):
     gender: GenderEnum
     citizenship: CitizenshipEnum
     positions: List[PositionEnum]
-
-    role: Literal[RoleEnum.contractee] = RoleEnum.contractee
-    """Роль исполнителя. Всегда имеет значение `RoleEnum.contractee`."""
+    role: RoleEnum = RoleEnum.contractee
 
     @property
     def contractee_id(self) -> int:

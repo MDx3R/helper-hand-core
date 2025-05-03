@@ -1,9 +1,10 @@
-from typing import Optional
-from domain.dto.base import InternalDTO, PaginationDTO
+from typing import Literal, Optional
+from domain.dto.base import InternalDTO, PaginationDTO, SortingDTO
 from domain.entities.order.enums import OrderStatusEnum
 
 
-class OrderFilterDTO(PaginationDTO):
+class OrderFilterDTO(PaginationDTO, SortingDTO):
+    order_id: Optional[int] = None
     status: Optional[OrderStatusEnum] = None
     contractor_id: Optional[int] = None
     admin_id: Optional[int] = None

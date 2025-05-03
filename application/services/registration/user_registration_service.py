@@ -1,25 +1,22 @@
 from abc import ABC, abstractmethod
 
-from domain.services.registration import UserRegistrationService
+from domain.services.auth import UserRegistrationService
 
 from domain.dto.input.registration import (
     UserRegistrationDTO,
     ContracteeRegistrationDTO,
-    ContractorRegistrationDTO
+    ContractorRegistrationDTO,
 )
-from domain.dto.common import (
-    UserDTO,
-    ContracteeDTO,
-    ContractorDTO
-)
+from domain.dto.common import UserDTO, ContracteeDTO, ContractorDTO
 
 from application.usecases.user import (
     RegisterContracteeFromTelegramUseCase,
     RegisterContractorFromTelegramUseCase,
     RegisterContracteeFromWebUseCase,
-    RegisterContractorFromWebUseCase
+    RegisterContractorFromWebUseCase,
 )
 from application.external.notification import AdminNotificationService
+
 
 class BaseUserRegistrationService(UserRegistrationService, ABC):
     """Базовый класс для сервисов регистрации пользователя."""
@@ -29,11 +26,11 @@ class BaseUserRegistrationService(UserRegistrationService, ABC):
         await self._post_registration_hook(user)
 
         return user
-    
+
     @abstractmethod
     async def _register_user(self, user_input: UserRegistrationDTO) -> UserDTO:
         pass
-    
+
     @abstractmethod
     async def _post_registration_hook(self, user: UserDTO):
         pass
@@ -42,10 +39,7 @@ class BaseUserRegistrationService(UserRegistrationService, ABC):
 class TelegramRegistrationMixin:
     """Миксин для сервисов регистрации пользователя из Telegram."""
 
-    def __init__(
-        self,
-        notification_service: AdminNotificationService
-    ):
+    def __init__(self, notification_service: AdminNotificationService):
         self.notification_service = notification_service
 
     async def _post_registration_hook(self, user: UserDTO):
@@ -64,11 +58,16 @@ class ContracteeRegistrationMixin:
 
     def __init__(
         self,
-        use_case: RegisterContracteeFromTelegramUseCase | RegisterContracteeFromWebUseCase,
+        use_case: (
+            RegisterContracteeFromTelegramUseCase
+            | RegisterContracteeFromWebUseCase
+        ),
     ):
         self.use_case = use_case
 
-    async def _register_user(self, user_input: ContracteeRegistrationDTO) -> ContracteeDTO:
+    async def _register_user(
+        self, user_input: ContracteeRegistrationDTO
+    ) -> ContracteeDTO:
         return await self.use_case.register_contractee(user_input)
 
 
@@ -77,18 +76,27 @@ class ContractorRegistrationMixin:
 
     def __init__(
         self,
-        use_case: RegisterContractorFromTelegramUseCase | RegisterContractorFromWebUseCase,
+        use_case: (
+            RegisterContractorFromTelegramUseCase
+            | RegisterContractorFromWebUseCase
+        ),
     ):
         self.use_case = use_case
 
-    async def _register_user(self, user_input: ContractorRegistrationDTO) -> ContractorDTO:
+    async def _register_user(
+        self, user_input: ContractorRegistrationDTO
+    ) -> ContractorDTO:
         return await self.use_case.register_contractor(user_input)
 
 
-class TelegramContracteeRegistrationService(TelegramRegistrationMixin, ContracteeRegistrationMixin, BaseUserRegistrationService):
+class TelegramContracteeRegistrationService(
+    TelegramRegistrationMixin,
+    ContracteeRegistrationMixin,
+    BaseUserRegistrationService,
+):
     """
     Реализация интерфейса `UserRegistrationService` для регистрации исполнителей из Telegram.
-    
+
     Attributes:
         use_case (`RegisterContracteeFromTelegramUseCase`): Use Case регистрации исполнителей.
         notification_service (`AdminNotificationService`): Сервис для отправки уведомлений администраторам.
@@ -103,10 +111,14 @@ class TelegramContracteeRegistrationService(TelegramRegistrationMixin, Contracte
         self.notification_service = notification_service
 
 
-class WebContracteeRegistrationService(WebRegistrationMixin, ContracteeRegistrationMixin, BaseUserRegistrationService):
+class WebContracteeRegistrationService(
+    WebRegistrationMixin,
+    ContracteeRegistrationMixin,
+    BaseUserRegistrationService,
+):
     """
     Реализация интерфейса `UserRegistrationService` для регистрации исполнителей из Web.
-    
+
     Attributes:
         use_case (`RegisterContracteeFromWebUseCase`): Use Case регистрации исполнителей.
         notification_service (`AdminNotificationService`): Сервис для отправки уведомлений администраторам.
@@ -114,14 +126,19 @@ class WebContracteeRegistrationService(WebRegistrationMixin, ContracteeRegistrat
 
     pass
 
-class TelegramContractorRegistrationService(TelegramRegistrationMixin, ContractorRegistrationMixin, BaseUserRegistrationService):
+
+class TelegramContractorRegistrationService(
+    TelegramRegistrationMixin,
+    ContractorRegistrationMixin,
+    BaseUserRegistrationService,
+):
     """
     Реализация интерфейса `UserRegistrationService` для регистрации заказчиков из Telegram.
-    
+
     Attributes:
         use_case (`RegisterContractorFromTelegramUseCase`): Use Case регистрации заказчиков.
     """
-    
+
     def __init__(
         self,
         use_case: RegisterContractorFromTelegramUseCase,
@@ -131,11 +148,16 @@ class TelegramContractorRegistrationService(TelegramRegistrationMixin, Contracto
         self.notification_service = notification_service
 
 
-class WebContractorRegistrationService(WebRegistrationMixin, ContractorRegistrationMixin, BaseUserRegistrationService):
+class WebContractorRegistrationService(
+    WebRegistrationMixin,
+    ContractorRegistrationMixin,
+    BaseUserRegistrationService,
+):
     """
     Реализация интерфейса `UserRegistrationService` для регистрации заказчиков из Web.
-    
+
     Attributes:
         use_case (`RegisterContractorFromWebUseCase`): Use Case регистрации заказчиков.
     """
+
     pass
