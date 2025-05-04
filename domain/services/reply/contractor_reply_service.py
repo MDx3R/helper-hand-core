@@ -4,7 +4,10 @@ from domain.dto.reply.internal.reply_managment_dto import (
     ApproveReplyDTO,
     DisapproveReplyDTO,
 )
-from domain.dto.reply.internal.reply_query_dto import GetOrderReplyDTO
+from domain.dto.reply.internal.reply_query_dto import (
+    GetOrderReplyDTO,
+    GetReplyDTO,
+)
 from domain.dto.reply.response.reply_output_dto import (
     CompleteReplyOutputDTO,
     ReplyOutputDTO,
@@ -66,6 +69,12 @@ class ContractorReplyService(ABC):
 
     Этот класс определяет интерфейс для сервисов, отвечающих за возможности заказчика по управлению откликами.
     """
+
+    @abstractmethod
+    async def get_reply(
+        self, query: GetReplyDTO
+    ) -> CompleteReplyOutputDTO | None:
+        pass
 
     @abstractmethod
     async def get_pending_reply(

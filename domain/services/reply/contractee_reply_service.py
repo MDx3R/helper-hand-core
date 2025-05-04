@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
+from typing import List
 
-from domain.dto.reply.internal.reply_query_dto import GetReplyDTO
+from domain.dto.reply.internal.reply_query_dto import (
+    GetContracteeRepliesDTO,
+    GetReplyDTO,
+)
 from domain.dto.reply.request.create_reply_dto import CreateReplyDTO
 from domain.dto.reply.response.reply_output_dto import ReplyOutputDTO
 from domain.entities.reply.composite_reply import CompleteReply
@@ -54,4 +58,10 @@ class ContracteeReplyService(ABC):
         Returns:
             DetailedReplyDTO: DTO с данными отклика. Может быть `None`, если был запрошен чужой отклик или отклика не существует.
         """
+        pass
+
+    @abstractmethod
+    async def get_future_replies(
+        self, query: GetContracteeRepliesDTO
+    ) -> List[ReplyOutputDTO]:
         pass
