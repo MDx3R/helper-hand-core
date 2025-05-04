@@ -17,6 +17,9 @@ from application.dto.notification import (
     OrderSetActiveNotificationDTO,
     OrderCancelledNotificationDTO,
     OrderFulfilledNotificationDTO,
+    NewReplyNotificationDTO,
+    ReplyApprovedNotificationDTO,
+    ReplyDisapprovedNotificationDTO,
 )  # TODO: Объявить
 
 
@@ -138,5 +141,27 @@ class ContractorOrderNotificationService(ABC):
     @abstractmethod
     async def send_order_fulfilled_notification(
         self, context: OrderFulfilledNotificationDTO
+    ):
+        pass
+
+
+class ContracteeReplyNotificationService(ABC):
+    @abstractmethod
+    async def send_reply_approved_notification(
+        self, context: ReplyApprovedNotificationDTO
+    ):
+        pass
+
+    @abstractmethod
+    async def send_reply_disapproved_notification(
+        self, context: ReplyDisapprovedNotificationDTO
+    ):
+        pass
+
+
+class ContractorReplyNotificationService(ABC):
+    @abstractmethod
+    async def send_new_reply_notification(
+        self, context: NewReplyNotificationDTO
     ):
         pass
