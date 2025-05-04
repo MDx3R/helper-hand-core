@@ -44,7 +44,7 @@ class BaseGetUserUseCase(ABC, Generic[T, R]):
     def __init__(self, repository: R):
         self.repository = repository
 
-    async def execute(self, query: GetUserDTO = None) -> T | None:
+    async def execute(self, query: GetUserDTO) -> T | None:
         user = await self._get_user(query)
         if not user:
             return None
@@ -224,16 +224,14 @@ class GetCompleteContractorUseCase(
         return UserRoleMapper.to_complete(user)
 
 
-class GetPendingUserUseCase(
-    BaseGetUserUseCase[
-        CompleteContracteeOutputDTO | CompleteContractorOutputDTO,
-        UserRoleQueryRepository,
-    ]
-):
-    async def _get_user(self, query: GetUserDTO = None):
-        return await self.repository.get_first_pending_user()
+class GetPendingUserUseCase:
+    def __init__(self, repository: UserRoleQueryRepository):
+        self.repository = repository
 
-    def _map_user(
-        self, user
-    ) -> CompleteContracteeOutputDTO | CompleteContractorOutputDTO:
+    async def execute(
+        self,
+    ) -> CompleteContracteeOutputDTO | CompleteContractorOutputDTO | None:
+        user = await self.repository.get_first_pending_user()
+        if not user:
+            return None
         return UserRoleMapper.to_complete(user)

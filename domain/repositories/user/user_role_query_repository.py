@@ -30,5 +30,5 @@ class UserRoleQueryRepository(ABC):
     @abstractmethod
     async def get_first_pending_user(
         self,
-    ) -> Contractee | Contractor | None:
+    ) -> CompleteContractee | CompleteContractor | None:
         pass

@@ -1,3 +1,0 @@
-from .admin_order_service import AdminOrderService
-from .contractor_order_service import ContractorOrderService
-from .contractee_order_service import ContracteeOrderService
