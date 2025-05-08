@@ -29,5 +29,16 @@ class UserQueryService(ABC):
         pass
 
     @abstractmethod
+    async def get_profile(
+        self, context: UserContextDTO
+    ) -> (
+        CompleteAdminOutputDTO
+        | CompleteContracteeOutputDTO
+        | CompleteContractorOutputDTO
+        | None
+    ):
+        pass
+
+    @abstractmethod
     async def filter_users(self, query: UserFilterDTO) -> List[UserOutputDTO]:
         pass

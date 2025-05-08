@@ -1,3 +1,4 @@
+from domain.dto.user.base import UserCredentialsDTO
 from domain.dto.user.request.contractee.contractee_registration_dto import (
     ContracteeInputDTO,
 )
@@ -192,5 +193,5 @@ class WebCredentialsMapper:
 
 class UserCredentialsMapper:
     @staticmethod
-    def to_output(creds: UserCredentials) -> UserCredentialsOutputDTO:
-        return from_entity_to_dto(creds, UserCredentialsOutputDTO)
+    def to_output(creds: UserCredentials) -> UserCredentialsDTO:
+        return from_entity_to_dto(creds, UserCredentialsDTO)

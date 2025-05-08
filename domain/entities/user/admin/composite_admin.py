@@ -6,9 +6,11 @@ from domain.entities.user.credentials import UserCredentials
 
 
 class AdminWithContractor(ApplicationModel):
-    admin: Admin
+    user: Admin
     contractor: Optional[Contractor] = None
 
 
-class CompleteAdmin(AdminWithContractor):
+class CompleteAdmin(
+    AdminWithContractor
+):  # TODO: Возможно, не наследовать, а использовать?
     credentials: UserCredentials

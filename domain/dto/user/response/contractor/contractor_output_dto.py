@@ -1,6 +1,4 @@
-from domain.dto.base import ApplicationDTO
 from domain.dto.user.response.user_output_dto import (
-    AuthOutputDTO,
     UserOutputDTO,
     UserProfileOutputDTO,
     WithAuthOutputDTO,
@@ -17,8 +15,8 @@ class ContractorOutputDTO(ContractorProfileOutputDTO, UserOutputDTO):
 
 
 class CompleteContractorOutputDTO(WithCredentialsOutputDTO):
-    contractor: ContractorOutputDTO
+    user: ContractorOutputDTO
 
 
 class ContractorRegistationOutputDTO(WithAuthOutputDTO):
-    contractor: ContractorOutputDTO
+    user: ContractorOutputDTO  # TODO: CompleteContractorOutputDTO

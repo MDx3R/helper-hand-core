@@ -15,18 +15,29 @@ from application.usecases.user.chage_user_status_use_case import (
 )
 from application.usecases.user.user_query_use_case import GetPendingUserUseCase
 from domain.dto.order.internal.order_managment_dto import DisapproveOrderDTO
+from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.dto.user.internal.user_managment_dto import (
     ApproveUserDTO,
     BanUserDTO,
     DropUserDTO,
+)
+from domain.dto.user.internal.user_query_dto import GetUserDTO
+from domain.dto.user.response.admin.admin_output_dto import (
+    AdminOutputDTO,
+    CompleteAdminOutputDTO,
 )
 from domain.dto.user.response.contractee.contractee_output_dto import (
     CompleteContracteeOutputDTO,
 )
 from domain.dto.user.response.contractor.contractor_output_dto import (
     CompleteContractorOutputDTO,
+    ContractorOutputDTO,
 )
-from domain.dto.user.response.user_output_dto import UserOutputDTO
+from domain.dto.user.response.user_output_dto import (
+    UserCredentialsOutputDTO,
+    UserOutputDTO,
+)
+from domain.entities.user.enums import RoleEnum, UserStatusEnum
 from domain.services.user.admin_user_service import (
     AdminUserManagementService,
     AdminUserQueryService,
@@ -41,6 +52,55 @@ class AdminUserQueryServiceImpl(AdminUserQueryService):
         self,
     ) -> CompleteContracteeOutputDTO | CompleteContractorOutputDTO | None:
         return await self.get_pending_user_use_case.execute()
+
+
+class MockAdminUserQueryService(AdminUserQueryService):
+    contractor = CompleteContractorOutputDTO(
+        user=ContractorOutputDTO(
+            surname="123",
+            name="123",
+            user_id=1,
+            photos=[],
+            role=RoleEnum.contractor,
+            status=UserStatusEnum.registered,
+            phone_number="123",
+            about="123",
+        ),
+        credentials=UserCredentialsOutputDTO(),
+    )
+    admin = CompleteAdminOutputDTO(
+        user=AdminOutputDTO(
+            surname="123",
+            name="123",
+            user_id=1,
+            photos=[],
+            role=RoleEnum.admin,
+            status=UserStatusEnum.registered,
+            phone_number="123",
+            about="123",
+        ),
+        credentials=UserCredentialsOutputDTO(),
+    )
+
+    async def get_user(
+        self, query: GetUserDTO
+    ) -> (
+        CompleteAdminOutputDTO
+        | CompleteContracteeOutputDTO
+        | CompleteContractorOutputDTO
+        | None
+    ):
+        return self.contractor
+
+    async def get_profile(
+        self, context: UserContextDTO
+    ) -> CompleteAdminOutputDTO:
+        return self.admin
+
+    async def get_pending_user(
+        self,
+    ) -> CompleteContracteeOutputDTO | CompleteContractorOutputDTO | None:
+        return self.contractor
 
 
 class AdminUserManagementServiceImpl(AdminUserManagementService):

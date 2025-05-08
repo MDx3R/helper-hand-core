@@ -1,2 +1,0 @@
-from .contractee_reply_service import ContracteeReplyServiceImpl
-from .contractor_reply_service import ContractorReplyServiceImpl

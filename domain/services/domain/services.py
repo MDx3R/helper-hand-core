@@ -52,6 +52,10 @@ class UserDomainService:
     def is_admin(user: User) -> bool:
         return user.role == RoleEnum.admin
 
+    @staticmethod
+    def has_role(user: User, *roles) -> bool:
+        return any(user.role == role for role in roles)
+
     @classmethod
     def can_status_be_changed(
         cls, user: User, change_to: UserStatusEnum

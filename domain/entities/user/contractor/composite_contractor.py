@@ -4,5 +4,5 @@ from domain.entities.user.credentials import UserCredentials
 
 
 class CompleteContractor(ApplicationModel):
-    contractor: Contractor
+    user: Contractor
     credentials: UserCredentials

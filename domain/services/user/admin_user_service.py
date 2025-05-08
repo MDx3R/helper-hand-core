@@ -1,12 +1,17 @@
 from abc import ABC, abstractmethod
 
 from domain.dto.order.internal.order_managment_dto import DisapproveOrderDTO
+from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.dto.user.internal.user_managment_dto import (
     ApproveUserDTO,
     BanUserDTO,
     DropUserDTO,
 )
 
+from domain.dto.user.internal.user_query_dto import GetUserDTO
+from domain.dto.user.response.admin.admin_output_dto import (
+    CompleteAdminOutputDTO,
+)
 from domain.dto.user.response.contractee.contractee_output_dto import (
     CompleteContracteeOutputDTO,
 )
@@ -17,6 +22,23 @@ from domain.dto.user.response.user_output_dto import UserOutputDTO
 
 
 class AdminUserQueryService(ABC):
+    @abstractmethod
+    async def get_user(
+        self, query: GetUserDTO
+    ) -> (
+        CompleteAdminOutputDTO
+        | CompleteContracteeOutputDTO
+        | CompleteContractorOutputDTO
+        | None
+    ):
+        pass
+
+    @abstractmethod
+    async def get_profile(
+        self, context: UserContextDTO
+    ) -> CompleteAdminOutputDTO:
+        pass
+
     @abstractmethod
     async def get_pending_user(
         self,

@@ -6,7 +6,7 @@ from domain.dto.base import ApplicationDTO
 class UserBaseDTO(ApplicationDTO):
     surname: str
     name: str
-    patronymic: Optional[str]
+    patronymic: Optional[str] = None
 
 
 class TelegramCredentialsDTO(ApplicationDTO):
@@ -16,3 +16,12 @@ class TelegramCredentialsDTO(ApplicationDTO):
 
 class WebCredentialsDTO(ApplicationDTO):
     email: str
+
+
+class UserCredentialsDTO(ApplicationDTO):
+    telegram: Optional[TelegramCredentialsDTO] = None
+    web: Optional[WebCredentialsDTO] = None
+
+
+class WithCredentialsDTO(ApplicationDTO):
+    credentials: UserCredentialsDTO

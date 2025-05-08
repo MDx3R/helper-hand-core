@@ -14,9 +14,9 @@ class AdminProfileOutputDTO(UserProfileOutputDTO):
 
 
 class AdminOutputDTO(AdminProfileOutputDTO, UserOutputDTO):
-    pass
+    contractor_id: Optional[int] = None
 
 
 class CompleteAdminOutputDTO(WithCredentialsOutputDTO):
-    admin: AdminOutputDTO
-    contractor: Optional[ContractorOutputDTO]
+    user: AdminOutputDTO
+    contractor: Optional[ContractorOutputDTO] = None
