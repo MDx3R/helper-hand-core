@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 
-from domain.dto.order.internal.order_managment_dto import DisapproveOrderDTO
 from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.dto.user.internal.user_managment_dto import (
     ApproveUserDTO,
     BanUserDTO,
+    DisapproveUserDTO,
     DropUserDTO,
 )
 
@@ -52,8 +52,8 @@ class AdminUserManagementService(ABC):
         pass
 
     @abstractmethod
-    async def disapprove_registration(
-        self, request: DisapproveOrderDTO
+    async def disapprove_user(
+        self, request: DisapproveUserDTO
     ) -> UserOutputDTO:
         pass
 

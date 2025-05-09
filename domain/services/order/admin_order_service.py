@@ -1,22 +1,28 @@
 from abc import ABC, abstractmethod
+from typing import List
 
 from domain.dto.base import LastObjectDTO
 from domain.dto.order.internal.order_managment_dto import (
     ApproveOrderDTO,
     CancelOrderDTO,
     CloseOrderDTO,
+    DisapproveOrderDTO,
     FulfillOrderDTO,
     OpenOrderDTO,
     SetOrderActiveDTO,
     TakeOrderDTO,
 )
-from domain.dto.order.internal.order_query_dto import GetOrderDTO
+from domain.dto.order.internal.order_query_dto import (
+    GetOrderDTO,
+    GetUserOrdersDTO,
+)
 from domain.dto.order.request.create_order_dto import CreateOrderDTO
 from domain.dto.order.response.order_output_dto import (
     CompleteOrderOutputDTO,
     OrderOutputDTO,
     OrderWithDetailsOutputDTO,
 )
+from domain.dto.user.internal.user_context_dto import UserContextDTO
 
 
 class AdminOrderManagementService(ABC):
@@ -24,78 +30,32 @@ class AdminOrderManagementService(ABC):
     async def create_order(
         self, request: CreateOrderDTO
     ) -> OrderWithDetailsOutputDTO:
-        """
-        Создает заказ от имени администратора.
-        Администратор должен иметь профиль заказчика.
-        Назначает куратора и публикует заказ сразу.
-
-        Raises:
-            PermissionDeniedException: Администратор не имеет профиля заказчика.
-        """
         pass
 
     @abstractmethod
     async def take_order(self, request: TakeOrderDTO) -> OrderOutputDTO:
-        """
-        Назначает администратора куратором заказа.
-        Только для статуса `created` без куратора.
-
-        Raises:
-            NotFoundException
-            OrderActionNotAllowedException: Куратор уже назначен.
-        """
         pass
 
     @abstractmethod
     async def approve_order(self, request: ApproveOrderDTO) -> OrderOutputDTO:
-        """
-        Подтверждает заказ.
-        Назначает куратора, если его нет.
+        pass
 
-        Raises:
-            NotFoundException
-            UnauthorizedAccessException
-            OrderStatusChangeNotAllowedException
-        """
+    @abstractmethod
+    async def disapprove_order(
+        self, request: DisapproveOrderDTO
+    ) -> OrderOutputDTO:
         pass
 
     @abstractmethod
     async def cancel_order(self, request: CancelOrderDTO) -> OrderOutputDTO:
-        """
-        Отменяет заказ (статус `cancelled`).
-        Доступно без куратора или только куратору.
-
-        Raises:
-            NotFoundException
-            UnauthorizedAccessException
-            OrderStatusChangeNotAllowedException
-        """
         pass
 
     @abstractmethod
     async def close_order(self, request: CloseOrderDTO) -> OrderOutputDTO:
-        """
-        Закрывает заказ (статус `closed`).
-        Доступно только для куратора.
-
-        Raises:
-            NotFoundException
-            UnauthorizedAccessException
-            OrderStatusChangeNotAllowedException
-        """
         pass
 
     @abstractmethod
     async def open_order(self, request: OpenOrderDTO) -> OrderOutputDTO:
-        """
-        Открывает заказ (статус `open`).
-        Доступно только для куратора.
-
-        Raises:
-            NotFoundException
-            UnauthorizedAccessException
-            OrderStatusChangeNotAllowedException
-        """
         pass
 
     @abstractmethod
@@ -106,15 +66,6 @@ class AdminOrderManagementService(ABC):
 
     @abstractmethod
     async def fulfill_order(self, request: FulfillOrderDTO) -> OrderOutputDTO:
-        """
-        Завершает заказ.
-        Доступно только для куратора.
-
-        Raises:
-            NotFoundException
-            UnauthorizedAccessException
-            OrderStatusChangeNotAllowedException
-        """
         pass
 
 
@@ -129,4 +80,16 @@ class AdminOrderQueryService(ABC):
     async def get_unassigned_order(
         self, query: LastObjectDTO
     ) -> CompleteOrderOutputDTO | None:
+        pass
+
+    @abstractmethod
+    async def get_orders(
+        self, context: UserContextDTO
+    ) -> List[OrderOutputDTO]:
+        pass
+
+    @abstractmethod
+    async def get_user_orders(
+        self, query: GetUserOrdersDTO
+    ) -> List[OrderOutputDTO]:
         pass
