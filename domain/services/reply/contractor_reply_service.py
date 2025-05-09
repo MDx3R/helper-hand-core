@@ -6,6 +6,7 @@ from domain.dto.reply.internal.reply_managment_dto import (
     DisapproveReplyDTO,
 )
 from domain.dto.reply.internal.reply_query_dto import (
+    GetDetailRepliesDTO,
     GetOrderRepliesDTO,
     GetOrderReplyDTO,
     GetReplyDTO,
@@ -44,5 +45,11 @@ class ContractorReplyService(ABC):
     @abstractmethod
     async def get_order_replies(
         self, query: GetOrderRepliesDTO
+    ) -> List[ReplyOutputDTO]:
+        pass
+
+    @abstractmethod
+    async def get_detail_replies(
+        self, query: GetDetailRepliesDTO
     ) -> List[ReplyOutputDTO]:
         pass

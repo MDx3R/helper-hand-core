@@ -1,5 +1,5 @@
 from application.usecases.order.create_order_use_case import (
-    CreateOrderWithDetailsUseCase,
+    CreateOrderUseCase,
 )
 from domain.dto.order.request.order_input_dto import OrderInputDTO
 from domain.dto.user.internal.user_context_dto import UserContextDTO
@@ -8,7 +8,7 @@ from domain.entities.order.order import Order
 from domain.mappers.order_mappers import OrderMapper
 
 
-class CreateOrderWithDetailsForAdminUseCase(CreateOrderWithDetailsUseCase):
+class CreateOrderForAdminUseCase(CreateOrderUseCase):
     def _build_order(
         self, order_input: OrderInputDTO, context: UserContextDTO
     ) -> Order:

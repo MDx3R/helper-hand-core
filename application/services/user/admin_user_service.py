@@ -7,13 +7,20 @@ from application.dto.notification.user_status_change import (
 from application.external.notification.notification_service import (
     UserNotificationService,
 )
-from application.usecases.user.chage_user_status_use_case import (
+from application.services.user.user_query_service import BaseUserQueryService
+from application.usecases.user.admin.chage_user_status_use_case import (
     ApproveUserUseCase,
     BanUserUseCase,
     DisapproveUserUseCase,
     DropUserUseCase,
 )
-from application.usecases.user.user_query_use_case import GetPendingUserUseCase
+from application.usecases.user.admin.get_pending_user_use_case import (
+    GetPendingUserUseCase,
+)
+from application.usecases.user.admin.get_user_use_case import (
+    GetProfileForAdminUseCase,
+    GetUserForAdminUseCase,
+)
 from domain.dto.order.internal.order_managment_dto import DisapproveOrderDTO
 from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.dto.user.internal.user_managment_dto import (
@@ -44,9 +51,21 @@ from domain.services.user.admin_user_service import (
 )
 
 
-class AdminUserQueryServiceImpl(AdminUserQueryService):
-    def __init__(self, get_pending_user_use_case: GetPendingUserUseCase):
+class AdminUserQueryServiceImpl(AdminUserQueryService, BaseUserQueryService):
+    def __init__(
+        self,
+        get_user_use_case: GetUserForAdminUseCase,
+        get_pending_user_use_case: GetPendingUserUseCase,
+        get_profile_use_case: GetProfileForAdminUseCase,
+    ):
+        super().__init__(get_user_use_case)
         self.get_pending_user_use_case = get_pending_user_use_case
+        self.get_profile_use_case = get_profile_use_case
+
+    async def get_profile(
+        self, context: UserContextDTO
+    ) -> CompleteAdminOutputDTO:
+        return await self.get_profile_use_case.execute(context)
 
     async def get_pending_user(
         self,

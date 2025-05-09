@@ -1,19 +1,28 @@
+from typing import List
 from application.external.notification.notification_service import (
     ContracteeReplyNotificationService,
 )
-from application.usecases.reply.change_reply_status_use_case import (
+from application.usecases.reply.contractor.change_reply_status_use_case import (
     ApproveReplyUseCase,
     DisapproveReplyUseCase,
 )
-from application.usecases.reply.contractor.reply_query_use_case import (
-    GetCompleteReplyForContractorUseCase,
+from application.usecases.reply.contractor.get_pending_reply_use_case import (
     GetPendingReplyUseCase,
+)
+from application.usecases.reply.contractor.get_reply_use_case import (
+    GetReplyForContractorUseCase,
+)
+from application.usecases.reply.contractor.list_order_replies_use_case import (
+    ListDetailRepliesForContractorUseCase,
+    ListOrderRepliesForContractorUseCase,
 )
 from domain.dto.reply.internal.reply_managment_dto import (
     ApproveReplyDTO,
     DisapproveReplyDTO,
 )
 from domain.dto.reply.internal.reply_query_dto import (
+    GetDetailRepliesDTO,
+    GetOrderRepliesDTO,
     GetOrderReplyDTO,
     GetReplyDTO,
 )
@@ -54,11 +63,15 @@ class ContractorReplyManagmentServiceImpl(ContractorReplyManagmentService):
 class ContractorReplyServiceImpl(ContractorReplyService):
     def __init__(
         self,
-        get_reply_use_case: GetCompleteReplyForContractorUseCase,
+        get_reply_use_case: GetReplyForContractorUseCase,
         get_pending_reply_use_case: GetPendingReplyUseCase,
+        get_order_replies_use_case: ListOrderRepliesForContractorUseCase,
+        get_detail_replies_use_case: ListDetailRepliesForContractorUseCase,
     ):
         self.get_reply_use_case = get_reply_use_case
         self.get_pending_reply_use_case = get_pending_reply_use_case
+        self.get_order_replies_use_case = get_order_replies_use_case
+        self.get_detail_replies_use_case = get_detail_replies_use_case
 
     async def get_reply(
         self, query: GetReplyDTO
@@ -69,3 +82,13 @@ class ContractorReplyServiceImpl(ContractorReplyService):
         self, query: GetOrderReplyDTO
     ) -> CompleteReplyOutputDTO | None:
         return await self.get_pending_reply_use_case.execute(query)
+
+    async def get_order_replies(
+        self, query: GetOrderRepliesDTO
+    ) -> List[ReplyOutputDTO]:
+        return await self.get_order_replies_use_case.execute(query)
+
+    async def get_detail_replies(
+        self, query: GetDetailRepliesDTO
+    ) -> List[ReplyOutputDTO]:
+        return await self.get_detail_replies_use_case.execute(query)

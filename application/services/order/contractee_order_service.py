@@ -1,8 +1,16 @@
 from typing import List
-from application.usecases.order.contractee.order_query_use_case import (
-    GetCompleteOrderForContracteeUseCase,
+from application.services.order.order_query_service import (
+    BaseOrderQueryService,
+)
+from application.usecases.order.contractee.get_order_use_case import (
+    GetOrderForContracteeUseCase,
+)
+from application.usecases.order.contractee.get_suitable_order_use_case import (
     GetSuitableDetailsUseCase,
     GetSuitableOrderUseCase,
+)
+from application.usecases.order.contractee.list_participated_orders_use_case import (
+    ListParticipatedOrdersUseCase,
 )
 from domain.services.order.contractee_order_service import (
     ContracteeOrderQueryService,
@@ -19,21 +27,19 @@ from domain.dto.order.response.order_output_dto import (
 )
 
 
-class ContracteeOrderQueryServiceImpl(ContracteeOrderQueryService):
+class ContracteeOrderQueryServiceImpl(
+    ContracteeOrderQueryService, BaseOrderQueryService
+):
     def __init__(
         self,
-        get_order_use_case: GetCompleteOrderForContracteeUseCase,
+        get_order_use_case: GetOrderForContracteeUseCase,
+        get_orders_use_case: ListParticipatedOrdersUseCase,
         get_suitable_order_use_case: GetSuitableOrderUseCase,
         get_suitable_details_use_case: GetSuitableDetailsUseCase,
     ):
-        self.get_order_use_case = get_order_use_case
+        super().__init__(get_order_use_case, get_orders_use_case)
         self.get_suitable_order_use_case = get_suitable_order_use_case
         self.get_suitable_details_use_case = get_suitable_details_use_case
-
-    async def get_order(
-        self, query: GetOrderDTO
-    ) -> CompleteOrderOutputDTO | None:
-        return await self.get_order_use_case.execute(query)
 
     async def get_suitable_order(
         self, query: GetOrderAfterDTO

@@ -24,18 +24,6 @@ from domain.repositories.reply.reply_query_repository import (
 
 # Common
 class GetReplyUseCase:
-    def __init__(self, repository: ReplyQueryRepository):
-        self.repository = repository
-
-    async def execute(self, query: GetReplyDTO) -> ReplyOutputDTO | None:
-        reply = self.repository.get_reply(query)
-        if not reply:
-            return None
-
-        return ReplyMapper.to_output(reply)
-
-
-class GetCompleteReplyUseCase:
     def __init__(self, repository: CompositeReplyQueryRepository):
         self.repository = repository
 

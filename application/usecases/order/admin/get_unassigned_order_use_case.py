@@ -6,11 +6,7 @@ from domain.repositories.order.composite_order_query_repository import (
     CompositeOrderQueryRepository,
 )
 
-# Common
-# GetCompleteOrderForAdminUseCase = GetCompleteOrderUseCase
 
-
-# Administrative
 class GetUnassignedOrderUseCase:
     def __init__(
         self,

@@ -20,7 +20,7 @@ from domain.repositories.order.order_command_repository import (
 from domain.wager import calculate_pay
 
 
-class CreateOrderWithDetailsUseCase:
+class CreateOrderUseCase:
     def __init__(
         self,
         order_repository: OrderCommandRepository,

@@ -20,7 +20,7 @@ class ContracteeReplyQueryRepository(ABC):
 
     @abstractmethod
     async def get_contractee_future_replies(
-        self, query: UserIdDTO
+        self, query: UserIdDTO  # TODO: Пагинация
     ) -> List[Reply]:
         # NOTE: !dropped, status == accepted, date >= now() descending by date
         pass

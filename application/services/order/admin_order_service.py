@@ -1,12 +1,19 @@
+from typing import List
 from application.external.notification.notification_service import (
     ContracteeOrderNotificationService,
     ContractorOrderNotificationService,
 )
-from application.usecases.order.admin.create_order_use_case import (
-    CreateOrderWithDetailsForAdminUseCase,
+from application.services.order.order_query_service import (
+    BaseOrderQueryService,
 )
-from application.usecases.order.admin.order_query_use_case import (
+from application.usecases.order.admin.create_order_use_case import (
+    CreateOrderForAdminUseCase,
+)
+from application.usecases.order.admin.get_unassigned_order_use_case import (
     GetUnassignedOrderUseCase,
+)
+from application.usecases.order.admin.list_supervised_orders_use_case import (
+    ListSupervisedOrdersUseCase,
 )
 from application.usecases.order.admin.take_order_use_case import (
     TakeOrderUseCase,
@@ -30,16 +37,19 @@ from domain.dto.order.internal.order_managment_dto import (
     DisapproveOrderDTO,
     FulfillOrderDTO,
     OpenOrderDTO,
-    SetOrderActiveDTO,
     TakeOrderDTO,
 )
-from domain.dto.order.internal.order_query_dto import GetOrderDTO
+from domain.dto.order.internal.order_query_dto import (
+    GetOrderDTO,
+    GetUserOrdersDTO,
+)
 from domain.dto.order.request.create_order_dto import CreateOrderDTO
 from domain.dto.order.response.order_output_dto import (
     CompleteOrderOutputDTO,
     OrderOutputDTO,
     OrderWithDetailsOutputDTO,
 )
+from domain.dto.user.internal.user_context_dto import PaginatedDTO
 from domain.services.domain.services import OrderDomainService
 from domain.services.order.admin_order_service import (
     AdminOrderManagementService,
@@ -50,7 +60,7 @@ from domain.services.order.admin_order_service import (
 class AdminOrderManagementServiceImpl(AdminOrderManagementService):
     def __init__(
         self,
-        create_order_use_case: CreateOrderWithDetailsForAdminUseCase,
+        create_order_use_case: CreateOrderForAdminUseCase,
         take_order_use_case: TakeOrderUseCase,
         approve_order_use_case: ApproveOrderUseCase,
         disapprove_order_use_case: DisapproveOrderUseCase,
@@ -125,12 +135,6 @@ class AdminOrderManagementServiceImpl(AdminOrderManagementService):
             await self.contractor_notification_service.send_order_opened_notification()  # TODO: DTO
         return order
 
-    async def set_order_active(
-        self, request: SetOrderActiveDTO
-    ) -> OrderOutputDTO:
-        # TODO: Реализация
-        pass
-
     async def fulfill_order(self, request: FulfillOrderDTO) -> OrderOutputDTO:
         order = await self.fulfill_order_use_case.execute(request)
         if not OrderDomainService.is_owned_by(order, request.context.user_id):
@@ -139,21 +143,25 @@ class AdminOrderManagementServiceImpl(AdminOrderManagementService):
         return order
 
 
-class AdminOrderQueryServiceImpl(AdminOrderQueryService):
+class AdminOrderQueryServiceImpl(
+    AdminOrderQueryService, BaseOrderQueryService
+):
     def __init__(
         self,
         get_order_use_case: GetCompleteOrderUseCase,
+        get_orders_use_case: ListSupervisedOrdersUseCase,
         get_unassigned_order_use_case: GetUnassignedOrderUseCase,
     ):
-        self.get_order_use_case = get_order_use_case
+        super().__init__(get_order_use_case, get_orders_use_case)
         self.get_unassigned_order_use_case = get_unassigned_order_use_case
-
-    async def get_order(
-        self, query: GetOrderDTO
-    ) -> CompleteOrderOutputDTO | None:
-        return await self.get_order_use_case.execute(query)
 
     async def get_unassigned_order(
         self, query: LastObjectDTO
     ) -> CompleteOrderOutputDTO | None:
         return await self.get_unassigned_order_use_case.execute(query)
+
+    async def get_user_orders(
+        self, query: GetUserOrdersDTO
+    ) -> List[OrderOutputDTO]:
+        # TODO: Добавить Use Case
+        pass

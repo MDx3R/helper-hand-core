@@ -1,3 +1,5 @@
+from application.usecases.user.user_query_use_case import GetUserUseCase
+from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.dto.user.internal.user_query_dto import GetUserDTO
 from domain.dto.user.response.admin.admin_output_dto import (
     CompleteAdminOutputDTO,
@@ -10,12 +12,10 @@ from domain.dto.user.response.contractor.contractor_output_dto import (
 )
 
 
-class GetUserUseCase:
-    async def execute(
-        self, query: GetUserDTO
-    ) -> (
-        CompleteContracteeOutputDTO
-        | CompleteContractorOutputDTO
-        | CompleteAdminOutputDTO
-    ):
+class GetUserForAdminUseCase(GetUserUseCase):
+    pass
+
+
+class GetProfileForAdminUseCase:
+    async def execute(self, context: UserContextDTO) -> CompleteAdminOutputDTO:
         pass
