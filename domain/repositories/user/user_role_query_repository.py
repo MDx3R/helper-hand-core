@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TypeVar
 
-from domain.dto.user.internal.base import UserIdDTO
 from domain.entities.user.admin.admin import Admin
 from domain.entities.user.admin.composite_admin import CompleteAdmin
 from domain.entities.user.contractee.composite_contractee import (
@@ -17,13 +15,13 @@ from domain.entities.user.contractor.contractor import Contractor
 class UserRoleQueryRepository(ABC):
     @abstractmethod
     async def get_user(
-        self, query: UserIdDTO
+        self, user_id: int
     ) -> Admin | Contractee | Contractor | None:
         pass
 
     @abstractmethod
     async def get_complete_user(
-        self, query: UserIdDTO
+        self, user_id: int
     ) -> CompleteAdmin | CompleteContractee | CompleteContractor | None:
         pass
 

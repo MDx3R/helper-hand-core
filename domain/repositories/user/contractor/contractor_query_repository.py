@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from domain.dto.user.internal.base import UserIdDTO
 from domain.dto.user.internal.user_filter_dto import (
     ContractorFilterDTO,
 )
@@ -13,12 +12,12 @@ from domain.entities.user.contractor.contractor import Contractor
 
 class ContractorQueryRepository(ABC):
     @abstractmethod
-    async def get_contractor(self, query: UserIdDTO) -> Contractor | None:
+    async def get_contractor(self, user_id: int) -> Contractor | None:
         pass
 
     @abstractmethod
     async def get_complete_contractor(
-        self, query: UserIdDTO
+        self, user_id: int
     ) -> CompleteContractor | None:
         pass
 

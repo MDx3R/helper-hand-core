@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from domain.dto.order.internal.base import DetailIdDTO, OrderIdDTO
 from domain.dto.reply.internal.base import ReplyIdDTO
 from domain.dto.reply.internal.reply_filter_dto import (
     CountRepliesDTO,
@@ -24,13 +23,13 @@ class ReplyQueryRepository(ABC):
 
     @abstractmethod
     async def get_detail_available_replies_count(
-        self, query: DetailIdDTO
+        self, detail_id: int
     ) -> AvailableRepliesForDetail:
         pass
 
     @abstractmethod
     async def get_order_available_replies_count(
-        self, query: OrderIdDTO
+        self, order_id: int
     ) -> List[AvailableRepliesForDetail]:
         pass
 

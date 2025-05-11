@@ -6,7 +6,6 @@ from domain.dto.reply.internal.reply_filter_dto import (
     ContracteeReplyFilterDTO,
     RepliedContracteesFilterDTO,
 )
-from domain.dto.user.internal.base import UserIdDTO
 from domain.entities.reply.reply import Reply
 from domain.entities.user.contractee.contractee import Contractee
 
@@ -20,14 +19,14 @@ class ContracteeReplyQueryRepository(ABC):
 
     @abstractmethod
     async def get_contractee_future_replies(
-        self, query: UserIdDTO  # TODO: Пагинация
+        self, user_id: int  # TODO: Пагинация
     ) -> List[Reply]:
         # NOTE: !dropped, status == accepted, date >= now() descending by date
         pass
 
     @abstractmethod
     async def get_contractee_future_busy_dates(
-        self, query: UserIdDTO
+        self, user_id: int
     ) -> List[date]:
         pass
 

@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from domain.dto.order.internal.base import OrderIdDTO
 from domain.dto.order.internal.order_filter_dto import OrderFilterDTO
 from domain.entities.order.composite_order import (
     CompleteOrder,
@@ -14,26 +13,24 @@ from domain.entities.order.composite_order import (
 class CompositeOrderQueryRepository(ABC):
     @abstractmethod
     async def get_order_with_details(
-        self, query: OrderIdDTO
+        self, order_id: int
     ) -> OrderWithDetails | None:
         pass
 
     @abstractmethod
     async def get_order_with_details_and_contractor(
-        self, query: OrderIdDTO
+        self, order_id: int
     ) -> OrderWithDetailsAndContractor | None:
         pass
 
     @abstractmethod
     async def get_order_with_details_and_supervisor(
-        self, query: OrderIdDTO
+        self, order_id: int
     ) -> OrderWithDetailsAndSupervisor | None:
         pass
 
     @abstractmethod
-    async def get_complete_order(
-        self, query: OrderIdDTO
-    ) -> CompleteOrder | None:
+    async def get_complete_order(self, order_id: int) -> CompleteOrder | None:
         pass
 
     @abstractmethod
