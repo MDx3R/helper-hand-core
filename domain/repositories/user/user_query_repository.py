@@ -16,11 +16,5 @@ class UserQueryRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_user_with_credentials(
-        self, user_id: int
-    ) -> UserWithCredentials | None:
-        pass
-
-    @abstractmethod
     async def exists_by_query(self, query: UserFilterDTO) -> bool:
         pass
