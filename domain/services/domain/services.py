@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import List, Union, overload
 
 from domain.entities.order.detail import OrderDetail
@@ -12,7 +13,7 @@ from domain.entities.user.admin.admin import Admin
 from domain.entities.user.contractee.contractee import Contractee
 from domain.entities.user.enums import RoleEnum, UserStatusEnum
 from domain.entities.user.user import User
-from domain.time import is_current_time_valid_for_reply
+from domain.time import get_current_time
 
 
 class UserDomainService:
@@ -207,13 +208,25 @@ class OrderDomainService:
 
 
 class OrderDetailDomainService:
+    starts_after = timedelta(hours=2)
+    max_lenght = timedelta(hours=20)
+
     @staticmethod
     def is_suitable(detail: OrderDetail, contractee: Contractee) -> bool:
         return not detail.gender or detail.gender == contractee.gender
 
-    @staticmethod
-    def is_relevant_at_current_time(detail: OrderDetail) -> bool:
-        return is_current_time_valid_for_reply(detail.date)
+    @classmethod
+    def is_relevant_at_current_time(cls, detail: OrderDetail) -> bool:
+        return detail.start_at - cls.starts_after > get_current_time()
+
+    @classmethod
+    def get_latest_allowed_start_time(cls) -> datetime:
+        """
+        Получает такое минимальное время,
+        что для любой позиции, заканчивающейся после настоящего времени,
+        время начала всегда больще полученного времени.
+        """
+        return get_current_time() - cls.max_lenght
 
 
 class ReplyDomainService:
@@ -236,6 +249,21 @@ class ReplyDomainService:
     @staticmethod
     def is_dropped(reply: Reply) -> bool:
         return reply.dropped
+
+    @classmethod
+    def is_future(cls, reply: Reply, detail: OrderDetail) -> bool:
+        return (
+            cls.is_future_or_ongoing(reply, detail)
+            and detail.start_date > get_current_time()
+        )
+
+    @classmethod
+    def is_future_or_ongoing(cls, reply: Reply, detail: OrderDetail) -> bool:
+        return (
+            not reply.dropped
+            and cls.is_accepted(reply)
+            and detail.end_date > get_current_time()
+        )
 
     @classmethod
     def can_be_approved(cls, reply: Reply) -> bool:
