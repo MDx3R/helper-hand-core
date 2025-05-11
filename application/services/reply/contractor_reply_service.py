@@ -2,6 +2,7 @@ from typing import List
 from application.external.notification.notification_service import (
     ContracteeReplyNotificationService,
 )
+from application.services.reply.reply_query_service import BaseReplyService
 from application.usecases.reply.contractor.change_reply_status_use_case import (
     ApproveReplyUseCase,
     DisapproveReplyUseCase,
@@ -60,7 +61,7 @@ class ContractorReplyManagmentServiceImpl(ContractorReplyManagmentService):
         return reply
 
 
-class ContractorReplyServiceImpl(ContractorReplyService):
+class ContractorReplyServiceImpl(ContractorReplyService, BaseReplyService):
     def __init__(
         self,
         get_reply_use_case: GetReplyForContractorUseCase,
@@ -68,25 +69,14 @@ class ContractorReplyServiceImpl(ContractorReplyService):
         get_order_replies_use_case: ListOrderRepliesForContractorUseCase,
         get_detail_replies_use_case: ListDetailRepliesForContractorUseCase,
     ):
-        self.get_reply_use_case = get_reply_use_case
+        super().__init__(get_reply_use_case, get_order_replies_use_case)
         self.get_pending_reply_use_case = get_pending_reply_use_case
-        self.get_order_replies_use_case = get_order_replies_use_case
         self.get_detail_replies_use_case = get_detail_replies_use_case
-
-    async def get_reply(
-        self, query: GetReplyDTO
-    ) -> CompleteReplyOutputDTO | None:
-        return await self.get_reply_use_case.execute(query)
 
     async def get_pending_reply(
         self, query: GetOrderReplyDTO
     ) -> CompleteReplyOutputDTO | None:
         return await self.get_pending_reply_use_case.execute(query)
-
-    async def get_order_replies(
-        self, query: GetOrderRepliesDTO
-    ) -> List[ReplyOutputDTO]:
-        return await self.get_order_replies_use_case.execute(query)
 
     async def get_detail_replies(
         self, query: GetDetailRepliesDTO

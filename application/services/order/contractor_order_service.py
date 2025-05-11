@@ -1,4 +1,3 @@
-from ast import List
 from application.external.notification.notification_service import (
     AdminOrderNotificationService,
     ContracteeOrderNotificationService,
@@ -23,14 +22,11 @@ from domain.dto.order.internal.order_managment_dto import (
     CancelOrderDTO,
     SetOrderActiveDTO,
 )
-from domain.dto.order.internal.order_query_dto import GetOrderDTO
 from domain.dto.order.request.create_order_dto import CreateOrderDTO
 from domain.dto.order.response.order_output_dto import (
-    CompleteOrderOutputDTO,
     OrderOutputDTO,
     OrderWithDetailsOutputDTO,
 )
-from domain.dto.user.internal.user_context_dto import PaginatedDTO
 from domain.services.domain.services import OrderDomainService
 from domain.services.order.contractor_order_service import (
     ContractorOrderManagementService,

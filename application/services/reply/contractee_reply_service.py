@@ -2,6 +2,7 @@ from typing import List
 from application.external.notification.notification_service import (
     ContractorReplyNotificationService,
 )
+from application.services.reply.reply_query_service import BaseReplyService
 from application.usecases.reply.contractee.create_reply_use_case import (
     CreateReplyUseCase,
 )
@@ -46,7 +47,7 @@ class ContracteeReplyManagmentServiceImpl(ContracteeReplyManagmentService):
         return reply
 
 
-class ContracteeReplyServiceImpl(ContracteeReplyService):
+class ContracteeReplyServiceImpl(ContracteeReplyService, BaseReplyService):
     def __init__(
         self,
         get_reply_use_case: GetReplyForContracteeUseCase,
@@ -54,9 +55,8 @@ class ContracteeReplyServiceImpl(ContracteeReplyService):
         get_order_replies_use_case: ListSubmittedRepliesForOrderUseCase,
         get_future_replies_use_case: ListContracteeFutureRepliesUseCase,
     ):
-        self.get_reply_use_case = get_reply_use_case
+        super().__init__(get_reply_use_case, get_order_replies_use_case)
         self.get_replies_use_case = get_replies_use_case
-        self.get_order_replies_use_case = get_order_replies_use_case
         self.get_future_replies_use_case = get_future_replies_use_case
 
     async def get_reply(self, query: GetReplyDTO) -> CompleteReply | None:
