@@ -4,6 +4,7 @@ from sqlalchemy.engine import Result, Row
 from sqlalchemy.sql import Executable
 
 from application.transactions.transaction_manager import TransactionManager
+from infrastructure.database.models import Base
 
 O = TypeVar("O", bound=object)
 
@@ -50,3 +51,10 @@ class QueryExecutor:
         async with self.transaction_manager.get_session() as session:
             result = await session.execute(statement)
             return result
+
+    async def add(
+        self,
+        model: Base,
+    ) -> None:
+        async with self.transaction_manager.get_session() as session:
+            await session.add(model)

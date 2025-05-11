@@ -25,6 +25,10 @@ from infrastructure.database.models import (
     WebCredentialsBase,
 )
 from infrastructure.repositories.base import O, QueryExecutor
+from infrastructure.repositories.user.base import (
+    UserQueryBuilder,
+    get_safe_attr,
+)
 
 
 @dataclass
@@ -63,14 +67,18 @@ class UserRoleQueryRepositoryImpl(UserRoleQueryRepository):
     async def get_user(
         self, user_id: int
     ) -> Admin | Contractee | Contractor | None:
-        stmt = select(UserBase, AdminBase, ContracteeBase, ContractorBase)
-        stmt = self._join_roles(stmt).where(UserBase.user_id == user_id)
-
-        row = (await self.executor.execute(stmt)).first()
-        if not row:
-            return None
+        query_builder = UserQueryBuilder()
+        stmt = (
+            query_builder.add_admin()
+            .add_contractee()
+            .add_contractor()
+            .where_user_id(user_id)
+            .build()
+        )
 
         unmapped_user = await self._execute_first(stmt)
+        if not unmapped_user:
+            return None
 
         return AggregatedUserMapper.to_model(
             unmapped_user.user, unmapped_user.role
@@ -79,40 +87,33 @@ class UserRoleQueryRepositoryImpl(UserRoleQueryRepository):
     async def get_complete_user(
         self, user_id: int
     ) -> CompleteAdmin | CompleteContractee | CompleteContractor | None:
-        stmt = select(
-            UserBase,
-            AdminBase,
-            ContracteeBase,
-            ContractorBase,
-            WebCredentialsBase,
-            TelegramCredentialsBase,
+        query_builder = UserQueryBuilder()
+        stmt = (
+            query_builder.add_admin()
+            .add_contractee()
+            .add_contractor()
+            .add_credentials()
+            .where_user_id(user_id)
+            .build()
         )
-        stmt = self._join_roles(stmt)
-        stmt = self._join_credentials(stmt).where(UserBase.user_id == user_id)
 
         unmapped_user = await self._execute_first(stmt)
-
         return  # TODO: Mapper
 
     async def get_first_pending_user(
         self,
     ) -> CompleteContractee | CompleteContractor | None:
-        stmt = select(
-            UserBase,
-            ContracteeBase,
-            ContractorBase,
-            WebCredentialsBase,
-            TelegramCredentialsBase,
-        )
-        stmt = self._join_contractee(stmt)
+        query_builder = UserQueryBuilder()
         stmt = (
-            self._join_contractor(stmt)
+            query_builder.add_contractee()
+            .add_contractor()
+            .add_credentials()
+            .build()
             .where(UserBase.status == UserStatusEnum.pending)
             .limit(1)
         )
 
         unmapped_user = await self._execute_first(stmt)
-
         return  # TODO: Mapper
 
     async def _execute_first(self, statement: Select) -> UnmapperUser | None:
@@ -120,36 +121,11 @@ class UserRoleQueryRepositoryImpl(UserRoleQueryRepository):
         if not row:
             return None
 
-        return UnmapperUser(*row.tuple())
-
-    def _join_roles(self, statement: Select[O]) -> Select[O]:
-        stmt = self._join_admin(statement)
-        stmt = self._join_contractee(stmt)
-        stmt = self._join_contractor(stmt)
-        return stmt
-
-    def _join_admin(self, statement: Select[O]) -> Select[O]:
-        return statement.outerjoin(
-            AdminBase, UserBase.user_id == AdminBase.admin_id
-        )
-
-    def _join_contractee(self, statement: Select[O]) -> Select[O]:
-        return statement.outerjoin(
-            ContracteeBase,
-            UserBase.user_id == ContracteeBase.contractee_id,
-        )
-
-    def _join_contractor(self, statement: Select[O]) -> Select[O]:
-        return statement.outerjoin(
-            ContractorBase,
-            UserBase.user_id == ContractorBase.contractor_id,
-        )
-
-    def _join_credentials(self, statement: Select[O]) -> Select[O]:
-        return statement.outerjoin(
-            WebCredentialsBase,
-            UserBase.user_id == WebCredentialsBase.user_id,
-        ).outerjoin(
-            TelegramCredentialsBase,
-            UserBase.user_id == TelegramCredentialsBase.user_id,
+        return UnmapperUser(
+            user=get_safe_attr(row, UserBase),
+            admin=get_safe_attr(row, AdminBase),
+            contractee=get_safe_attr(row, ContracteeBase),
+            contractor=get_safe_attr(row, ContractorBase),
+            web=get_safe_attr(row, WebCredentialsBase),
+            telegram=get_safe_attr(row, TelegramCredentialsBase),
         )

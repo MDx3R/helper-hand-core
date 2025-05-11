@@ -8,12 +8,12 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from domain.entities.enums import (
     CitizenshipEnum,
     GenderEnum,
-    OrderStatusEnum,
     PositionEnum,
-    ReplyStatusEnum,
-    RoleEnum,
-    UserStatusEnum,
 )
+from domain.entities.order.enums import OrderStatusEnum
+from domain.entities.reply.enums import ReplyStatusEnum
+from domain.entities.token.enums import TokenTypeEnum
+from domain.entities.user.enums import RoleEnum, UserStatusEnum
 
 
 class Base(DeclarativeBase):
@@ -52,20 +52,10 @@ class UserBase(Base):
     surname: Mapped[str]
     name: Mapped[str]
     patronymic: Mapped[str | None]
-    phone_number: Mapped[str]
+    phone_number: Mapped[str] = mapped_column(String, unique=True)
     role: Mapped[RoleEnum]
     status: Mapped[UserStatusEnum]
     photos: Mapped[List[str]] = mapped_column(ARRAY(String))
-
-
-class TelegramUserBase(Base):
-    __tablename__ = "TelegramUser"
-
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("User.user_id"), primary_key=True
-    )
-    telegram_id: Mapped[int] = mapped_column(BigInteger, unique=True)
-    chat_id: Mapped[int] = mapped_column(BigInteger, unique=True)
 
 
 class AdminBase(Base):
@@ -148,3 +138,36 @@ class ReplyBase(Base):
         server_default=text(f"'{ReplyStatusEnum.created.value}'")
     )
     paid: Mapped[datetime | None]
+
+
+class WebCredentialsBase(Base):
+    __tablename__ = "WebCredentials"
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("User.user_id"), primary_key=True
+    )
+    email: Mapped[str] = mapped_column(String, unique=True)
+    password: Mapped[str]
+
+
+class TelegramCredentialsBase(Base):
+    __tablename__ = "TelegramCredentials"
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("User.user_id"), primary_key=True
+    )
+    telegram_id: Mapped[int] = mapped_column(BigInteger, unique=True)
+    chat_id: Mapped[int] = mapped_column(BigInteger, unique=True)
+
+
+class TokenBase(Base):
+    __tablename__ = "Token"
+
+    token_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+    user_id: Mapped[int] = mapped_column(ForeignKey("User.user_id"))
+    token: Mapped[str] = mapped_column(String, unique=True)
+    type: Mapped[TokenTypeEnum]
+    revoked: Mapped[bool] = mapped_column(server_default=text("false"))
+    expires_at: Mapped[datetime]

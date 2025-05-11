@@ -17,12 +17,6 @@ class AdminQueryRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_admin_and_contractor(
-        self, user_id: int
-    ) -> AdminWithContractor | None:
-        pass
-
-    @abstractmethod
     async def get_complete_admin(self, user_id: int) -> CompleteAdmin | None:
         pass
 
