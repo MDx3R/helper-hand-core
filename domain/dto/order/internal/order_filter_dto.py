@@ -9,6 +9,7 @@ class OrderFilterDTO(PaginationDTO, SortingDTO):
     contractor_id: Optional[int] = None
     admin_id: Optional[int] = None
     contractee_id: Optional[int] = None
+    only_available_details: bool = False
 
     @property
     def supervisor_id(self) -> int:

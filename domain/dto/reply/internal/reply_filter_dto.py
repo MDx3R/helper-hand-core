@@ -10,6 +10,10 @@ class BaseReplyFilterDTO(InternalDTO):
     status: Optional[ReplyStatusEnum] = None
     dropped: Optional[bool] = None
     date: Optional[datetime.date] = None
+    starts_after: Optional[datetime.datetime] = None
+    starts_before: Optional[datetime.datetime] = None
+    ends_after: Optional[datetime.datetime] = None
+    ends_before: Optional[datetime.datetime] = None
 
 
 class ContracteeReplyFilterDTO(BaseReplyFilterDTO):

@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import List, Optional
 from domain.dto.base import ApplicationDTO
 from domain.dto.order.base import OrderBaseDTO, OrderDetailBaseDTO
@@ -18,6 +19,19 @@ class OrderOutputDTO(OrderBaseDTO):
 class OrderDetailOutputDTO(OrderDetailBaseDTO):
     detail_id: int
     order_id: int
+
+    @property
+    def start_date(self):
+        return datetime.combine(self.date, self.start_at)
+
+    @property
+    def end_date(self):
+        dt = self.date
+
+        if self.start_at > self.end_at:
+            dt += timedelta(days=1)
+
+        return datetime.combine(dt, self.end_at)
 
 
 class OrderWithDetailsOutputDTO(ApplicationDTO):
