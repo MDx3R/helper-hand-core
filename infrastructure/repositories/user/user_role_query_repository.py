@@ -11,7 +11,7 @@ from domain.entities.user.contractor.composite_contractor import (
     CompleteContractor,
 )
 from domain.entities.user.contractor.contractor import Contractor
-from domain.entities.user.enums import RoleEnum
+from domain.entities.user.enums import RoleEnum, UserStatusEnum
 from domain.repositories.user.user_role_query_repository import (
     UserRoleQueryRepository,
 )
@@ -64,7 +64,7 @@ class UserRoleQueryRepositoryImpl(UserRoleQueryRepository):
         self, user_id: int
     ) -> Admin | Contractee | Contractor | None:
         stmt = select(UserBase, AdminBase, ContracteeBase, ContractorBase)
-        stmt = self._join_roles(stmt)
+        stmt = self._join_roles(stmt).where(UserBase.user_id == user_id)
 
         row = (await self.executor.execute(stmt)).first()
         if not row:
@@ -88,7 +88,7 @@ class UserRoleQueryRepositoryImpl(UserRoleQueryRepository):
             TelegramCredentialsBase,
         )
         stmt = self._join_roles(stmt)
-        stmt = self._join_credentials(stmt)
+        stmt = self._join_credentials(stmt).where(UserBase.user_id == user_id)
 
         unmapped_user = await self._execute_first(stmt)
 
@@ -105,7 +105,11 @@ class UserRoleQueryRepositoryImpl(UserRoleQueryRepository):
             TelegramCredentialsBase,
         )
         stmt = self._join_contractee(stmt)
-        stmt = self._join_contractor(stmt)
+        stmt = (
+            self._join_contractor(stmt)
+            .where(UserBase.status == UserStatusEnum.pending)
+            .limit(1)
+        )
 
         unmapped_user = await self._execute_first(stmt)
 
