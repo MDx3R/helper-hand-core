@@ -6,6 +6,15 @@ from domain.entities.user.contractee.contractee import Contractee
 from .reply import Reply
 
 
+class ReplyWithDetail(ApplicationModel):
+    """
+    Композитная модель отклика на заказ с позицией.
+    """
+
+    reply: Reply
+    detail: OrderDetail
+
+
 class ReplyWithContracteeAndDetail(ApplicationModel):
     """
     Композитная модель отклика на заказ с исполнителем и позицией.
