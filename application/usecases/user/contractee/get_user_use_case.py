@@ -3,6 +3,10 @@ from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.dto.user.response.contractee.contractee_output_dto import (
     CompleteContracteeOutputDTO,
 )
+from domain.mappers.user_mappers import ContracteeMapper
+from domain.repositories.user.contractee.contractee_query_repository import (
+    ContracteeQueryRepository,
+)
 
 
 class GetUserForContracteeUseCase(GetUserUseCase):
@@ -10,7 +14,13 @@ class GetUserForContracteeUseCase(GetUserUseCase):
 
 
 class GetProfileForContracteeUseCase:
+    def __init__(self, repository: ContracteeQueryRepository):
+        self.repository = repository
+
     async def execute(
         self, context: UserContextDTO
     ) -> CompleteContracteeOutputDTO:
-        pass
+        contractee = await self.repository.get_complete_contractee(
+            context.user_id
+        )
+        return ContracteeMapper.to_complete(contractee)

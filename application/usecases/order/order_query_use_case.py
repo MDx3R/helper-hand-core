@@ -14,6 +14,7 @@ from domain.dto.user.internal.user_context_dto import (
     PaginatedDTO,
     UserContextDTO,
 )
+from domain.entities.user.user import User
 from domain.mappers.order_mappers import OrderMapper
 from domain.repositories.order.composite_order_query_repository import (
     CompositeOrderQueryRepository,
@@ -21,6 +22,7 @@ from domain.repositories.order.composite_order_query_repository import (
 from domain.repositories.order.order_query_repository import (
     OrderQueryRepository,
 )
+from domain.repositories.user.user_query_repository import UserQueryRepository
 from domain.services.domain.services import UserDomainService
 
 
@@ -28,38 +30,6 @@ from domain.services.domain.services import UserDomainService
 class GetOrderUseCase:
     def __init__(
         self,
-        repository: OrderQueryRepository,
-    ):
-        self.repository = repository
-
-    async def execute(self, query: GetOrderDTO) -> OrderOutputDTO | None:
-        order = await self.repository.get_order(query)
-        if not order:
-            return None
-
-        return OrderMapper.to_output(order)
-
-
-class GetOrderWithDetailsUseCase:
-    def __init__(
-        self,
-        repository: CompositeOrderQueryRepository,
-    ):
-        self.repository = repository
-
-    async def execute(
-        self, query: GetOrderDTO
-    ) -> OrderWithDetailsOutputDTO | None:
-        order = await self.repository.get_order_with_details(query)
-        if not order:
-            return None
-
-        return OrderMapper.to_output_with_details(order)
-
-
-class GetCompleteOrderUseCase:
-    def __init__(
-        self,
         repository: CompositeOrderQueryRepository,
     ):
         self.repository = repository
@@ -67,24 +37,7 @@ class GetCompleteOrderUseCase:
     async def execute(
         self, query: GetOrderDTO
     ) -> CompleteOrderOutputDTO | None:
-        order = await self.repository.get_complete_order(query)
-        if not order:
-            return None
-
-        return OrderMapper.to_complete(order)
-
-
-class GetOrderUseCase:
-    def __init__(
-        self,
-        repository: CompositeOrderQueryRepository,
-    ):
-        self.repository = repository
-
-    async def execute(
-        self, query: GetOrderDTO
-    ) -> CompleteOrderOutputDTO | None:
-        order = await self.repository.get_complete_order(query)
+        order = await self.repository.get_complete_order(query.order_id)
         if not order:
             return None
 
@@ -126,8 +79,45 @@ class ListOrdersUseCase:
 
 
 class ListUserOrdersUseCase:  # TODO: Не думаю, что этот класс имеет смысл, хотя можно для билдинга фильтра получать пользователя
+    def __init__(
+        self,
+        order_repository: OrderQueryRepository,
+        user_repository: UserQueryRepository,
+    ):
+        self.order_repository = order_repository
+        self.user_repository = user_repository
+
     async def execute(self, query: GetUserOrdersDTO) -> List[OrderOutputDTO]:
-        pass
+        user = await self.user_repository.get_user(query.user_id)
+        if not user:
+            return []
+
+        orders = await self.order_repository.filter_orders(
+            self._build_filter(query)
+        )
+
+        return [OrderMapper.to_output(i) for i in orders]
+
+    def _build_filter(
+        self, user: User, query: GetUserOrdersDTO
+    ) -> OrderFilterDTO:
+        params = {
+            "last_id": query.last_id,
+            "size": query.size,
+            "order": "descending",
+        }
+
+        if UserDomainService.is_admin(user):
+            params.update(admin_id=user.user_id)
+        elif UserDomainService.is_contractee(user):
+            params.update(contractee_id=user.user_id)
+        elif UserDomainService.is_contractor(user):
+            params.update(contractor_id=user.user_id)
+        else:
+            # Не должно вызываться
+            raise
+
+        return OrderFilterDTO.model_validate(params)
 
 
 class ListAdminOrdersUseCase:

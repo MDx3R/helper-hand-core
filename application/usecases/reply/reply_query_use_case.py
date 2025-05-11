@@ -24,13 +24,13 @@ from domain.repositories.reply.reply_query_repository import (
 
 # Common
 class GetReplyUseCase:
-    def __init__(self, repository: CompositeReplyQueryRepository):
-        self.repository = repository
+    def __init__(self, order_repository: CompositeReplyQueryRepository):
+        self.order_repository = order_repository
 
     async def execute(
         self, query: GetReplyDTO
     ) -> CompleteReplyOutputDTO | None:
-        reply = self.repository.get_complete_reply(query)
+        reply = self.order_repository.get_complete_reply(query)
         if not reply:
             return None
         return ReplyMapper.to_complete(reply)

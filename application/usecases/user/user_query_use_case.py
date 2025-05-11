@@ -8,14 +8,26 @@ from domain.dto.user.response.contractee.contractee_output_dto import (
 from domain.dto.user.response.contractor.contractor_output_dto import (
     CompleteContractorOutputDTO,
 )
+from domain.mappers.user_mappers import UserRoleMapper
+from domain.repositories.user.user_role_query_repository import (
+    UserRoleQueryRepository,
+)
 
 
 class GetUserUseCase:
+    def __init__(self, repository: UserRoleQueryRepository):
+        self.repository = repository
+
     async def execute(
         self, query: GetUserDTO
     ) -> (
         CompleteContracteeOutputDTO
         | CompleteContractorOutputDTO
         | CompleteAdminOutputDTO
+        | None
     ):
-        pass
+        user = await self.repository.get_complete_user(query.user_id)
+        if not user:
+            return None
+
+        return UserRoleMapper.to_complete(user)

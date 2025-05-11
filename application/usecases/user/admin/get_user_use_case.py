@@ -10,6 +10,10 @@ from domain.dto.user.response.contractee.contractee_output_dto import (
 from domain.dto.user.response.contractor.contractor_output_dto import (
     CompleteContractorOutputDTO,
 )
+from domain.mappers.user_mappers import AdminMapper
+from domain.repositories.user.admin.admin_query_repository import (
+    AdminQueryRepository,
+)
 
 
 class GetUserForAdminUseCase(GetUserUseCase):
@@ -17,5 +21,9 @@ class GetUserForAdminUseCase(GetUserUseCase):
 
 
 class GetProfileForAdminUseCase:
+    def __init__(self, repository: AdminQueryRepository):
+        self.repository = repository
+
     async def execute(self, context: UserContextDTO) -> CompleteAdminOutputDTO:
-        pass
+        admin = await self.repository.get_complete_admin(context.user_id)
+        return AdminMapper.to_complete(admin)
