@@ -1,8 +1,21 @@
+from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
 from typing import Optional
 
 from domain.entities.base import ApplicationModel
 from domain.entities.enums import GenderEnum, PositionEnum
+
+
+@dataclass
+class TimeInterval:
+    start: datetime
+    end: datetime
+
+    def contains(self, moment: datetime) -> bool:
+        return self.start <= moment <= self.end
+
+    def overlaps(self, other: "TimeInterval") -> bool:
+        return self.start < other.end and other.start < self.end
 
 
 class OrderDetail(ApplicationModel):
@@ -37,3 +50,7 @@ class OrderDetail(ApplicationModel):
             dt += timedelta(days=1)
 
         return datetime.combine(dt, self.end_at)
+
+    @property
+    def inteval(self):
+        return TimeInterval(start=self.start_date, end=self.end_date)
