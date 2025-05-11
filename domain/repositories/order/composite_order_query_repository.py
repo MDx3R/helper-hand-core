@@ -18,6 +18,12 @@ class CompositeOrderQueryRepository(ABC):
         pass
 
     @abstractmethod
+    async def get_order_with_free_details(
+        self, order_id: int
+    ) -> OrderWithDetails | None:
+        pass
+
+    @abstractmethod
     async def get_order_with_details_and_contractor(
         self, order_id: int
     ) -> OrderWithDetailsAndContractor | None:

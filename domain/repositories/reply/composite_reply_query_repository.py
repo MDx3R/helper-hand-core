@@ -3,7 +3,10 @@ from typing import List
 
 from domain.dto.reply.internal.base import ReplyIdDTO
 from domain.dto.reply.internal.reply_filter_dto import ReplyFilterDTO
-from domain.entities.reply.composite_reply import CompleteReply
+from domain.entities.reply.composite_reply import (
+    CompleteReply,
+    ReplyWithDetail,
+)
 
 
 class CompositeReplyQueryRepository(ABC):
@@ -17,4 +20,10 @@ class CompositeReplyQueryRepository(ABC):
     async def filter_complete_replies(
         self, query: ReplyFilterDTO
     ) -> List[CompleteReply]:
+        pass
+
+    @abstractmethod
+    async def filter_replies_with_detail(
+        self, query: ReplyFilterDTO
+    ) -> List[ReplyWithDetail]:
         pass

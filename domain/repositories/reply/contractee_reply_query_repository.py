@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from datetime import date
 from typing import List
 
+from domain.dto.order.internal.order_query_dto import GetUserOrderDTO
 from domain.dto.reply.internal.reply_filter_dto import (
     ContracteeReplyFilterDTO,
     RepliedContracteesFilterDTO,
@@ -22,6 +23,12 @@ class ContracteeReplyQueryRepository(ABC):
         self, user_id: int  # TODO: Пагинация
     ) -> List[Reply]:
         # NOTE: !dropped, status == accepted, date >= now() descending by date
+        pass
+
+    @abstractmethod
+    async def get_contractee_order_replies(
+        self, query: GetUserOrderDTO
+    ) -> List[Reply]:
         pass
 
     @abstractmethod
