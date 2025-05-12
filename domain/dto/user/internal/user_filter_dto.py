@@ -4,24 +4,21 @@ from domain.entities.enums import CitizenshipEnum, GenderEnum, PositionEnum
 from domain.entities.user.enums import RoleEnum, UserStatusEnum
 
 
-class UserBaseFilterDTO(PaginationDTO):
+class UserFilterDTO(PaginationDTO):
     status: Optional[UserStatusEnum] = None
-
-
-class UserFilterDTO(UserBaseFilterDTO):
     phone_number: Optional[str] = None
     role: Optional[RoleEnum] = None
 
 
-class AdminFilterDTO(UserBaseFilterDTO):
+class AdminFilterDTO(UserFilterDTO):
     pass
 
 
-class ContractorFilterDTO(UserBaseFilterDTO):
+class ContractorFilterDTO(UserFilterDTO):
     pass
 
 
-class ContracteeFilterDTO(UserBaseFilterDTO):
+class ContracteeFilterDTO(UserFilterDTO):
     gender: Optional[GenderEnum] = None
     citizenship: Optional[CitizenshipEnum] = None
-    positions: List[PositionEnum] = []
+    positions: Optional[List[PositionEnum]] = None
