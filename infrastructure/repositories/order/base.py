@@ -105,7 +105,7 @@ class OrderQueryBuilder:
         self._joins: list[type[Base]] = []
         self._stmt = select(OrderBase)
 
-    def add_order_detail(self, join_type: Optional[JoinType] = None) -> Self:
+    def add_detail(self, join_type: Optional[JoinType] = None) -> Self:
         return self.require_model(OrderDetailBase, join_type)
 
     def add_contractor(self, join_type: Optional[JoinType] = None) -> Self:
@@ -191,10 +191,14 @@ class OrderQueryBuilder:
             )
         if filter.only_available_details:
             self.apply_only_available_details()
+        if filter.last_id:
+            self._stmt = self._stmt.where(OrderBase.order_id > filter.last_id)
+        if filter.size:
+            self._stmt = self._stmt.limit(filter.size)
         if filter.sorting != SortingOrder.default:
             clause = (
                 asc(OrderBase.created_at)
-                if SortingOrder.ascending
+                if filter.sorting == SortingOrder.ascending
                 else desc(OrderBase.created_at)
             )
             self._stmt = self._stmt.order_by(clause)

@@ -85,14 +85,11 @@ class CompositeOrderQueryRepositoryImpl(CompositeOrderQueryRepository):
         return await self._execute_many_orders_to_entity(stmt, CompleteOrder)
 
     def _get_order_with_details_builder(self) -> OrderQueryBuilder:
-        return self._get_query_buider().add_order_detail()
+        return self._get_query_buider().add_detail()
 
     def _get_complete_order_builder(self) -> OrderQueryBuilder:
         return (
-            self._get_query_buider()
-            .add_order_detail()
-            .add_admin()
-            .add_contractor()
+            self._get_query_buider().add_detail().add_admin().add_contractor()
         )
 
     def _get_query_buider(self) -> OrderQueryBuilder:
