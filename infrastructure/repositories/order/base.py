@@ -219,6 +219,7 @@ class OrderQueryBuilder:
             .where(
                 ReplyBase.detail_id == OrderDetail.detail_id,
                 ReplyBase.status == ReplyStatusEnum.accepted,
+                ReplyBase.dropped == False,
             )
             .scalar_subquery()
         )

@@ -137,6 +137,7 @@ class ReplyBase(Base):
     status: Mapped[ReplyStatusEnum] = mapped_column(
         server_default=text(f"'{ReplyStatusEnum.created.value}'")
     )
+    dropped: Mapped[bool] = mapped_column(server_default=text("false"))
     paid: Mapped[datetime | None]
 
 
