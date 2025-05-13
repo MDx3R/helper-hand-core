@@ -127,6 +127,9 @@ class OrderDetailBase(Base):
 class ReplyBase(Base):
     __tablename__ = "Reply"
 
+    reply_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
     contractee_id: Mapped[int] = mapped_column(
         ForeignKey("Contractee.contractee_id"), primary_key=True
     )

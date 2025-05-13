@@ -8,6 +8,7 @@ from domain.entities.reply.enums import ReplyStatusEnum
 
 
 class ReplyOutputDTO(ReplyBaseDTO):
+    reply_id: int
     status: ReplyStatusEnum
 
 

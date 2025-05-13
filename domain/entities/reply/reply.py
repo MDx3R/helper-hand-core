@@ -13,6 +13,7 @@ class Reply(ApplicationModel):
     Представляет информацию о конкретном исполнителе, назначенном на определенную позицию в заказе.
     """
 
+    reply_id: Optional[int] = None
     contractee_id: int
     detail_id: int
     wager: int
