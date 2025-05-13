@@ -16,14 +16,14 @@ class LastObjectDTO(InternalDTO):
     last_id: Optional[int] = None
 
 
-class SortingOrderEnum(str, enum.Enum):
+class SortingOrder(str, enum.Enum):
     default = "default"
     ascending = "ascending"
     descending = "descending"
 
 
 class SortingDTO(InternalDTO):
-    sorting: SortingOrderEnum = SortingOrderEnum.default
+    sorting: SortingOrder = SortingOrder.default
 
 
 class PaginationDTO(LastObjectDTO):

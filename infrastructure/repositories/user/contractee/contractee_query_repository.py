@@ -1,6 +1,6 @@
 from infrastructure.repositories.user.base import (
+    UnmappedUser,
     UserQueryBuilder,
-    get_safe_attr,
 )
 from domain.dto.user.internal.user_filter_dto import ContracteeFilterDTO
 from domain.entities.user.contractee.contractee import Contractee
@@ -11,24 +11,14 @@ from domain.repositories.user.contractee.contractee_query_repository import (
     ContracteeQueryRepository,
 )
 from infrastructure.database.mappers import ContracteeMapper
-from infrastructure.repositories.base import QueryExecutor
+from infrastructure.repositories.base import QueryExecutor, frozen
 from typing import List
-from dataclasses import dataclass
-from typing import Optional
-from infrastructure.database.models import (
-    UserBase,
-    ContracteeBase,
-    WebCredentialsBase,
-    TelegramCredentialsBase,
-)
+from infrastructure.database.models import ContracteeBase
 
 
-@dataclass
-class UnmapperContractee:
-    user: UserBase
+@frozen(init=False)
+class UnmappedContractee(UnmappedUser):
     contractee: ContracteeBase
-    web: Optional[WebCredentialsBase]
-    telegram: Optional[TelegramCredentialsBase]
 
 
 class ContracteeQueryRepositoryImpl(ContracteeQueryRepository):
@@ -36,7 +26,7 @@ class ContracteeQueryRepositoryImpl(ContracteeQueryRepository):
         self.executor = executor
 
     async def get_contractee(self, user_id: int) -> Contractee | None:
-        query_builder = UserQueryBuilder()
+        query_builder = self._get_query_buider()
         stmt = query_builder.add_contractee().where_user_id(user_id).build()
 
         unmapped_contractee = await self._execute_one(stmt)
@@ -50,7 +40,7 @@ class ContracteeQueryRepositoryImpl(ContracteeQueryRepository):
     async def get_complete_contractee(
         self, user_id: int
     ) -> CompleteContractee | None:
-        query_builder = UserQueryBuilder()
+        query_builder = self._get_query_buider()
         stmt = (
             query_builder.add_contractee()
             .add_credentials()
@@ -64,7 +54,7 @@ class ContracteeQueryRepositoryImpl(ContracteeQueryRepository):
     async def filter_contractees(
         self, query: ContracteeFilterDTO
     ) -> List[Contractee]:
-        query_builder = UserQueryBuilder()
+        query_builder = self._get_query_buider()
         stmt = (
             query_builder.add_contractee()
             .apply_contractee_filter(query)
@@ -74,14 +64,12 @@ class ContracteeQueryRepositoryImpl(ContracteeQueryRepository):
         users = await self.executor.execute_many(stmt)
         return [ContracteeMapper.to_model(user, role) for user, role in users]
 
-    async def _execute_one(self, statement):
+    def _get_query_buider(self) -> UserQueryBuilder:
+        return UserQueryBuilder()
+
+    async def _execute_one(self, statement) -> UnmappedContractee | None:
         row = await self.executor.execute_one(statement)
         if not row:
             return None
 
-        return UnmapperContractee(
-            user=get_safe_attr(row, UserBase),
-            contractee=get_safe_attr(row, ContracteeBase),
-            web=get_safe_attr(row, WebCredentialsBase),
-            telegram=get_safe_attr(row, TelegramCredentialsBase),
-        )
+        return UnmappedContractee(row)

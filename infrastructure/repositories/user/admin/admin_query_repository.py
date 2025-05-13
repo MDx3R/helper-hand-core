@@ -1,7 +1,6 @@
-from dataclasses import dataclass
 from typing import List, Optional
 
-from sqlalchemy import Select, select
+from sqlalchemy import Select
 
 from domain.dto.user.internal.user_filter_dto import (
     AdminFilterDTO,
@@ -14,25 +13,23 @@ from domain.repositories.user.admin.admin_query_repository import (
 from infrastructure.database.mappers import AdminMapper
 from infrastructure.database.models import (
     AdminBase,
-    TelegramCredentialsBase,
-    UserBase,
-    WebCredentialsBase,
+    ContractorBase,
 )
-from infrastructure.repositories.base import QueryExecutor
+from infrastructure.repositories.base import (
+    JoinType,
+    QueryExecutor,
+    frozen,
+)
 from infrastructure.repositories.user.base import (
+    UnmappedUser,
     UserQueryBuilder,
-    build_statement_from_admin_filter,
-    get_safe_attr,
-    join_admin,
 )
 
 
-@dataclass
-class UnmapperAdmin:
-    user: UserBase
+@frozen(init=False)
+class UnmappedAdmin(UnmappedUser):
     admin: AdminBase
-    web: Optional[WebCredentialsBase]
-    telegram: Optional[TelegramCredentialsBase]
+    contractor: Optional[ContractorBase]
 
 
 class AdminQueryRepositoryImpl(AdminQueryRepository):
@@ -40,7 +37,7 @@ class AdminQueryRepositoryImpl(AdminQueryRepository):
         self.executor = executor
 
     async def get_admin(self, user_id: int) -> Admin | None:
-        query_builder = UserQueryBuilder()
+        query_builder = self._get_query_buider()
         stmt = query_builder.add_admin().where_user_id(user_id).build()
 
         unmapped_admin = await self._execute_one(stmt)
@@ -50,9 +47,10 @@ class AdminQueryRepositoryImpl(AdminQueryRepository):
         return AdminMapper.to_model(unmapped_admin.user, unmapped_admin.admin)
 
     async def get_complete_admin(self, user_id: int) -> CompleteAdmin | None:
-        query_builder = UserQueryBuilder()
+        query_builder = self._get_query_buider()
         stmt = (
             query_builder.add_admin()
+            .add_contractor(JoinType.OUTER)
             .add_credentials()
             .where_user_id(user_id)
             .build()
@@ -62,20 +60,18 @@ class AdminQueryRepositoryImpl(AdminQueryRepository):
         return  # TODO: Mapper
 
     async def filter_admins(self, query: AdminFilterDTO) -> List[Admin]:
-        query_builder = UserQueryBuilder()
+        query_builder = self._get_query_buider()
         stmt = query_builder.add_admin().apply_admin_filter(query).build()
 
         users = await self.executor.execute_many(stmt)
         return [AdminMapper.to_model(user, role) for user, role in users]
 
-    async def _execute_one(self, statement: Select) -> UnmapperAdmin | None:
+    def _get_query_buider(self) -> UserQueryBuilder:
+        return UserQueryBuilder()
+
+    async def _execute_one(self, statement: Select) -> UnmappedAdmin | None:
         row = await self.executor.execute_one(statement)
         if not row:
             return None
 
-        return UnmapperAdmin(
-            user=get_safe_attr(row, UserBase),
-            admin=get_safe_attr(row, AdminBase),
-            web=get_safe_attr(row, WebCredentialsBase),
-            telegram=get_safe_attr(row, TelegramCredentialsBase),
-        )
+        return UnmappedAdmin(row)

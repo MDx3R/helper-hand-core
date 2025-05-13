@@ -16,6 +16,8 @@ class UserQueryRepositoryImpl(UserQueryRepository):
         stmt = UserQueryBuilder().where_user_id(user_id).build()
 
         user = await self.executor.execute_scalar_one(stmt)
+        if not user:
+            return None
         return UserMapper.to_model(user)
 
     async def filter_users(self, query: UserFilterDTO) -> List[User]:
