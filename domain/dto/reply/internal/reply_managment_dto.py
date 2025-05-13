@@ -15,9 +15,3 @@ class ApproveReplyDTO(ReplyManagementDTO):
 
 class DisapproveReplyDTO(ReplyManagementDTO):
     pass
-
-
-class DropRepliesDTO(WithUserContextDTO):
-    order_id: Optional[int] = None
-    detail_id: Optional[int] = None
-    contractee_id: Optional[int] = None

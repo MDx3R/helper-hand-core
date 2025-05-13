@@ -3,12 +3,14 @@ from application.transactions import transactional
 from domain.dto.order.internal.base import OrderIdDTO
 from domain.dto.order.internal.user_command_dto import SetOrderStatusDTO
 from domain.dto.reply.internal.base import ReplyIdDTO
-from domain.dto.reply.internal.reply_command_dto import SetReplyStatusDTO
+from domain.dto.reply.internal.reply_command_dto import (
+    DropReplyDTO,
+    SetReplyStatusDTO,
+)
 from domain.dto.reply.internal.reply_filter_dto import ContracteeReplyFilterDTO
 from domain.dto.reply.internal.reply_managment_dto import (
     ApproveReplyDTO,
     DisapproveReplyDTO,
-    DropRepliesDTO,
     ReplyManagementDTO,
 )
 from domain.dto.reply.response.reply_output_dto import ReplyOutputDTO
@@ -310,12 +312,6 @@ class DropRepliesUseCase:
         self.repository = repository
 
     @transactional
-    async def execute(self, request: DropRepliesDTO) -> List[ReplyOutputDTO]:
-        replies = await self.repository.drop_replies(
-            ContracteeReplyFilterDTO(
-                order_id=request.order_id,
-                detail_id=request.detail_id,
-                contractee_id=request.contractee_id,
-            )
-        )
+    async def execute(self, request: DropReplyDTO) -> List[ReplyOutputDTO]:
+        replies = await self.repository.drop_replies(request)
         return [ReplyMapper.to_output(i) for i in replies]
