@@ -1,3 +1,4 @@
+import enum
 from typing import Literal, Optional
 
 from pydantic import BaseModel
@@ -15,8 +16,14 @@ class LastObjectDTO(InternalDTO):
     last_id: Optional[int] = None
 
 
+class SortingOrderEnum(str, enum.Enum):
+    default = "default"
+    ascending = "ascending"
+    descending = "descending"
+
+
 class SortingDTO(InternalDTO):
-    sorting: Literal["default", "ascending", "descending"] = "default"
+    sorting: SortingOrderEnum = SortingOrderEnum.default
 
 
 class PaginationDTO(LastObjectDTO):

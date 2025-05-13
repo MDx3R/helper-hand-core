@@ -1,10 +1,10 @@
 from typing import List, Optional
-from domain.dto.base import InternalDTO, PaginationDTO
+from domain.dto.base import InternalDTO, PaginationDTO, SortingDTO
 from domain.entities.enums import CitizenshipEnum, GenderEnum, PositionEnum
 from domain.entities.user.enums import RoleEnum, UserStatusEnum
 
 
-class UserFilterDTO(PaginationDTO):
+class UserFilterDTO(PaginationDTO, SortingDTO):
     status: Optional[UserStatusEnum] = None
     phone_number: Optional[str] = None
     role: Optional[RoleEnum] = None
