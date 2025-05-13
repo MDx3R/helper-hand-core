@@ -190,32 +190,7 @@ class OrderQueryBuilder:
                 ReplyBase.contractee_id == filter.contractee_id
             )
         if filter.only_available_details:
-            self.join_detail()
-            min_datetime = (
-                datetime.now() + OrderDetailDomainService.starts_after
-            )
-            self._stmt = self._stmt.where(
-                or_(
-                    OrderDetailBase.date > min_datetime.date(),
-                    and_(
-                        OrderDetailBase.date == min_datetime.date(),
-                        OrderDetailBase.start_at > min_datetime.time(),
-                    ),
-                )
-            )
-
-            subquery = (
-                select(func.count())
-                .select_from(ReplyBase)
-                .where(
-                    ReplyBase.detail_id == OrderDetail.detail_id,
-                    ReplyBase.status == ReplyStatusEnum.accepted,
-                )
-                .scalar_subquery()
-            )
-
-            self._stmt = self._stmt.where(OrderDetailBase.count > subquery)
-
+            self.apply_only_available_details()
         if filter.sorting != SortingOrder.default:
             clause = (
                 asc(OrderBase.created_at)
@@ -223,6 +198,32 @@ class OrderQueryBuilder:
                 else desc(OrderBase.created_at)
             )
             self._stmt = self._stmt.order_by(clause)
+        return self
+
+    def apply_only_available_details(self) -> Self:
+        self.join_detail()
+        min_datetime = datetime.now() + OrderDetailDomainService.starts_after
+        self._stmt = self._stmt.where(
+            or_(
+                OrderDetailBase.date > min_datetime.date(),
+                and_(
+                    OrderDetailBase.date == min_datetime.date(),
+                    OrderDetailBase.start_at > min_datetime.time(),
+                ),
+            )
+        )
+
+        subquery = (
+            select(func.count())
+            .select_from(ReplyBase)
+            .where(
+                ReplyBase.detail_id == OrderDetail.detail_id,
+                ReplyBase.status == ReplyStatusEnum.accepted,
+            )
+            .scalar_subquery()
+        )
+
+        self._stmt = self._stmt.where(OrderDetailBase.count > subquery)
         return self
 
     def build(self) -> Select:
