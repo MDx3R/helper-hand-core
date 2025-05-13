@@ -2,7 +2,10 @@ from sqlalchemy import Row, Select, and_, asc, desc, func, or_, select
 from typing import Optional, Self
 
 from domain.dto.base import SortingOrder
-from domain.dto.reply.internal.reply_filter_dto import ReplyFilterDTO
+from domain.dto.reply.internal.reply_filter_dto import (
+    ContracteeReplyFilterDTO,
+    ReplyFilterDTO,
+)
 from infrastructure.database.models import (
     Base,
     ContracteeBase,
@@ -146,6 +149,23 @@ class ReplyQueryBuilder:
         return self
 
     def apply_reply_filter(self, filter: ReplyFilterDTO) -> Self:
+        self.apply_contractee_reply_filter(filter)
+        if filter.last_id:
+            self._stmt = self._stmt.where(ReplyBase.reply_id > filter.last_id)
+        if filter.size:
+            self._stmt = self._stmt.limit(filter.size)
+        if filter.sorting != SortingOrder.default:
+            clause = (
+                asc(ReplyBase.created_at)
+                if filter.sorting == SortingOrder.ascending
+                else desc(ReplyBase.created_at)
+            )
+            self._stmt = self._stmt.order_by(clause)
+        return self
+
+    def apply_contractee_reply_filter(
+        self, filter: ContracteeReplyFilterDTO
+    ) -> Self:
         if filter.order_id:
             self.join_detail()
             self._stmt = self._stmt.where(
@@ -186,17 +206,6 @@ class ReplyQueryBuilder:
                     ),
                 )
             )
-        if filter.last_id:
-            self._stmt = self._stmt.where(ReplyBase.reply_id > filter.last_id)
-        if filter.size:
-            self._stmt = self._stmt.limit(filter.size)
-        if filter.sorting != SortingOrder.default:
-            clause = (
-                asc(ReplyBase.created_at)
-                if filter.sorting == SortingOrder.ascending
-                else desc(ReplyBase.created_at)
-            )
-            self._stmt = self._stmt.order_by(clause)
         return self
 
     def build(self) -> Select:
