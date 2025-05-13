@@ -10,7 +10,7 @@ from domain.entities.user.user import User
 
 class UserCommandRepository(ABC):
     @abstractmethod
-    async def set_user_status(self, query: SetUserStatusDTO) -> None:
+    async def set_user_status(self, query: SetUserStatusDTO) -> User:
         pass
 
     @abstractmethod
