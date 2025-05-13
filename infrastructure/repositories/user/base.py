@@ -1,6 +1,5 @@
-from dataclasses import dataclass
 from typing import Generic, Optional, Self
-from sqlalchemy import Row, Select, asc, desc, select
+from sqlalchemy import Column, ColumnElement, Row, Select, asc, desc, select
 from domain.dto.base import SortingOrder
 from infrastructure.database.models import (
     AdminBase,
@@ -165,7 +164,7 @@ class UserQueryBuilder(Generic[O]):
         return self
 
     def apply_contractee_filter(self, filter: ContracteeFilterDTO) -> Self:
-        self.add_contractee()
+        self.join_contractee()
         if filter.gender:
             self._stmt = self._stmt.where(
                 ContracteeBase.gender == filter.gender
@@ -181,11 +180,11 @@ class UserQueryBuilder(Generic[O]):
         return self.apply_user_filter(filter)
 
     def apply_admin_filter(self, filter: AdminFilterDTO) -> Self:
-        self.add_admin()
+        self.join_admin()
         return self.apply_user_filter(filter)
 
     def apply_contractor_filter(self, filter: ContractorFilterDTO) -> Self:
-        self.add_contractor()
+        self.join_contractor()
         return self.apply_user_filter(filter)
 
     def apply_user_filter(self, filter: UserFilterDTO) -> Self:
@@ -209,6 +208,19 @@ class UserQueryBuilder(Generic[O]):
             )
             self._stmt = self._stmt.order_by(clause)
         return self
+
+    # def apply_sorting(self, column: Column, order: SortingOrder) -> Self:
+    #     if not self.is_column_joined(column):
+    #         raise ValueError(f"No join for column's table: {column.table}")
+    #     clause = (
+    #         asc(column) if order == SortingOrder.ascending else desc(column)
+    #     )
+    #     self._stmt = self._stmt.order_by(clause)
+    #     return self
+
+    # def is_column_joined(self, column: Column) -> bool:
+    #     model = column.table
+    #     return model in self._joins
 
     def build(self) -> Select:
         return self._stmt

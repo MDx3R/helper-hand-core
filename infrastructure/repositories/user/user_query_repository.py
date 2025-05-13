@@ -13,7 +13,7 @@ class UserQueryRepositoryImpl(UserQueryRepository):
         self.executor = executor
 
     async def get_user(self, user_id: int) -> User | None:
-        stmt = UserQueryBuilder().where_user_id(user_id).build()
+        stmt = self._get_query_buider().where_user_id(user_id).build()
 
         user = await self.executor.execute_scalar_one(stmt)
         if not user:
@@ -21,11 +21,14 @@ class UserQueryRepositoryImpl(UserQueryRepository):
         return UserMapper.to_model(user)
 
     async def filter_users(self, query: UserFilterDTO) -> List[User]:
-        stmt = UserQueryBuilder().apply_user_filter(query).build()
+        stmt = self._get_query_buider().apply_user_filter(query).build()
 
         users = await self.executor.execute_scalar_many(stmt)
         return [UserMapper.to_model(user) for user in users]
 
     async def exists_by_filter(self, query: UserFilterDTO) -> bool:
-        stmt = UserQueryBuilder().apply_user_filter(query).build()
+        stmt = self._get_query_buider().apply_user_filter(query).build()
         return bool(await self.executor.execute_scalar_one(stmt))
+
+    def _get_query_buider(self) -> UserQueryBuilder:
+        return UserQueryBuilder()
