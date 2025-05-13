@@ -12,6 +12,11 @@ from typing import (
     overload,
 )
 from sqlalchemy import Column, Select, Insert, Update, Delete
+from sqlalchemy.sql.dml import (
+    ReturningInsert,
+    ReturningUpdate,
+    ReturningDelete,
+)
 from sqlalchemy.engine import Result, Row
 from sqlalchemy.orm.util import AliasedClass
 
@@ -132,13 +137,27 @@ class QueryExecutor:
 
     async def execute_scalar_one(
         self,
-        statement: Select[Tuple[O]],
+        statement: (
+            Select[Tuple[O]]
+            | Insert[Tuple[O]]
+            | Update[Tuple[O]]
+            | Delete[Tuple[O]]
+            | ReturningInsert[Tuple[O]]
+            | ReturningUpdate[Tuple[O]]
+        ),
     ) -> O | None:
         return (await self.execute(statement)).scalar_one_or_none()
 
     async def execute_scalar_many(
         self,
-        statement: Select[Tuple[O]],
+        statement: (
+            Select[Tuple[O]]
+            | Insert[Tuple[O]]
+            | Update[Tuple[O]]
+            | Delete[Tuple[O]]
+            | ReturningInsert[Tuple[O]]
+            | ReturningUpdate[Tuple[O]]
+        ),
     ) -> List[O]:
         return (await self.execute(statement)).scalars().all()
 
@@ -168,3 +187,4 @@ class QueryExecutor:
     ) -> None:
         async with self.transaction_manager.get_session() as session:
             await session.add(model)
+            await session.flush()

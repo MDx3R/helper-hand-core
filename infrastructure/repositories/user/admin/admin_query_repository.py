@@ -37,8 +37,8 @@ class AdminQueryRepositoryImpl(AdminQueryRepository):
         self.executor = executor
 
     async def get_admin(self, user_id: int) -> Admin | None:
-        query_builder = self._get_query_buider()
-        stmt = query_builder.add_admin().where_user_id(user_id).build()
+        query_builder = self._get_query()
+        stmt = query_builder.where_user_id(user_id).build()
 
         unmapped_admin = await self._execute_one(stmt)
         if not unmapped_admin:
@@ -46,8 +46,22 @@ class AdminQueryRepositoryImpl(AdminQueryRepository):
 
         return AdminMapper.to_model(unmapped_admin.user, unmapped_admin.admin)
 
+    # async def get_admin_fron_order(self, order_id: int) -> Admin | None:
+    #     query_builder = self._get_query()
+    #     stmt = (
+    #         query_builder.build()
+    #         .join(OrderBase, UserBase.user_id == OrderBase.admin_id)
+    #         .where(OrderBase.order_id == order_id)
+    #     )
+
+    #     unmapped_admin = await self._execute_one(stmt)
+    #     if not unmapped_admin:
+    #         return None
+
+    #     return AdminMapper.to_model(unmapped_admin.user, unmapped_admin.admin)
+
     async def get_complete_admin(self, user_id: int) -> CompleteAdmin | None:
-        query_builder = self._get_query_buider()
+        query_builder = self._get_query()
         stmt = (
             query_builder.add_admin()
             .add_contractor(JoinType.OUTER)
@@ -60,11 +74,14 @@ class AdminQueryRepositoryImpl(AdminQueryRepository):
         return  # TODO: Mapper
 
     async def filter_admins(self, query: AdminFilterDTO) -> List[Admin]:
-        query_builder = self._get_query_buider()
+        query_builder = self._get_query()
         stmt = query_builder.add_admin().apply_admin_filter(query).build()
 
         users = await self.executor.execute_many(stmt)
         return [AdminMapper.to_model(user, role) for user, role in users]
+
+    def _get_query(self) -> UserQueryBuilder:
+        return self._get_query_buider().add_admin()
 
     def _get_query_buider(self) -> UserQueryBuilder:
         return UserQueryBuilder()

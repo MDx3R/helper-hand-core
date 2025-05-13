@@ -26,8 +26,8 @@ class ContracteeQueryRepositoryImpl(ContracteeQueryRepository):
         self.executor = executor
 
     async def get_contractee(self, user_id: int) -> Contractee | None:
-        query_builder = self._get_query_buider()
-        stmt = query_builder.add_contractee().where_user_id(user_id).build()
+        query_builder = self._get_query()
+        stmt = query_builder.where_user_id(user_id).build()
 
         unmapped_contractee = await self._execute_one(stmt)
         if not unmapped_contractee:
@@ -40,13 +40,8 @@ class ContracteeQueryRepositoryImpl(ContracteeQueryRepository):
     async def get_complete_contractee(
         self, user_id: int
     ) -> CompleteContractee | None:
-        query_builder = self._get_query_buider()
-        stmt = (
-            query_builder.add_contractee()
-            .add_credentials()
-            .where_user_id(user_id)
-            .build()
-        )
+        query_builder = self._get_query()
+        stmt = query_builder.add_credentials().where_user_id(user_id).build()
 
         unmapped_contractee = await self._execute_one(stmt)
         return  # TODO: Mapper
@@ -54,15 +49,14 @@ class ContracteeQueryRepositoryImpl(ContracteeQueryRepository):
     async def filter_contractees(
         self, query: ContracteeFilterDTO
     ) -> List[Contractee]:
-        query_builder = self._get_query_buider()
-        stmt = (
-            query_builder.add_contractee()
-            .apply_contractee_filter(query)
-            .build()
-        )
+        query_builder = self._get_query()
+        stmt = query_builder.apply_contractee_filter(query).build()
 
         users = await self.executor.execute_many(stmt)
         return [ContracteeMapper.to_model(user, role) for user, role in users]
+
+    def _get_query(self) -> UserQueryBuilder:
+        return self._get_query_buider().add_contractee()
 
     def _get_query_buider(self) -> UserQueryBuilder:
         return UserQueryBuilder()

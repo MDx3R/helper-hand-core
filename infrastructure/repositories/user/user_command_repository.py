@@ -5,6 +5,7 @@ from domain.entities.user.credentials import (
     WebCredentials,
 )
 from domain.entities.user.user import User
+from infrastructure.database.mappers import UserMapper
 from infrastructure.database.models import (
     UserBase,
     TelegramCredentialsBase,
@@ -20,13 +21,15 @@ class UserCommandRepositoryImpl(UserCommandRepository):
     def __init__(self, executor: QueryExecutor):
         self.executor = executor
 
-    async def set_user_status(self, query: SetUserStatusDTO) -> None:
+    async def set_user_status(self, query: SetUserStatusDTO) -> User:
         stmt = (
             update(UserBase)
             .where(UserBase.user_id == query.user_id)
             .values(status=query.status)
+            .returning(UserBase)
         )
-        await self.executor.execute(stmt)
+        user = await self.executor.execute_scalar_one(stmt)
+        return UserMapper.to_model(user)
 
     async def create_telegram_user(
         self, user: TelegramCredentials
@@ -47,15 +50,7 @@ class UserCommandRepositoryImpl(UserCommandRepository):
         stmt = (
             update(UserBase)
             .where(UserBase.user_id == user.user_id)
-            .values(
-                surname=user.surname,
-                name=user.name,
-                patronymic=user.patronymic,
-                phone_number=user.phone_number,
-                role=user.role,
-                status=user.status,
-                photos=user.photos,
-            )
+            .values(user.get_fields())
         )
         await self.executor.execute(stmt)
         return user
