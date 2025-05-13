@@ -17,7 +17,8 @@ class OrderCommandRepositoryImpl(OrderCommandRepository):
         self.executor = executor
 
     async def create_order(self, order: Order) -> Order:
-        base = self.executor.add(OrderMapper.to_base(order))
+        base = OrderMapper.to_base(order)
+        await self.executor.add(base)
         return OrderMapper.to_model(base)
 
     async def update_order(self, order: Order) -> Order:
