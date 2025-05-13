@@ -26,7 +26,3 @@ class ReplyFilterDTO(ContracteeReplyFilterDTO, PaginationDTO, SortingDTO):
 
 class CountRepliesDTO(ReplyFilterDTO):
     pass
-
-
-class RepliedContracteesFilterDTO(BaseReplyFilterDTO, PaginationDTO):
-    pass

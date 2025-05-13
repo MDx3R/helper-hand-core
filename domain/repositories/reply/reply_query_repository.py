@@ -3,7 +3,6 @@ from typing import List
 
 from domain.dto.reply.internal.base import ReplyIdDTO
 from domain.dto.reply.internal.reply_filter_dto import (
-    CountRepliesDTO,
     ReplyFilterDTO,
 )
 from domain.entities.reply.available_replies_for_detail import (
@@ -31,8 +30,4 @@ class ReplyQueryRepository(ABC):
     async def get_order_available_replies_count(
         self, order_id: int
     ) -> List[AvailableRepliesForDetail]:
-        pass
-
-    @abstractmethod
-    async def count_replies(self, query: CountRepliesDTO) -> int:
         pass
