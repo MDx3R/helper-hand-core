@@ -217,7 +217,11 @@ class OrderDetailDomainService:
 
     @classmethod
     def is_relevant_at_current_time(cls, detail: OrderDetail) -> bool:
-        return detail.start_at - cls.starts_after > get_current_time()
+        return detail.start_at > cls.get_min_start_time()
+
+    @classmethod
+    def get_min_start_time(cls) -> datetime:
+        return get_current_time() + cls.starts_after
 
     @classmethod
     def get_latest_allowed_start_time(cls) -> datetime:
