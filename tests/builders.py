@@ -5,18 +5,14 @@ from typing import Any, Generic, List, Optional, Self, Type, TypeVar
 
 from domain.dto.user.response.admin.admin_output_dto import (
     AdminOutputDTO,
-    FullAdminOutputDTO,
 )
 from domain.dto.user.response.contractee.contractee_output_dto import (
     ContracteeOutputDTO,
-    FullContracteeOutputDTO,
 )
 from domain.dto.user.response.contractor.contractor_output_dto import (
     ContractorOutputDTO,
-    FullContractorOutputDTO,
 )
 from domain.dto.user.response.user_output_dto import (
-    FullUserOutputDTO,
     TelegramCredentialsOutputDTO,
     UserOutputDTO,
     WebCredentialsOutputDTO,
@@ -85,7 +81,7 @@ C = TypeVar("C", bound=UserData)
 
 def filter_fields_by_class(cls: Type, data: dict[str, Any]) -> dict[str, Any]:
     allowed_keys = {f.name for f in fields(cls)}
-    return {k: data for k in data if k in allowed_keys}
+    return {k: data[k] for k in data if k in allowed_keys}
 
 
 def dataclass_builder(cls: type[T], data: dict[str, Any]) -> T:
@@ -268,45 +264,3 @@ class TelegramCredentialsBuilder(BaseTelegramCredentialsBuilder):
 class WebCredentialsBuilder(BaseWebCredentialsBuilder):
     def build(self) -> WebCredentials:
         return WebCredentials(**asdict(self._creds))
-
-
-class UserOutputDTOBuilder(BaseUserBuilder):
-    def build(self) -> UserOutputDTO:
-        return UserOutputDTO(**asdict(self._user))
-
-    def build_full(self) -> FullUserOutputDTO:
-        return FullUserOutputDTO(**asdict(self._user))
-
-
-class ContracteeOutputDTOBuilder(BaseContracteeBuilder):
-    def build(self) -> ContracteeOutputDTO:
-        return ContracteeOutputDTO(**asdict(self._user))
-
-    def build_full(self) -> FullContracteeOutputDTO:
-        return FullContracteeOutputDTO(**asdict(self._user))
-
-
-class ContractorOutputDTOBuilder(BaseContractorBuilder):
-    def build(self) -> ContractorOutputDTO:
-        return ContractorOutputDTO(**asdict(self._user))
-
-    def build_full(self) -> FullContractorOutputDTO:
-        return FullContractorOutputDTO(**asdict(self._user))
-
-
-class AdminOutputDTOBuilder(BaseAdminBuilder):
-    def build(self) -> AdminOutputDTO:
-        return AdminOutputDTO(**asdict(self._user))
-
-    def build_full(self) -> FullAdminOutputDTO:
-        return FullAdminOutputDTO(**asdict(self._user))
-
-
-class TelegramCredentialsOutputDTOBuilder(BaseTelegramCredentialsBuilder):
-    def build(self) -> TelegramCredentialsOutputDTO:
-        return TelegramCredentialsOutputDTO(**asdict(self._creds))
-
-
-class WebCredentialsOutputDTOBuilder(BaseWebCredentialsBuilder):
-    def build(self) -> WebCredentialsOutputDTO:
-        return WebCredentialsOutputDTO(**asdict(self._creds))

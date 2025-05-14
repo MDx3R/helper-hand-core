@@ -12,13 +12,12 @@ from domain.entities.user.enums import RoleEnum, UserStatusEnum
 from domain.wager import calculate_pay
 
 
-fake = Faker()
+fake = Faker("ru_RU")
 
 
 class DataGenerator(ABC):
     def __init__(self):
         self._data = None
-        self._data = self.generate()
 
     @staticmethod
     def get_id() -> int:
@@ -50,7 +49,6 @@ class DataGenerator(ABC):
     def get_image_urls(count: int = 2) -> list[str]:
         return [fake.image_url() for _ in range(count)]
 
-    @classmethod
     def generate(cls) -> dict[str, Any]:
         cls._data = cls._data or cls._generate()
         return cls._data

@@ -1,26 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
-from domain.dto.user.response.admin.admin_output_dto import (
-    AdminOutputDTO,
-    FullAdminOutputDTO,
-)
-from domain.dto.user.response.contractee.contractee_output_dto import (
-    ContracteeOutputDTO,
-    FullContracteeOutputDTO,
-    PendingContracteeOutputDTO,
-)
-from domain.dto.user.response.contractor.contractor_output_dto import (
-    ContractorOutputDTO,
-    FullContractorOutputDTO,
-    PendingContractorOutputDTO,
-)
-from domain.dto.user.response.user_output_dto import (
-    FullUserOutputDTO,
-    TelegramCredentialsOutputDTO,
-    UserCredentialsOutputDTO,
-    UserOutputDTO,
-    WebCredentialsOutputDTO,
-)
+from domain.entities.base import ApplicationModel
 from domain.entities.user.admin.admin import Admin
 from domain.entities.user.contractee.contractee import Contractee
 from domain.entities.user.contractor.contractor import Contractor
@@ -29,22 +9,19 @@ from domain.entities.user.enums import UserStatusEnum
 from domain.entities.user.user import User
 from tests.builders import (
     AdminBuilder,
-    AdminOutputDTOBuilder,
     ContracteeBuilder,
-    ContracteeOutputDTOBuilder,
     ContractorBuilder,
-    ContractorOutputDTOBuilder,
+    ModelBuilder,
     TelegramCredentialsBuilder,
-    TelegramCredentialsOutputDTOBuilder,
     UserBuilder,
-    UserOutputDTOBuilder,
     WebCredentialsBuilder,
-    WebCredentialsOutputDTOBuilder,
 )
 from tests.data_generators import DataGenerator
 
 U = TypeVar("T", bound=User)
-B = TypeVar("B", bound=UserBuilder)
+M = TypeVar("M", bound=ApplicationModel)
+B = TypeVar("B", bound=ModelBuilder)
+UB = TypeVar("B", bound=UserBuilder)
 
 
 class BaseFactory(ABC):
@@ -53,7 +30,7 @@ class BaseFactory(ABC):
         self._data = generator.generate()
 
 
-class BaseUserFactory(BaseFactory, Generic[U, B]):
+class BaseUserFactory(BaseFactory, Generic[U, UB]):
     @abstractmethod
     def _builder(self) -> B:
         pass
@@ -106,69 +83,3 @@ class UserCredentialsFactory(BaseFactory):
             telegram=TelegramCredentialsBuilder(self._data).build(),
             web=WebCredentialsBuilder(self._data).build(),
         )
-
-
-class CredentialsOutputDTOFactory(BaseFactory):
-    def create_telegram(self) -> TelegramCredentialsOutputDTO:
-        return TelegramCredentialsOutputDTOBuilder(self._data).build()
-
-    def create_web(self) -> WebCredentialsOutputDTO:
-        return WebCredentialsOutputDTOBuilder(self._data).build()
-
-    def create_user(self) -> UserCredentialsOutputDTO:
-        return UserCredentialsOutputDTO(
-            telegram=self.create_telegram(),
-            web=self.create_web(),
-        )
-
-
-class UserOutputDTOFactory(BaseFactory):
-    def create(self) -> UserOutputDTO:
-        return UserOutputDTOBuilder(self._data).build()
-
-    def create_full(self) -> FullUserOutputDTO:
-        return UserOutputDTOBuilder(self._data).build_full()
-
-
-class ContracteeOutputDTOFactory(BaseFactory):
-    def create(self) -> ContracteeOutputDTO:
-        return ContracteeOutputDTOBuilder(self._data).build()
-
-    def create_full(self) -> FullContracteeOutputDTO:
-        return ContracteeOutputDTOBuilder(self._data).build_full()
-
-    def create_pending(self) -> PendingContracteeOutputDTO:
-        return PendingContracteeOutputDTO(
-            contractee=ContracteeOutputDTOBuilder(self._data)
-            .with_status(UserStatusEnum.pending)
-            .build_full(),
-            credentials=CredentialsOutputDTOFactory(
-                self._generator
-            ).create_user(),
-        )
-
-
-class ContractorOutputDTOFactory(BaseFactory):
-    def create(self) -> ContractorOutputDTO:
-        return ContractorOutputDTOBuilder(self._data).build()
-
-    def create_full(self) -> FullContractorOutputDTO:
-        return ContractorOutputDTOBuilder(self._data).build_full()
-
-    def create_pending(self) -> PendingContractorOutputDTO:
-        return PendingContractorOutputDTO(
-            contractor=ContractorOutputDTOBuilder(self._data)
-            .with_status(UserStatusEnum.pending)
-            .build(),
-            credentials=CredentialsOutputDTOFactory(
-                self._generator
-            ).create_user(),
-        )
-
-
-class AdminOutputDTOFactory(BaseFactory):
-    def create(self) -> AdminOutputDTO:
-        return AdminOutputDTOBuilder(self._data).build()
-
-    def create_full(self) -> FullAdminOutputDTO:
-        return AdminOutputDTOBuilder(self._data).build_full()
