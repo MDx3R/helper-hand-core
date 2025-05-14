@@ -3,6 +3,7 @@ from datetime import timedelta
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
 from pydantic import BaseModel
 import yaml
 
@@ -58,4 +59,5 @@ class Config(BaseModel):
         parser.add_argument("--config", type=str, help="Path to config file")
         args, _ = parser.parse_known_args()
 
+        load_dotenv()
         return Path(args.config or os.getenv("CONFIG_PATH") or default)

@@ -104,3 +104,4 @@ secrets.json
 *.key
 *.pem
 *.pfx
+config/*.yaml
