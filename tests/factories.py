@@ -11,7 +11,6 @@ from tests.builders import (
     AdminBuilder,
     ContracteeBuilder,
     ContractorBuilder,
-    ModelBuilder,
     TelegramCredentialsBuilder,
     UserBuilder,
     WebCredentialsBuilder,
@@ -20,8 +19,7 @@ from tests.data_generators import DataGenerator
 
 U = TypeVar("T", bound=User)
 M = TypeVar("M", bound=ApplicationModel)
-B = TypeVar("B", bound=ModelBuilder)
-UB = TypeVar("B", bound=UserBuilder)
+UB = TypeVar("UB", bound=UserBuilder)
 
 
 class BaseFactory(ABC):
@@ -32,7 +30,7 @@ class BaseFactory(ABC):
 
 class BaseUserFactory(BaseFactory, Generic[U, UB]):
     @abstractmethod
-    def _builder(self) -> B:
+    def _builder(self) -> UB:
         pass
 
     def create_default(self) -> U:
