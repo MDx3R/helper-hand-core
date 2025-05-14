@@ -16,10 +16,10 @@ class AdminCommandRepositoryImpl(AdminCommandRepository):
     async def create_admin(self, admin: Admin) -> Admin:
         async with self.executor.transaction_manager.get_session() as session:
             user_base = AdminMapper.to_user_base(admin)
-            self.executor.add(user_base)
+            await self.executor.add(user_base)
             admin_base = AdminMapper.to_role_base(admin)
             admin_base.admin_id = user_base.user_id
-            self.executor.add(admin_base)
+            await self.executor.add(admin_base)
         return AdminMapper.to_model(user_base, admin_base)
 
     async def update_admin(self, admin: Admin) -> Admin:

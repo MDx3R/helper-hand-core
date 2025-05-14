@@ -8,7 +8,6 @@ from application.services.auth.user_auth_service import (
     InvalidCredentialsException,
     TokenService,
 )
-from application.usecases.user.user_query_use_case import R
 from core.containers import Container
 from domain.dto.token import TokenClaims
 from domain.dto.user.internal.user_context_dto import UserContextDTO

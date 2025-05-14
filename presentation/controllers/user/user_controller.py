@@ -22,7 +22,6 @@ from domain.services.user.contractee_user_service import (
 from domain.services.user.contractor_user_service import (
     ContractorUserQueryService,
 )
-from presentation.base import router
 from fastapi_utils.cbv import cbv
 
 from presentation.controllers.permissions import (

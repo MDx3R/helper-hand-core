@@ -114,6 +114,23 @@ class JoinStrategy(ABC):
         pass
 
 
+@frozen(init=False)
+class UnmappedEntity:
+    _aliases = {}
+
+    def __init__(self, row: Row, safe_mod: bool = True):
+        annotations = self._load_all_annotations() if safe_mod else {}
+        for alias, model in self._aliases.items():
+            if not safe_mod or alias in annotations:
+                object.__setattr__(self, alias, get_column_value(row, model))
+
+    def _load_all_annotations(self) -> dict:
+        annotations = {}
+        for base in reversed(type(self).__mro__):
+            annotations.update(getattr(base, "__annotations__", {}))
+        return annotations
+
+
 def get_column_value(
     row: Row, model: Union[type[Base], AliasedClass]
 ) -> Optional[Base]:
@@ -186,5 +203,5 @@ class QueryExecutor:
         model: Base,
     ) -> None:
         async with self.transaction_manager.get_session() as session:
-            await session.add(model)
+            session.add(model)
             await session.flush()

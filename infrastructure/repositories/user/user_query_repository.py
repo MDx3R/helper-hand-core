@@ -26,7 +26,7 @@ class UserQueryRepositoryImpl(UserQueryRepository):
         users = await self.executor.execute_scalar_many(stmt)
         return [UserMapper.to_model(user) for user in users]
 
-    async def exists_by_filter(self, query: UserFilterDTO) -> bool:
+    async def exists_by_query(self, query: UserFilterDTO) -> bool:
         stmt = self._get_query_buider().apply_user_filter(query).build()
         return bool(await self.executor.execute_scalar_one(stmt))
 

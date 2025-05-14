@@ -16,10 +16,10 @@ class ContracteeCommandRepositoryImpl(ContracteeCommandRepository):
     async def create_contractee(self, contractee: Contractee) -> Contractee:
         async with self.executor.transaction_manager.get_session() as session:
             user_base = ContracteeMapper.to_user_base(contractee)
-            self.executor.add(user_base)
+            await self.executor.add(user_base)
             contractee_base = ContracteeMapper.to_role_base(contractee)
             contractee_base.contractee_id = user_base.user_id
-            self.executor.add(contractee_base)
+            await self.executor.add(contractee_base)
         return ContracteeMapper.to_model(user_base, contractee_base)
 
     async def update_contractee(self, contractee: Contractee) -> Contractee:

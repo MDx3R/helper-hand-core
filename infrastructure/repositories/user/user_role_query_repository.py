@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Optional
 from sqlalchemy import Select
 from domain.entities.user.admin.admin import Admin
@@ -15,7 +15,10 @@ from domain.entities.user.enums import RoleEnum, UserStatusEnum
 from domain.repositories.user.user_role_query_repository import (
     UserRoleQueryRepository,
 )
-from infrastructure.database.mappers import AggregatedUserMapper
+from infrastructure.database.mappers import (
+    AggregatedUserMapper,
+    CompleteRoleMapper,
+)
 from infrastructure.database.models import (
     AdminBase,
     ContracteeBase,
@@ -82,7 +85,7 @@ class UserRoleQueryRepositoryImpl(UserRoleQueryRepository):
             .build()
         )
 
-        unmapped_user = await self._execute_first(stmt)
+        unmapped_user = await self._execute_one(stmt)
         if not unmapped_user:
             return None
 
@@ -103,10 +106,7 @@ class UserRoleQueryRepositoryImpl(UserRoleQueryRepository):
             .build()
         )
 
-        unmapped_user = await self._execute_first(stmt)
-        if not unmapped_user:
-            return None
-        return  # TODO: Mapper
+        return await self._execute_one_complete_role(stmt)
 
     async def get_first_pending_user(
         self,
@@ -121,15 +121,19 @@ class UserRoleQueryRepositoryImpl(UserRoleQueryRepository):
             .limit(1)
         )
 
-        unmapped_user = await self._execute_first(stmt)
-        if not unmapped_user:
-            return None
-        return  # TODO: Mapper
+        return await self._execute_one_complete_role(stmt)
 
     def _get_query_buider(self) -> UserQueryBuilder:
         return UserQueryBuilder(self.strategy)
 
-    async def _execute_first(self, statement: Select) -> UnmappedRole | None:
+    async def _execute_one_complete_role(self, statement: Select):
+        unmapped_user = await self._execute_one(statement)
+        if not unmapped_user:
+            return None
+
+        return CompleteRoleMapper.to_model(**asdict(unmapped_user))
+
+    async def _execute_one(self, statement: Select) -> UnmappedRole | None:
         row = (await self.executor.execute(statement)).first()
         if not row:
             return None

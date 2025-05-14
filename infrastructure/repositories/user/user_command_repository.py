@@ -38,12 +38,12 @@ class UserCommandRepositoryImpl(UserCommandRepository):
             telegram_id=user.telegram_id,
             chat_id=user.chat_id,
         )
-        self.executor.add(telegram_user)
+        await self.executor.add(telegram_user)
         return  # TODO: Mapper
 
     async def create_web_user(self, user: WebCredentials) -> WebCredentials:
         web_user = WebCredentialsBase(email=user.email, password=user.password)
-        self.executor.add(web_user)
+        await self.executor.add(web_user)
         return  # TODO: Mapper
 
     async def update_user(self, user: User) -> User:

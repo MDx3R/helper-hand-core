@@ -1,4 +1,8 @@
-from infrastructure.repositories.user.base import UserQueryBuilder
+from dataclasses import asdict
+from infrastructure.repositories.user.base import (
+    UnmappedUser,
+    UserQueryBuilder,
+)
 from domain.dto.user.internal.user_filter_dto import ContractorFilterDTO
 from domain.entities.user.contractor.contractor import Contractor
 from domain.entities.user.contractor.composite_contractor import (
@@ -7,14 +11,18 @@ from domain.entities.user.contractor.composite_contractor import (
 from domain.repositories.user.contractor.contractor_query_repository import (
     ContractorQueryRepository,
 )
-from infrastructure.database.mappers import ContractorMapper
+from infrastructure.database.mappers import (
+    CompleteContractorMapper,
+    ContractorMapper,
+    UserCredentialsMapper,
+)
 from infrastructure.repositories.base import QueryExecutor, frozen
 from typing import List
 from infrastructure.database.models import ContractorBase
 
 
 @frozen(init=False)
-class UnmappedContractor:
+class UnmappedContractor(UnmappedUser):
     contractor: ContractorBase
 
 
@@ -26,13 +34,11 @@ class ContractorQueryRepositoryImpl(ContractorQueryRepository):
         query_builder = self._get_query()
         stmt = query_builder.where_user_id(user_id).build()
 
-        unmapped_contractor = await self._execute_one(stmt)
-        if not unmapped_contractor:
+        unmapped = await self._execute_one(stmt)
+        if not unmapped:
             return None
 
-        return ContractorMapper.to_model(
-            unmapped_contractor.user, unmapped_contractor.contractor
-        )
+        return ContractorMapper.to_model(unmapped.user, unmapped.contractor)
 
     async def get_complete_contractor(
         self, user_id: int
@@ -40,8 +46,8 @@ class ContractorQueryRepositoryImpl(ContractorQueryRepository):
         query_builder = self._get_query()
         stmt = query_builder.add_credentials().where_user_id(user_id).build()
 
-        unmapped_contractor = await self._execute_one(stmt)
-        return  # TODO: Mapper
+        unmapped = await self._execute_one(stmt)
+        return CompleteContractorMapper.to_model(**asdict(unmapped))
 
     async def filter_contractors(
         self, query: ContractorFilterDTO

@@ -1,0 +1,9 @@
+db:
+  DB_NAME: "HelperHand"
+  DB_USER: "postgres"
+  DB_PASSWORD: "password"
+  DB_HOST: "127.0.0.1"
+  DB_PORT: "5432"
+auth:
+  SECRET_KEY: "secret-key"
+  ALGORITHM: "HS256"

@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from application.external.blacklist import TokenBlacklist
 from core.config import AuthConfig
 from domain.dto.token import TokenClaims
+from domain.dto.user.base import UserCredentialsDTO
 from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.dto.user.request.contractee.contractee_registration_dto import (
     RegisterContracteeDTO,
@@ -25,8 +26,8 @@ from domain.dto.user.response.contractor.contractor_output_dto import (
 from domain.dto.user.response.user_output_dto import AuthOutputDTO
 from domain.entities.enums import CitizenshipEnum, GenderEnum
 from domain.entities.user.enums import RoleEnum, UserStatusEnum
+from domain.services.auth.token_service import TokenService
 from domain.services.auth.user_auth_service import (
-    TokenService,
     UserAuthService,
 )
 
@@ -150,7 +151,19 @@ class JWTTokenService(TokenService):
 
 
 class MockUserAuthService(UserAuthService):
+    def __init__(self, token_service: TokenService):
+        self.token_service = token_service
+
     async def login(self, request: LoginUserDTO) -> AuthOutputDTO:  # TODO: DTO
+        return await self.token_service.generate_token(
+            UserContextDTO(
+                user_id=1,
+                photos=[],
+                role=RoleEnum.admin,
+                status=UserStatusEnum.registered,
+                credentials=UserCredentialsDTO(),
+            )
+        )
         return AuthOutputDTO(access_token="access", refresh_token="refresh")
 
     async def register_contractor(

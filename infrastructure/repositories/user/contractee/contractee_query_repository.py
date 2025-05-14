@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from infrastructure.repositories.user.base import (
     UnmappedUser,
     UserQueryBuilder,
@@ -10,7 +11,11 @@ from domain.entities.user.contractee.composite_contractee import (
 from domain.repositories.user.contractee.contractee_query_repository import (
     ContracteeQueryRepository,
 )
-from infrastructure.database.mappers import ContracteeMapper
+from infrastructure.database.mappers import (
+    CompleteContracteeMapper,
+    ContracteeMapper,
+    UserCredentialsMapper,
+)
 from infrastructure.repositories.base import QueryExecutor, frozen
 from typing import List
 from infrastructure.database.models import ContracteeBase
@@ -29,13 +34,11 @@ class ContracteeQueryRepositoryImpl(ContracteeQueryRepository):
         query_builder = self._get_query()
         stmt = query_builder.where_user_id(user_id).build()
 
-        unmapped_contractee = await self._execute_one(stmt)
-        if not unmapped_contractee:
+        unmapped = await self._execute_one(stmt)
+        if not unmapped:
             return None
 
-        return ContracteeMapper.to_model(
-            unmapped_contractee.user, unmapped_contractee.contractee
-        )
+        return ContracteeMapper.to_model(unmapped.user, unmapped.contractee)
 
     async def get_complete_contractee(
         self, user_id: int
@@ -43,8 +46,8 @@ class ContracteeQueryRepositoryImpl(ContracteeQueryRepository):
         query_builder = self._get_query()
         stmt = query_builder.add_credentials().where_user_id(user_id).build()
 
-        unmapped_contractee = await self._execute_one(stmt)
-        return  # TODO: Mapper
+        unmapped = await self._execute_one(stmt)
+        return CompleteContracteeMapper.to_model(**asdict(unmapped))
 
     async def filter_contractees(
         self, query: ContracteeFilterDTO

@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from typing import List, Optional
 
 from sqlalchemy import Select
@@ -7,10 +8,15 @@ from domain.dto.user.internal.user_filter_dto import (
 )
 from domain.entities.user.admin.admin import Admin
 from domain.entities.user.admin.composite_admin import CompleteAdmin
+from domain.entities.user.credentials import UserCredentials
 from domain.repositories.user.admin.admin_query_repository import (
     AdminQueryRepository,
 )
-from infrastructure.database.mappers import AdminMapper
+from infrastructure.database.mappers import (
+    AdminMapper,
+    CompleteAdminMapper,
+    UserCredentialsMapper,
+)
 from infrastructure.database.models import (
     AdminBase,
     ContractorBase,
@@ -40,11 +46,11 @@ class AdminQueryRepositoryImpl(AdminQueryRepository):
         query_builder = self._get_query()
         stmt = query_builder.where_user_id(user_id).build()
 
-        unmapped_admin = await self._execute_one(stmt)
-        if not unmapped_admin:
+        unmapped = await self._execute_one(stmt)
+        if not unmapped:
             return None
 
-        return AdminMapper.to_model(unmapped_admin.user, unmapped_admin.admin)
+        return AdminMapper.to_model(unmapped.user, unmapped.admin)
 
     # async def get_admin_fron_order(self, order_id: int) -> Admin | None:
     #     query_builder = self._get_query()
@@ -54,11 +60,11 @@ class AdminQueryRepositoryImpl(AdminQueryRepository):
     #         .where(OrderBase.order_id == order_id)
     #     )
 
-    #     unmapped_admin = await self._execute_one(stmt)
-    #     if not unmapped_admin:
+    #     unmapped = await self._execute_one(stmt)
+    #     if not unmapped:
     #         return None
 
-    #     return AdminMapper.to_model(unmapped_admin.user, unmapped_admin.admin)
+    #     return AdminMapper.to_model(unmapped.user, unmapped.admin)
 
     async def get_complete_admin(self, user_id: int) -> CompleteAdmin | None:
         query_builder = self._get_query()
@@ -70,8 +76,8 @@ class AdminQueryRepositoryImpl(AdminQueryRepository):
             .build()
         )
 
-        unmapped_admin = await self._execute_one(stmt)
-        return  # TODO: Mapper
+        unmapped = await self._execute_one(stmt)
+        return CompleteAdminMapper.to_model(**asdict(unmapped))
 
     async def filter_admins(self, query: AdminFilterDTO) -> List[Admin]:
         query_builder = self._get_query()
@@ -90,5 +96,4 @@ class AdminQueryRepositoryImpl(AdminQueryRepository):
         row = await self.executor.execute_one(statement)
         if not row:
             return None
-
         return UnmappedAdmin(row)

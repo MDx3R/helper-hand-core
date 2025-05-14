@@ -16,6 +16,8 @@ class GetPendingUserUseCase:
 
     async def execute(
         self,
-    ) -> CompleteContracteeOutputDTO | CompleteContractorOutputDTO:
+    ) -> CompleteContracteeOutputDTO | CompleteContractorOutputDTO | None:
         user = await self.repository.get_first_pending_user()
+        if not user:
+            return None
         return UserRoleMapper.to_complete(user)

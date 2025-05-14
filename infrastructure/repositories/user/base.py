@@ -21,6 +21,7 @@ from infrastructure.repositories.base import (
     JoinInfo,
     JoinStrategy,
     JoinType,
+    UnmappedEntity,
     frozen,
     get_column_value,
 )
@@ -36,16 +37,11 @@ ALIASES = {
 
 
 @frozen(init=False)
-class UnmappedUser:
+class UnmappedUser(UnmappedEntity):
     _aliases = ALIASES
     user: UserBase
     web: Optional[WebCredentialsBase]
     telegram: Optional[TelegramCredentialsBase]
-
-    def __init__(self, row: Row):
-        for alias, model in self._aliases.items():
-            if hasattr(self, alias):
-                object.__setattr__(self, alias, get_column_value(row, model))
 
 
 class UserJoinStrategy(JoinStrategy):

@@ -1,10 +1,6 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from dependency_injector.wiring import Provide, inject
-
-from application.services.auth.user_auth_service import (
-    TokenService,
-)
 from core.containers import Container
 from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.dto.user.request.contractee.contractee_registration_dto import (
@@ -15,6 +11,7 @@ from domain.dto.user.request.contractor.contractor_registration_dto import (
 )
 from domain.dto.user.request.user_auth_dto import LoginUserDTO
 from domain.dto.user.response.user_output_dto import AuthOutputDTO
+from domain.services.auth.token_service import TokenService
 from domain.services.auth.user_auth_service import UserAuthService
 
 from fastapi_utils.cbv import cbv

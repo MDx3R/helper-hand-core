@@ -62,6 +62,7 @@ class SQLAlchemyTransactionManager(TransactionManager):
         return "unknown_field", "unknown_value"
 
     def _handle_exception(self, exception):
+        print(exception)
         if isinstance(exception, ApplicationException):
             raise exception
 
@@ -127,6 +128,7 @@ class SQLAlchemyTransactionManager(TransactionManager):
             yield session  # Используем существующую сессию
         else:
             session = self._create_session()
+            self._set_session(session)
             try:
                 yield session  # Временная сессия. Закрывается автоматически
                 await self._commit(session)
@@ -134,6 +136,6 @@ class SQLAlchemyTransactionManager(TransactionManager):
                 await self._rollback(session)
                 self._handle_exception(e)
             finally:
-                await self._close(
-                    session
-                )  # todo: также поместить в try-catch, чтобы исключения ORM не поднимались.
+                await self._close(session)
+                self._drop_session()
+                # todo: также поместить в try-catch, чтобы исключения ORM не поднимались.

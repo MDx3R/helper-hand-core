@@ -51,7 +51,7 @@ from domain.services.user.admin_user_service import (
 )
 
 
-class AdminUserQueryServiceImpl(AdminUserQueryService, BaseUserQueryService):
+class AdminUserQueryServiceImpl(BaseUserQueryService, AdminUserQueryService):
     def __init__(
         self,
         get_user_use_case: GetUserForAdminUseCase,
