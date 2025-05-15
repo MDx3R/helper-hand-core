@@ -1,4 +1,6 @@
 from domain.dto.user.base import UserCredentialsDTO
+from domain.dto.user.internal.user_context_dto import UserContextDTO
+from domain.dto.user.request.admin.create_admin_dto import AdminInputDTO
 from domain.dto.user.request.contractee.contractee_registration_dto import (
     ContracteeInputDTO,
 )
@@ -34,6 +36,7 @@ from domain.dto.user.response.user_output_dto import (
 )
 from domain.entities.user.admin.admin import Admin
 from domain.entities.user.admin.composite_admin import CompleteAdmin
+from domain.entities.user.context import UserContext
 from domain.entities.user.contractee.composite_contractee import (
     CompleteContractee,
 )
@@ -166,6 +169,12 @@ class AdminMapper:
     def to_complete(user: CompleteAdmin) -> CompleteAdminOutputDTO:
         return from_entity_to_dto(user, CompleteAdminOutputDTO)
 
+    @staticmethod
+    def from_input(
+        request: AdminInputDTO,
+    ) -> Admin:
+        return from_dto_to_entity(request, Admin)
+
 
 class TelegramCredentialsMapper:
     @staticmethod
@@ -195,3 +204,9 @@ class UserCredentialsMapper:
     @staticmethod
     def to_output(creds: UserCredentials) -> UserCredentialsDTO:
         return from_entity_to_dto(creds, UserCredentialsDTO)
+
+
+class UserContextMapper:
+    @staticmethod
+    def to_dto(context: UserContext) -> UserContextDTO:
+        return from_entity_to_dto(context, UserContextDTO)

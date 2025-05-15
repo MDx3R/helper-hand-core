@@ -1,3 +1,4 @@
+from application.transactions.configuration import set_transaction_manager
 from core.config import Config
 from core.containers import Container
 from infrastructure.database.database import Database
@@ -13,9 +14,9 @@ class App:
 
         self.database = Database(self.config.db)
         self.server = FastAPIServer()
-        self.configure()
 
     def configure(self):
+        set_transaction_manager(self.container.transaction_manager())
         self.server.on_start_up(
             self.database.create_database, metadata=Base.metadata
         )

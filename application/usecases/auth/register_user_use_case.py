@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
+from application.external.password_hasher import PasswordHasher
+from domain.dto.user.request.admin.create_admin_dto import CreateAdminDTO
 from domain.dto.user.request.contractee.contractee_registration_dto import (
     RegisterContracteeDTO,
 )
@@ -7,12 +9,17 @@ from domain.dto.user.request.contractor.contractor_registration_dto import (
     RegisterContractorDTO,
 )
 from domain.dto.user.request.user_input_dto import CredentialsInputDTO
+from domain.dto.user.response.admin.admin_output_dto import (
+    CompleteAdminOutputDTO,
+)
 from domain.dto.user.response.contractee.contractee_output_dto import (
     CompleteContracteeOutputDTO,
 )
 from domain.dto.user.response.contractor.contractor_output_dto import (
     CompleteContractorOutputDTO,
 )
+from domain.entities.user.admin.admin import Admin
+from domain.entities.user.admin.composite_admin import CompleteAdmin
 from domain.entities.user.contractee.composite_contractee import (
     CompleteContractee,
 )
@@ -33,10 +40,14 @@ from domain.exceptions.service import InvalidInputException
 from application.transactions import transactional
 
 from domain.mappers.user_mappers import (
+    AdminMapper,
     ContracteeMapper,
     ContractorMapper,
     TelegramCredentialsMapper,
     WebCredentialsMapper,
+)
+from domain.repositories.user.admin.admin_command_repository import (
+    AdminCommandRepository,
 )
 from domain.repositories.user.contractee.contractee_command_repository import (
     ContracteeCommandRepository,
@@ -83,6 +94,9 @@ class BaseRegisterUserUseCase(ABC, Generic[E, C, D, O]):
     async def _create_credentials(
         self, user: User, credentials: CredentialsInputDTO
     ) -> UserCredentials:
+        if not user.user_id:
+            raise
+
         web = None
         telegram = None
         if credentials.web:
@@ -120,7 +134,7 @@ class BaseRegisterUserUseCase(ABC, Generic[E, C, D, O]):
         pass
 
     @abstractmethod
-    def _map_to_output(self, user: O) -> O:
+    def _map_to_output(self, user: C) -> O:
         pass
 
     def _assign_status(self, entity: E, credentials: UserCredentials) -> E:
@@ -196,3 +210,72 @@ class RegisterContractorUseCase(
         self, user: CompleteContractor
     ) -> CompleteContractorOutputDTO:
         return ContractorMapper.to_complete(user)
+
+
+class CreateAdminUseCase:
+    """Только для внутреннего пользования"""
+
+    def __init__(
+        self,
+        admin_command_repository: AdminCommandRepository,
+        user_command_repository: UserCommandRepository,
+        password_hasher: PasswordHasher,
+    ):
+        self.admin_command_repository = admin_command_repository
+        self.user_command_repository = user_command_repository
+        self.password_hasher = password_hasher
+
+    async def execute(self, request: CreateAdminDTO) -> CompleteAdminOutputDTO:
+        self._validate_request_and_raise_if_invalid(request)
+        admin = await self._register_admin(request)
+        return AdminMapper.to_complete(admin)
+
+    def _validate_request_and_raise_if_invalid(
+        self, request: CreateAdminDTO
+    ) -> None:
+        if not request.credentials.web and not request.credentials.telegram:
+            raise InvalidInputException("Отсутствуют данные аутентификации")
+
+    @transactional
+    async def _register_admin(self, request: CreateAdminDTO) -> CompleteAdmin:
+        admin = AdminMapper.from_input(request.user)
+        admin.status = UserStatusEnum.registered
+
+        admin = await self._create_admin(admin)
+        credentials = await self._create_credentials(
+            admin, request.credentials
+        )
+        return CompleteAdmin(user=admin, credentials=credentials)
+
+    async def _create_credentials(
+        self, user: User, credentials: CredentialsInputDTO
+    ) -> UserCredentials:
+        if not user.user_id:
+            raise
+
+        web = None
+        telegram = None
+        if credentials.web:
+            web = WebCredentialsMapper.from_input(
+                credentials.web, user.user_id
+            )
+            web.password = self.password_hasher.hash(web.password)
+            web = await self._create_web_user(web)
+        if credentials.telegram:
+            telegram = await self._create_telegram_user(
+                TelegramCredentialsMapper.from_input(
+                    credentials.telegram, user.user_id
+                )
+            )
+        return UserCredentials(telegram=telegram, web=web)
+
+    async def _create_telegram_user(
+        self, user: TelegramCredentials
+    ) -> TelegramCredentials:
+        return await self.user_command_repository.create_telegram_user(user)
+
+    async def _create_web_user(self, user: WebCredentials) -> WebCredentials:
+        return await self.user_command_repository.create_web_user(user)
+
+    async def _create_admin(self, admin: Admin) -> Admin:
+        return await self.admin_command_repository.create_admin(admin)

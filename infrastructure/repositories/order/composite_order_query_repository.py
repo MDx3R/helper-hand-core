@@ -123,7 +123,7 @@ class CompositeOrderQueryRepositoryImpl(CompositeOrderQueryRepository):
     ) -> OrderAggregator | None:
         unmapped_orders = await self._execute_many(statement)
 
-        aggregator: OrderAggregator = None
+        aggregator: OrderAggregator | None = None
         for unmapped in unmapped_orders:
             if not aggregator:
                 aggregator = self._aggregator_from_unmapped_and_order(unmapped)
@@ -147,7 +147,7 @@ class CompositeOrderQueryRepositoryImpl(CompositeOrderQueryRepository):
                 )
             else:
                 aggregated[order.order_id].details.append(
-                    detail=OrderDetailMapper.to_model(unmapped.detail)
+                    OrderDetailMapper.to_model(unmapped.detail)
                 )
 
         return aggregated.values()
@@ -159,7 +159,7 @@ class CompositeOrderQueryRepositoryImpl(CompositeOrderQueryRepository):
         detail = OrderDetailMapper.to_model(unmapped.detail)
         admin = (
             AdminMapper.to_model(unmapped.admin_user, unmapped.admin)
-            if unmapped.admin
+            if unmapped.admin and unmapped.admin_user
             else None
         )
         contractor = (

@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from typing import Optional
 from domain.entities.base import ApplicationModel
 from domain.entities.token.enums import TokenTypeEnum

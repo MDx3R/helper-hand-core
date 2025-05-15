@@ -76,7 +76,7 @@ class AuthController:
         self,
         request: RegisterContractorDTO,
     ):
-        return await self.auth_service.register_contractee(request)
+        return await self.auth_service.register_contractor(request)
 
     @router.post("/refresh")
     async def refresh(

@@ -7,6 +7,7 @@ from domain.dto.reply.internal.reply_command_dto import (
     SetReplyStatusDTO,
 )
 from domain.entities.reply.reply import Reply
+from domain.exceptions.service.common import NotFoundException
 from domain.repositories.reply.reply_command_repository import (
     ReplyCommandRepository,
 )
@@ -38,6 +39,8 @@ class ReplyCommandRepositoryImpl(ReplyCommandRepository):
             .returning(ReplyBase)
         )
         reply = await self.executor.execute_scalar_one(stmt)
+        if not reply:
+            raise NotFoundException()
         return ReplyMapper.to_model(reply)
 
     async def drop_replies(self, query: DropReplyDTO) -> List[Reply]:

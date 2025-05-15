@@ -6,6 +6,9 @@ from domain.dto.order.request.order_input_dto import (
     OrderDetailInputDTO,
     OrderInputDTO,
 )
+from domain.dto.order.response.order_output_dto import (
+    OrderWithDetailsOutputDTO,
+)
 from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.entities.order.composite_order import OrderWithDetails
 from domain.entities.order.detail import OrderDetail
@@ -30,7 +33,9 @@ class CreateOrderUseCase:
         self.detail_repository = detail_repository
 
     @transactional
-    async def execute(self, request: CreateOrderDTO) -> OrderWithDetails:
+    async def execute(
+        self, request: CreateOrderDTO
+    ) -> OrderWithDetailsOutputDTO:
         order = await self._save_order_and_details(request)
         return OrderMapper.to_output_with_details(order)
 

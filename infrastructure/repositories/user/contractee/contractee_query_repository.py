@@ -47,7 +47,11 @@ class ContracteeQueryRepositoryImpl(ContracteeQueryRepository):
         stmt = query_builder.add_credentials().where_user_id(user_id).build()
 
         unmapped = await self._execute_one(stmt)
-        return CompleteContracteeMapper.to_model(**asdict(unmapped))
+        if not unmapped:
+            return None
+        return CompleteContracteeMapper.to_model(
+            unmapped.user, unmapped.contractee, unmapped.web, unmapped.telegram
+        )
 
     async def filter_contractees(
         self, query: ContracteeFilterDTO

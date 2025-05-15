@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from typing import List
 
 from sqlalchemy import Select
@@ -11,6 +10,10 @@ from domain.entities.reply.composite_reply import (
 )
 from domain.repositories.reply.composite_reply_query_repository import (
     CompositeReplyQueryRepository,
+)
+from infrastructure.database.mappers import (
+    CompleteReplyMapper,
+    ReplyWithDetailMapper,
 )
 from infrastructure.repositories.base import QueryExecutor
 from infrastructure.repositories.reply.base import (
@@ -35,11 +38,13 @@ class CompositeReplyQueryRepositoryImpl(CompositeReplyQueryRepository):
         unmapped = await self._execute_one(stmt)
         if not unmapped:
             return None
-        return CompleteReply(
-            reply=unmapped.reply,
-            contractee=unmapped.contractee,
-            detail=unmapped.detail,
-            order=unmapped.order,
+
+        return CompleteReplyMapper.to_model(
+            unmapped.reply,
+            unmapped.contractee_user,
+            unmapped.contractee,
+            unmapped.detail,
+            unmapped.order,
         )
 
     async def filter_complete_replies(
@@ -53,11 +58,12 @@ class CompositeReplyQueryRepositoryImpl(CompositeReplyQueryRepository):
 
         result = await self._execute_many(stmt)
         return [
-            CompleteReply(
-                reply=unmapped.reply,
-                contractee=unmapped.contractee,
-                detail=unmapped.detail,
-                order=unmapped.order,
+            CompleteReplyMapper.to_model(
+                unmapped.reply,
+                unmapped.contractee_user,
+                unmapped.contractee,
+                unmapped.detail,
+                unmapped.order,
             )
             for unmapped in result
         ]
@@ -73,7 +79,7 @@ class CompositeReplyQueryRepositoryImpl(CompositeReplyQueryRepository):
 
         result = await self._execute_many(stmt)
         return [
-            ReplyWithDetail(reply=unmapped.reply, detail=unmapped.detail)
+            ReplyWithDetailMapper.to_model(unmapped.reply, unmapped.detail)
             for unmapped in result
         ]
 

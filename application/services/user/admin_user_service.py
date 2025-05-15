@@ -26,6 +26,7 @@ from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.dto.user.internal.user_managment_dto import (
     ApproveUserDTO,
     BanUserDTO,
+    DisapproveUserDTO,
     DropUserDTO,
 )
 from domain.dto.user.internal.user_query_dto import GetUserDTO
@@ -148,9 +149,9 @@ class AdminUserManagementServiceImpl(AdminUserManagementService):
         return user
 
     async def disapprove_registration(
-        self, request: DisapproveOrderDTO
+        self, request: DisapproveUserDTO
     ) -> UserOutputDTO:
-        user = await self.approve_user_use_case.execute(request)
+        user = await self.disapprove_user_use_case.execute(request)
         await self.notification_service.send_registration_disapproved_notification(
             RegistrationDisapprovedNotificationDTO(
                 receiver_id=user.user_id, executor_id=request.context.user_id

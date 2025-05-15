@@ -92,7 +92,7 @@ class JoinType(str, Enum):
     OUTER = "OUTER"
 
 
-@frozen()
+@dataclass(frozen=True)
 class JoinInfo:
     left: Column
     right: Column
@@ -139,7 +139,7 @@ def get_column_value(
 
     Работает как с обычными моделями, так и с aliased(model, name="...").
     """
-    name = getattr(model, "__name__", None)
+    name = getattr(model, "__name__")
 
     # если это алиас, берем имя алиаса
     if hasattr(model, "_aliased_insp") and model._aliased_insp.name:

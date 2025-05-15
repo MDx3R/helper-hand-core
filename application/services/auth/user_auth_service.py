@@ -1,11 +1,14 @@
 from datetime import date, datetime, timedelta, timezone
-from queue import Queue
-from typing import Literal
 from jose import ExpiredSignatureError, jwt, JWTError
-from pydantic import BaseModel
 from application.external.blacklist import TokenBlacklist
+from application.transactions import transactional
+from application.usecases.auth.login_use_case import LoginUseCase
+from application.usecases.auth.register_user_use_case import (
+    RegisterContracteeUseCase,
+    RegisterContractorUseCase,
+)
 from core.config import AuthConfig
-from domain.dto.token import TokenClaims
+from domain.dto.token import TokenClaims, TokenSignature
 from domain.dto.user.base import UserCredentialsDTO
 from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.dto.user.request.contractee.contractee_registration_dto import (
@@ -25,7 +28,15 @@ from domain.dto.user.response.contractor.contractor_output_dto import (
 )
 from domain.dto.user.response.user_output_dto import AuthOutputDTO
 from domain.entities.enums import CitizenshipEnum, GenderEnum
+from domain.entities.token.enums import TokenTypeEnum
+from domain.entities.token.token import Token
 from domain.entities.user.enums import RoleEnum, UserStatusEnum
+from domain.repositories.token.token_command_repository import (
+    TokenCommandRepository,
+)
+from domain.repositories.token.token_query_repository import (
+    TokenQueryRepository,
+)
 from domain.services.auth.token_service import TokenService
 from domain.services.auth.user_auth_service import (
     UserAuthService,
@@ -49,48 +60,71 @@ class JWTTokenBlacklist(TokenBlacklist):
     def __init__(self):
         pass
 
-    def add(self, token: str, expires_at: float):
+    async def add(self, token: str, expires_at: float):
         pass
 
-    def contains(self, token: str) -> bool:
+    async def contains(self, token: str) -> bool:
         return False
 
 
 class JWTTokenService(TokenService):
-    def __init__(self, black_list: JWTTokenBlacklist, config: AuthConfig):
+    def __init__(
+        self,
+        query_repository: TokenQueryRepository,
+        command_repository: TokenCommandRepository,
+        black_list: TokenBlacklist,
+        config: AuthConfig,
+    ):
+        self.query_repository = query_repository
+        self.command_repository = command_repository
         self.black_list = black_list
         self.config = config
 
+    @transactional
     async def generate_token(self, context: UserContextDTO) -> AuthOutputDTO:
-        token = AuthOutputDTO(
-            access_token=self._create_access_token(context),
-            refresh_token=self._create_refresh_token(context),
-        )
+        access_token = self._create_access_token(context)
+        refresh_token = self._create_refresh_token(context)
+
         # TODO: Сохранять в БД/Redis
-        return token
+        await self.command_repository.create_token(access_token)
+        await self.command_repository.create_token(refresh_token)
 
-    async def refresh_token(self, refresh_token: str):
+        return AuthOutputDTO(
+            user_id=context.user_id,
+            access_token=access_token.token,
+            refresh_token=refresh_token.token,
+        )
+
+    async def refresh_token(self, token: str):
         # TODO: Проверка на существование
+        await self.query_repository.get_token(TokenSignature(token=token))
 
-        claims = self.extract_claims(refresh_token)
+        claims = self.extract_claims(token)
         if not claims.is_refresh:
             raise InvalidCredentialsException
 
         # TODO: Получать актуальный контекст?
         # Можно ревокать старый токен и при изменении контекста возвращать новый
         context = claims.user
-        token = AuthOutputDTO(
-            access_token=self._create_access_token(context),
-            refresh_token=self._create_refresh_token(context),
-        )
-        # TODO: Пересохранять в БД/Redis
-        return token
 
-    def get_user_context(self, access_token: str) -> UserContextDTO:
-        if self.black_list.contains(access_token):
+        access_token = self._create_access_token(context)
+        refresh_token = self._create_refresh_token(context)
+
+        # TODO: Пересохранять в БД/Redis
+        await self.command_repository.create_token(access_token)
+        await self.command_repository.create_token(refresh_token)
+
+        return AuthOutputDTO(
+            user_id=context.user_id,
+            access_token=access_token.token,
+            refresh_token=refresh_token.token,
+        )
+
+    async def get_user_context(self, token: str) -> UserContextDTO:
+        if await self.black_list.contains(token):
             raise CredentialsRevokedException
 
-        claims = self.extract_claims(access_token)
+        claims = self.extract_claims(token)
         if not claims.is_access:
             raise InvalidCredentialsException
 
@@ -109,28 +143,44 @@ class JWTTokenService(TokenService):
         except JWTError as e:
             raise InvalidCredentialsException from e
 
-    def _create_access_token(self, context: UserContextDTO) -> str:
-        token = self._build_token(
-            context, "access", self.config.ACCESS_TOKEN_EXPIRATION_TIME
+    def _create_access_token(self, context: UserContextDTO) -> Token:
+        claims = self._build_claims(
+            context,
+            TokenTypeEnum.access,
+            self.config.ACCESS_TOKEN_EXPIRATION_TIME,
         )
-        return self._create_jwt_token(token)
+        jwt = self._create_jwt_token(claims)
+        return self._build_token(context, jwt, claims)
 
-    def _create_refresh_token(self, context: UserContextDTO) -> str:
-        token = self._build_token(
-            context, "refresh", self.config.REFRESH_TOKEN_EXPIRATION_TIME
+    def _create_refresh_token(self, context: UserContextDTO) -> Token:
+        claims = self._build_claims(
+            context,
+            TokenTypeEnum.refresh,
+            self.config.REFRESH_TOKEN_EXPIRATION_TIME,
         )
-        return self._create_jwt_token(token)
+        jwt = self._create_jwt_token(claims)
+        return self._build_token(context, jwt, claims)
 
-    def _build_token(
+    def _build_claims(
         self,
         user: UserContextDTO,
-        type: Literal["access", "refresh"],
+        type: TokenTypeEnum,
         expires_in: timedelta,
     ) -> TokenClaims:
         return TokenClaims(
             user=user,
             type=type,
             exp=self._get_expiration_date(expires_in),
+        )
+
+    def _build_token(
+        self, user: UserContextDTO, token: str, claims: TokenClaims
+    ) -> Token:
+        return Token(
+            user_id=user.user_id,
+            token=token,
+            type=claims.type,
+            expires_at=claims.exp,
         )
 
     def _create_jwt_token(self, token: TokenClaims) -> str:
@@ -150,6 +200,35 @@ class JWTTokenService(TokenService):
         return datetime.now(timezone.utc)
 
 
+class UserAuthServiceImpl(UserAuthService):
+    def __init__(
+        self,
+        login_use_case: LoginUseCase,
+        register_contractor_use_case: RegisterContractorUseCase,
+        register_contractee_use_case: RegisterContracteeUseCase,
+    ):
+        self.login_use_case = login_use_case
+        self.register_contractor_use_case = register_contractor_use_case
+        self.register_contractee_use_case = register_contractee_use_case
+
+    async def login(self, request: LoginUserDTO) -> AuthOutputDTO:  # TODO: DTO
+        return await self.login_use_case.execute(request)
+
+    async def register_contractor(
+        self, request: RegisterContractorDTO
+    ) -> ContractorRegistationOutputDTO:
+        # TODO: Уведомления
+        pass
+        # return await self.register_contractor_use_case.execute(request)
+
+    async def register_contractee(
+        self, request: RegisterContracteeDTO
+    ) -> ContracteeRegistationOutputDTO:
+        # TODO: Уведомления
+        pass
+        # return await self.register_contractee_use_case.execute(request)
+
+
 class MockUserAuthService(UserAuthService):
     def __init__(self, token_service: TokenService):
         self.token_service = token_service
@@ -158,22 +237,20 @@ class MockUserAuthService(UserAuthService):
         return await self.token_service.generate_token(
             UserContextDTO(
                 user_id=1,
-                photos=[],
                 role=RoleEnum.admin,
                 status=UserStatusEnum.registered,
                 credentials=UserCredentialsDTO(),
             )
         )
-        return AuthOutputDTO(access_token="access", refresh_token="refresh")
 
     async def register_contractor(
         self, request: RegisterContractorDTO
     ) -> ContractorRegistationOutputDTO:
         return ContractorRegistationOutputDTO(
             token=AuthOutputDTO(
-                access_token="access", refresh_token="refresh"
+                user_id=1, access_token="access", refresh_token="refresh"
             ),
-            contractor=ContractorOutputDTO(
+            user=ContractorOutputDTO(
                 surname="123",
                 name="123",
                 user_id=1,
@@ -190,9 +267,9 @@ class MockUserAuthService(UserAuthService):
     ) -> ContracteeRegistationOutputDTO:
         return ContracteeRegistationOutputDTO(
             token=AuthOutputDTO(
-                access_token="access", refresh_token="refresh"
+                user_id=1, access_token="access", refresh_token="refresh"
             ),
-            contractor=ContracteeOutputDTO(
+            user=ContracteeOutputDTO(
                 surname="123",
                 name="123",
                 user_id=1,

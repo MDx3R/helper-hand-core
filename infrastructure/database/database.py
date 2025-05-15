@@ -1,4 +1,5 @@
 from sqlalchemy import MetaData
+from application.transactions.transaction_manager import TransactionManager
 from core.config import DatabaseConfig
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -7,6 +8,7 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
 )
 from sqlalchemy.orm import sessionmaker
+from application.transactions import configuration
 
 
 class Database:

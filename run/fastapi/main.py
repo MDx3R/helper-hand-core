@@ -1,4 +1,5 @@
 from infrastructure.app.app import App
 
-
-app = App().get_server()
+application = App()
+application.configure()
+app = application.get_server()

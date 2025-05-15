@@ -1,10 +1,16 @@
+from re import L
 from typing import Optional, Type, TypeVar, List, Tuple, Union, Any, Generic
 from abc import ABC, abstractmethod
 
 from domain.entities.base import ApplicationModel
 from domain.entities.order.detail import OrderDetail
 from domain.entities.order.order import Order
+from domain.entities.reply.composite_reply import (
+    CompleteReply,
+    ReplyWithDetail,
+)
 from domain.entities.reply.reply import Reply
+from domain.entities.token.token import Token
 from domain.entities.user.admin.admin import Admin
 from domain.entities.user.admin.composite_admin import CompleteAdmin
 from domain.entities.user.contractee.composite_contractee import (
@@ -25,6 +31,7 @@ from domain.entities.user.user import User
 from infrastructure.database.models import (
     Base,
     TelegramCredentialsBase,
+    TokenBase,
     UserBase,
     AdminBase,
     ContracteeBase,
@@ -112,6 +119,7 @@ class ApplicationModelMapper(Mapper, Generic[B, M]):
             ReplyBase: Reply,
             TelegramCredentialsBase: TelegramCredentials,
             WebCredentialsBase: WebCredentials,
+            TokenBase: Token,
         }
     )
 
@@ -164,6 +172,10 @@ class WebCredentialsMapper(
     pass
 
 
+class TokenMapper(ApplicationModelMapper[TokenBase, Token]):
+    pass
+
+
 class UserCredentialsMapper:
     @classmethod
     def to_model(
@@ -172,19 +184,21 @@ class UserCredentialsMapper:
         tg_base: Optional[TelegramCredentialsBase],
     ) -> UserCredentials:
         web = WebCredentialsMapper.to_model(web_base) if web_base else None
-        telegram = WebCredentialsMapper.to_model(tg_base) if tg_base else None
+        telegram = (
+            TelegramCredentialsMapper.to_model(tg_base) if tg_base else None
+        )
         return UserCredentials(telegram=telegram, web=web)
 
     @classmethod
     def to_base(
         cls,
-        web: Optional[WebCredentialsBase],
-        tg: Optional[TelegramCredentialsBase],
+        web: Optional[WebCredentials],
+        tg: Optional[TelegramCredentials],
     ) -> Tuple[
         Optional[WebCredentialsBase], Optional[TelegramCredentialsBase]
     ]:
         web_base = WebCredentialsMapper.to_base(web) if web else None
-        tg_base = WebCredentialsMapper.to_base(tg) if tg else None
+        tg_base = TelegramCredentialsMapper.to_base(tg) if tg else None
         return web_base, tg_base
 
 
@@ -260,7 +274,9 @@ class CompleteAdminMapper:
         return CompleteAdmin(
             user=AdminMapper.to_model(user, admin),
             contractor=(
-                AdminMapper.to_model(user, contractor) if contractor else None
+                ContractorMapper.to_model(user, contractor)
+                if contractor
+                else None
             ),
             credentials=UserCredentialsMapper.to_model(web, telegram),
         )
@@ -277,11 +293,6 @@ class CompleteContractorMapper:
     ) -> CompleteContractor:
         return CompleteContractor(
             user=ContractorMapper.to_model(user, contractor),
-            contractor=(
-                ContractorMapper.to_model(user, contractor)
-                if contractor
-                else None
-            ),
             credentials=UserCredentialsMapper.to_model(web, telegram),
         )
 
@@ -297,17 +308,12 @@ class CompleteContracteeMapper:
     ) -> CompleteContractee:
         return CompleteContractee(
             user=ContracteeMapper.to_model(user, contractee),
-            contractee=(
-                ContracteeMapper.to_model(user, contractee)
-                if contractee
-                else None
-            ),
             credentials=UserCredentialsMapper.to_model(web, telegram),
         )
 
 
 class CompleteRoleMapper:
-    mapping = {
+    mapping: dict[RoleEnum, Any] = {
         RoleEnum.admin: CompleteAdminMapper,
         RoleEnum.contractor: CompleteContractorMapper,
         RoleEnum.contractee: CompleteContracteeMapper,
@@ -323,6 +329,8 @@ class CompleteRoleMapper:
         web: Optional[WebCredentialsBase],
         telegram: Optional[TelegramCredentialsBase],
     ) -> CompleteAdmin | CompleteContractor | CompleteContractee:
+        if not admin or not contractor or not contractee:
+            raise ValueError(f"Отсутсвует роль: {user.role}")
         match user.role:
             case RoleEnum.admin:
                 return CompleteAdminMapper.to_model(
@@ -348,3 +356,34 @@ class CompleteRoleMapper:
                 )
             case _:
                 raise ValueError(f"Неподдерживаемая роль: {user.role}")
+
+
+class ReplyWithDetailMapper:
+    @classmethod
+    def to_model(
+        cls,
+        reply: ReplyBase,
+        detail: OrderDetailBase,
+    ) -> ReplyWithDetail:
+        return ReplyWithDetail(
+            reply=ReplyMapper.to_model(reply),
+            detail=OrderDetailMapper.to_model(detail),
+        )
+
+
+class CompleteReplyMapper:
+    @classmethod
+    def to_model(
+        cls,
+        reply: ReplyBase,
+        contractee_user: UserBase,
+        contractee: ContracteeBase,
+        detail: OrderDetailBase,
+        order: OrderBase,
+    ) -> CompleteReply:
+        return CompleteReply(
+            reply=ReplyMapper.to_model(reply),
+            contractee=ContracteeMapper.to_model(contractee_user, contractee),
+            detail=OrderDetailMapper.to_model(detail),
+            order=OrderMapper.to_model(order),
+        )

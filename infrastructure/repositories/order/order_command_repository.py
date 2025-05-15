@@ -3,6 +3,7 @@ from domain.dto.order.internal.user_command_dto import (
     SetOrderStatusDTO,
 )
 from domain.entities.order.order import Order
+from domain.exceptions.service.common import NotFoundException
 from domain.repositories.order.order_command_repository import (
     OrderCommandRepository,
 )
@@ -38,6 +39,8 @@ class OrderCommandRepositoryImpl(OrderCommandRepository):
             .returning(OrderBase)
         )
         order = await self.executor.execute_scalar_one(stmt)
+        if not order:
+            raise NotFoundException(query.order_id)
         return OrderMapper.to_model(order)
 
     async def set_order_admin(self, query: SetOrderAdminDTO) -> Order:
@@ -48,4 +51,6 @@ class OrderCommandRepositoryImpl(OrderCommandRepository):
             .returning(OrderBase)
         )
         order = await self.executor.execute_scalar_one(stmt)
+        if not order:
+            raise NotFoundException(query.order_id)
         return OrderMapper.to_model(order)

@@ -52,20 +52,6 @@ class AdminQueryRepositoryImpl(AdminQueryRepository):
 
         return AdminMapper.to_model(unmapped.user, unmapped.admin)
 
-    # async def get_admin_fron_order(self, order_id: int) -> Admin | None:
-    #     query_builder = self._get_query()
-    #     stmt = (
-    #         query_builder.build()
-    #         .join(OrderBase, UserBase.user_id == OrderBase.admin_id)
-    #         .where(OrderBase.order_id == order_id)
-    #     )
-
-    #     unmapped = await self._execute_one(stmt)
-    #     if not unmapped:
-    #         return None
-
-    #     return AdminMapper.to_model(unmapped.user, unmapped.admin)
-
     async def get_complete_admin(self, user_id: int) -> CompleteAdmin | None:
         query_builder = self._get_query()
         stmt = (
@@ -77,7 +63,15 @@ class AdminQueryRepositoryImpl(AdminQueryRepository):
         )
 
         unmapped = await self._execute_one(stmt)
-        return CompleteAdminMapper.to_model(**asdict(unmapped))
+        if not unmapped:
+            return None
+        return CompleteAdminMapper.to_model(
+            unmapped.user,
+            unmapped.admin,
+            unmapped.contractor,
+            unmapped.web,
+            unmapped.telegram,
+        )
 
     async def filter_admins(self, query: AdminFilterDTO) -> List[Admin]:
         query_builder = self._get_query()

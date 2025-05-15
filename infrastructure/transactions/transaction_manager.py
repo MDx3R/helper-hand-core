@@ -20,7 +20,7 @@ from infrastructure.exceptions.database import (
     InvalidStatementException,
 )
 
-current_session: ContextVar[AsyncSession] = ContextVar(
+current_session: ContextVar[AsyncSession | None] = ContextVar(
     "current_session", default=None
 )
 

@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from typing import List
 
 from domain.entities.order.detail import OrderDetail
@@ -27,7 +26,8 @@ class OrderDetailCommandRepositoryImpl(OrderDetailCommandRepository):
         return detail
 
     async def create_detail(self, detail: OrderDetail) -> OrderDetail:
-        base = await self.query_executor.add(OrderDetailMapper.to_base(detail))
+        base = OrderDetailMapper.to_base(detail)
+        await self.query_executor.add(base)
         return OrderDetailMapper.to_model(base)
 
     async def create_details(

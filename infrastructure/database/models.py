@@ -4,6 +4,7 @@ from typing import Any, List, Optional
 from sqlalchemy import BigInteger, ForeignKey, Integer, String, func, text
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.sql.sqltypes import DateTime
 
 from domain.entities.enums import (
     CitizenshipEnum,
@@ -19,9 +20,11 @@ from domain.entities.user.enums import RoleEnum, UserStatusEnum
 class Base(DeclarativeBase):
     __abstract__ = True
 
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
     updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now()
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
     def get_fields(self) -> dict[str, Any]:
@@ -47,7 +50,7 @@ class UserBase(Base):
     __tablename__ = "User"
 
     user_id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
+        BigInteger, primary_key=True, autoincrement=True
     )
     surname: Mapped[str]
     name: Mapped[str]
@@ -94,7 +97,7 @@ class OrderBase(Base):
     __tablename__ = "Order"
 
     order_id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
+        BigInteger, primary_key=True, autoincrement=True
     )
     contractor_id: Mapped[int] = mapped_column(
         ForeignKey("Contractor.contractor_id")
@@ -111,7 +114,7 @@ class OrderDetailBase(Base):
     __tablename__ = "OrderDetail"
 
     detail_id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
+        BigInteger, primary_key=True, autoincrement=True
     )
     order_id: Mapped[int] = mapped_column(ForeignKey("Order.order_id"))
     date: Mapped[date]
@@ -128,7 +131,7 @@ class ReplyBase(Base):
     __tablename__ = "Reply"
 
     reply_id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
+        BigInteger, primary_key=True, autoincrement=True
     )
     contractee_id: Mapped[int] = mapped_column(
         ForeignKey("Contractee.contractee_id"), primary_key=True
@@ -141,7 +144,7 @@ class ReplyBase(Base):
         server_default=text(f"'{ReplyStatusEnum.created.value}'")
     )
     dropped: Mapped[bool] = mapped_column(server_default=text("false"))
-    paid: Mapped[datetime | None]
+    paid: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class WebCredentialsBase(Base):
@@ -168,10 +171,10 @@ class TokenBase(Base):
     __tablename__ = "Token"
 
     token_id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
+        BigInteger, primary_key=True, autoincrement=True
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("User.user_id"))
     token: Mapped[str] = mapped_column(String, unique=True)
     type: Mapped[TokenTypeEnum]
     revoked: Mapped[bool] = mapped_column(server_default=text("false"))
-    expires_at: Mapped[datetime]
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

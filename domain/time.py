@@ -1,6 +1,5 @@
-from datetime import datetime
-from zoneinfo import ZoneInfo
+from datetime import datetime, timezone
 
 
 def get_current_time() -> datetime:
-    return datetime.now(ZoneInfo("Europe/Moscow"))
+    return datetime.now(timezone.utc)

@@ -1,4 +1,3 @@
-from dataclasses import asdict, dataclass
 from typing import Optional
 from sqlalchemy import Select
 from domain.entities.user.admin.admin import Admin
@@ -23,14 +22,11 @@ from infrastructure.database.models import (
     AdminBase,
     ContracteeBase,
     ContractorBase,
-    TelegramCredentialsBase,
     UserBase,
-    WebCredentialsBase,
 )
 from infrastructure.repositories.base import (
     QueryExecutor,
     frozen,
-    get_column_value,
 )
 from infrastructure.repositories.user.base import (
     UnmappedUser,
@@ -131,7 +127,14 @@ class UserRoleQueryRepositoryImpl(UserRoleQueryRepository):
         if not unmapped_user:
             return None
 
-        return CompleteRoleMapper.to_model(**asdict(unmapped_user))
+        return CompleteRoleMapper.to_model(
+            unmapped_user.user,
+            unmapped_user.admin,
+            unmapped_user.contractor,
+            unmapped_user.contractee,
+            unmapped_user.web,
+            unmapped_user.telegram,
+        )
 
     async def _execute_one(self, statement: Select) -> UnmappedRole | None:
         row = (await self.executor.execute(statement)).first()

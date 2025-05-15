@@ -1,12 +1,15 @@
 from dependency_injector import containers, providers
+from application.external.password_hasher import BcryptPasswordHasher
 from application.services.auth.user_auth_service import (
     JWTTokenBlacklist,
     JWTTokenService,
     MockUserAuthService,
+    UserAuthServiceImpl,
 )
 from application.services.user.admin_user_service import (
     AdminUserQueryServiceImpl,
 )
+from application.usecases.auth.login_use_case import LoginUseCase
 from application.usecases.user.admin.get_pending_user_use_case import (
     GetPendingUserUseCase,
 )
@@ -15,15 +18,25 @@ from application.usecases.user.admin.get_user_use_case import (
     GetUserForAdminUseCase,
 )
 from core.config import Config
+from domain.entities import user
 from infrastructure.database.database import (
     Database,
 )
 from infrastructure.repositories.base import QueryExecutor
+from infrastructure.repositories.token.token_command_repository import (
+    TokenCommandRepositoryImpl,
+)
+from infrastructure.repositories.token.token_query_repository import (
+    TokenQueryRepositoryImpl,
+)
 from infrastructure.repositories.user.admin.admin_command_repository import (
     AdminCommandRepositoryImpl,
 )
 from infrastructure.repositories.user.admin.admin_query_repository import (
     AdminQueryRepositoryImpl,
+)
+from infrastructure.repositories.user.user_command_repository import (
+    UserCommandRepositoryImpl,
 )
 from infrastructure.repositories.user.user_query_repository import (
     UserQueryRepositoryImpl,
@@ -59,15 +72,6 @@ class Container(containers.DeclarativeContainer):
         QueryExecutor, transaction_manager=transaction_manager
     )
 
-    # Auth
-    token_black_list = providers.Singleton(JWTTokenBlacklist)
-    token_service = providers.Singleton(
-        JWTTokenService, black_list=token_black_list, config=auth_config
-    )
-    auth_service = providers.Singleton(
-        MockUserAuthService, token_service=token_service
-    )
-
     # User Query Repositories
     user_query_repository = providers.Singleton(
         UserQueryRepositoryImpl, executor=query_executor
@@ -80,8 +84,42 @@ class Container(containers.DeclarativeContainer):
     )
 
     # User Command Repositories
+    user_command_repository = providers.Singleton(
+        UserCommandRepositoryImpl, executor=query_executor
+    )
     admin_command_repository = providers.Singleton(
         AdminCommandRepositoryImpl, executor=query_executor
+    )
+
+    # Token Repositories
+    token_query_repository = providers.Singleton(
+        TokenQueryRepositoryImpl, executor=query_executor
+    )
+    token_command_repository = providers.Singleton(
+        TokenCommandRepositoryImpl, executor=query_executor
+    )
+
+    # Auth
+    token_black_list = providers.Singleton(JWTTokenBlacklist)
+    password_hasher = providers.Singleton(BcryptPasswordHasher)
+    token_service = providers.Singleton(
+        JWTTokenService,
+        query_repository=token_query_repository,
+        command_repository=token_command_repository,
+        black_list=token_black_list,
+        config=auth_config,
+    )
+    login_use_case = providers.Singleton(
+        LoginUseCase,
+        token_service=token_service,
+        password_hasher=password_hasher,
+        user_query_repository=user_query_repository,
+    )
+    auth_service = providers.Singleton(
+        UserAuthServiceImpl,
+        login_use_case=login_use_case,
+        register_contractor_use_case=None,
+        register_contractee_use_case=None,
     )
 
     # User Query UseCases

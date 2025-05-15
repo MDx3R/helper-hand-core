@@ -9,6 +9,9 @@ from application.services.order.order_query_service import (
 from application.usecases.order.admin.create_order_use_case import (
     CreateOrderForAdminUseCase,
 )
+from application.usecases.order.admin.get_order_use_case import (
+    GetOrderForAdminUseCase,
+)
 from application.usecases.order.admin.get_unassigned_order_use_case import (
     GetUnassignedOrderUseCase,
 )
@@ -25,9 +28,6 @@ from application.usecases.order.change_order_status_use_case import (
     DisapproveOrderUseCase,
     FulfillOrderUseCase,
     OpenOrderUseCase,
-)
-from application.usecases.order.order_query_use_case import (
-    GetCompleteOrderUseCase,
 )
 from domain.dto.base import LastObjectDTO
 from domain.dto.order.internal.order_managment_dto import (
@@ -148,7 +148,7 @@ class AdminOrderQueryServiceImpl(
 ):
     def __init__(
         self,
-        get_order_use_case: GetCompleteOrderUseCase,
+        get_order_use_case: GetOrderForAdminUseCase,
         get_orders_use_case: ListSupervisedOrdersUseCase,
         get_unassigned_order_use_case: GetUnassignedOrderUseCase,
     ):

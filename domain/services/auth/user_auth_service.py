@@ -13,11 +13,12 @@ from domain.dto.user.response.contractee.contractee_output_dto import (
 from domain.dto.user.response.contractor.contractor_output_dto import (
     ContractorRegistationOutputDTO,
 )
+from domain.dto.user.response.user_output_dto import AuthOutputDTO
 
 
 class UserAuthService(ABC):
     @abstractmethod
-    async def login(self, request: LoginUserDTO):  # TODO: DTO
+    async def login(self, request: LoginUserDTO) -> AuthOutputDTO:  # TODO: DTO
         pass
 
     @abstractmethod

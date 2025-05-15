@@ -11,11 +11,11 @@ class TokenService(ABC):
         pass
 
     @abstractmethod
-    async def refresh_token(self, refresh_token: str) -> AuthOutputDTO:
+    async def refresh_token(self, token: str) -> AuthOutputDTO:
         pass
 
     @abstractmethod
-    def get_user_context(self, access_token: str) -> UserContextDTO:
+    async def get_user_context(self, token: str) -> UserContextDTO:
         pass
 
     @abstractmethod

@@ -47,7 +47,11 @@ class ContractorQueryRepositoryImpl(ContractorQueryRepository):
         stmt = query_builder.add_credentials().where_user_id(user_id).build()
 
         unmapped = await self._execute_one(stmt)
-        return CompleteContractorMapper.to_model(**asdict(unmapped))
+        if not unmapped:
+            return None
+        return CompleteContractorMapper.to_model(
+            unmapped.user, unmapped.contractor, unmapped.web, unmapped.telegram
+        )
 
     async def filter_contractors(
         self, query: ContractorFilterDTO
