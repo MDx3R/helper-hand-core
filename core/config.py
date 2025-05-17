@@ -1,11 +1,20 @@
 from argparse import ArgumentParser
 from datetime import timedelta
+from enum import Enum
 import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 from pydantic import BaseModel
 import yaml
+
+
+class RunEnvironment(str, Enum):
+    LOCAL = "local"
+    DEV = "dev"
+    STAGING = "staging"
+    PROD = "prod"
+    TEST = "test"
 
 
 class AuthConfig(BaseModel):
@@ -32,6 +41,7 @@ class DatabaseConfig(BaseModel):
 
 
 class Config(BaseModel):
+    env: RunEnvironment
     auth: AuthConfig
     db: DatabaseConfig
 

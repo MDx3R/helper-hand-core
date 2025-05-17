@@ -1,3 +1,4 @@
+env: "local"
 db:
   DB_NAME: "HelperHand"
   DB_USER: "postgres"
