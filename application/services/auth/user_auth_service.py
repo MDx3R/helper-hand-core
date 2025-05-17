@@ -19,14 +19,19 @@ from domain.dto.user.request.contractor.contractor_registration_dto import (
 )
 from domain.dto.user.request.user_auth_dto import LoginUserDTO
 from domain.dto.user.response.contractee.contractee_output_dto import (
+    CompleteContracteeOutputDTO,
     ContracteeOutputDTO,
     ContracteeRegistationOutputDTO,
 )
 from domain.dto.user.response.contractor.contractor_output_dto import (
+    CompleteContractorOutputDTO,
     ContractorOutputDTO,
     ContractorRegistationOutputDTO,
 )
-from domain.dto.user.response.user_output_dto import AuthOutputDTO
+from domain.dto.user.response.user_output_dto import (
+    AuthOutputDTO,
+    UserCredentialsOutputDTO,
+)
 from domain.entities.enums import CitizenshipEnum, GenderEnum
 from domain.entities.token.enums import TokenTypeEnum
 from domain.entities.token.token import Token
@@ -55,6 +60,7 @@ class InvalidCredentialsException(Exception):
     pass
 
 
+# TODO: Перенести в Infrastructure
 class JWTTokenBlacklist(TokenBlacklist):
     # TODO: Redis
     def __init__(self):
@@ -67,6 +73,7 @@ class JWTTokenBlacklist(TokenBlacklist):
         return False
 
 
+# TODO: Перенести в Infrastructure
 class JWTTokenService(TokenService):
     def __init__(
         self,
@@ -218,15 +225,13 @@ class UserAuthServiceImpl(UserAuthService):
         self, request: RegisterContractorDTO
     ) -> ContractorRegistationOutputDTO:
         # TODO: Уведомления
-        pass
-        # return await self.register_contractor_use_case.execute(request)
+        return await self.register_contractor_use_case.execute(request)
 
     async def register_contractee(
         self, request: RegisterContracteeDTO
     ) -> ContracteeRegistationOutputDTO:
         # TODO: Уведомления
-        pass
-        # return await self.register_contractee_use_case.execute(request)
+        return await self.register_contractee_use_case.execute(request)
 
 
 class MockUserAuthService(UserAuthService):
@@ -250,15 +255,18 @@ class MockUserAuthService(UserAuthService):
             token=AuthOutputDTO(
                 user_id=1, access_token="access", refresh_token="refresh"
             ),
-            user=ContractorOutputDTO(
-                surname="123",
-                name="123",
-                user_id=1,
-                photos=[],
-                role=RoleEnum.contractor,
-                status=UserStatusEnum.registered,
-                phone_number="123",
-                about="123",
+            user=CompleteContractorOutputDTO(
+                user=ContractorOutputDTO(
+                    surname="123",
+                    name="123",
+                    user_id=1,
+                    photos=[],
+                    role=RoleEnum.contractor,
+                    status=UserStatusEnum.registered,
+                    phone_number="123",
+                    about="123",
+                ),
+                credentials=UserCredentialsOutputDTO(),
             ),
         )
 
@@ -269,18 +277,21 @@ class MockUserAuthService(UserAuthService):
             token=AuthOutputDTO(
                 user_id=1, access_token="access", refresh_token="refresh"
             ),
-            user=ContracteeOutputDTO(
-                surname="123",
-                name="123",
-                user_id=1,
-                photos=[],
-                role=RoleEnum.contractor,
-                status=UserStatusEnum.registered,
-                phone_number="123",
-                birthday=date(2005, 6, 16),
-                height=185,
-                gender=GenderEnum.male,
-                citizenship=CitizenshipEnum.russia,
-                positions=[],
+            user=CompleteContracteeOutputDTO(
+                user=ContracteeOutputDTO(
+                    surname="123",
+                    name="123",
+                    user_id=1,
+                    photos=[],
+                    role=RoleEnum.contractor,
+                    status=UserStatusEnum.registered,
+                    phone_number="123",
+                    birthday=date(2005, 6, 16),
+                    height=185,
+                    gender=GenderEnum.male,
+                    citizenship=CitizenshipEnum.russia,
+                    positions=[],
+                ),
+                credentials=UserCredentialsOutputDTO(),
             ),
         )

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Generic, List, Optional, TypeVar
 
 from domain.dto.base import ApplicationDTO
 from domain.dto.user.base import (
@@ -37,7 +37,14 @@ class WithCredentialsOutputDTO(ApplicationDTO):
     credentials: UserCredentialsOutputDTO
 
 
-class CompleteUserOutputDTO(WithCredentialsOutputDTO):
+USER = TypeVar("USER", bound=UserOutputDTO)
+
+
+class BaseCompleteUserOutputDTO(WithCredentialsOutputDTO):
+    pass
+
+
+class CompleteUserOutputDTO(BaseCompleteUserOutputDTO):
     user: UserOutputDTO
 
 
@@ -50,3 +57,7 @@ class AuthOutputDTO(ApplicationDTO):
 
 class WithAuthOutputDTO(ApplicationDTO):
     token: AuthOutputDTO
+
+
+class BaseUserRegistationOutputDTO(WithAuthOutputDTO):
+    pass

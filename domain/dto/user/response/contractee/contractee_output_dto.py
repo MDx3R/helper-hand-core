@@ -2,6 +2,8 @@ from datetime import date
 from typing import List
 
 from domain.dto.user.response.user_output_dto import (
+    BaseCompleteUserOutputDTO,
+    BaseUserRegistationOutputDTO,
     UserOutputDTO,
     UserProfileOutputDTO,
     WithAuthOutputDTO,
@@ -22,9 +24,9 @@ class ContracteeOutputDTO(ContracteeProfileOutputDTO, UserOutputDTO):
     pass
 
 
-class CompleteContracteeOutputDTO(WithCredentialsOutputDTO):
+class CompleteContracteeOutputDTO(BaseCompleteUserOutputDTO):
     user: ContracteeOutputDTO
 
 
-class ContracteeRegistationOutputDTO(WithAuthOutputDTO):
-    user: ContracteeOutputDTO  # TODO: CompleteContractorOutputDTO
+class ContracteeRegistationOutputDTO(BaseUserRegistationOutputDTO):
+    user: CompleteContracteeOutputDTO

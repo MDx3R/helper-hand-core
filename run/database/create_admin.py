@@ -1,5 +1,5 @@
 import asyncio
-from application.usecases.auth.register_user_use_case import CreateAdminUseCase
+from application.usecases.auth.create_user_use_case import CreateAdminUseCase
 from domain.dto.user.request.admin.create_admin_dto import (
     AdminInputDTO,
     CreateAdminDTO,
@@ -18,8 +18,7 @@ async def main():
 
     use_case = CreateAdminUseCase(
         admin_command_repository=app.container.admin_command_repository(),
-        user_command_repository=app.container.user_command_repository(),
-        password_hasher=app.container.password_hasher(),
+        create_credentials_use_case=app.container.create_credentials_use_case(),
     )
 
     request = CreateAdminDTO(

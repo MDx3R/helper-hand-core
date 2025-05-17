@@ -36,3 +36,7 @@ class CredentialsInputDTO(ApplicationDTO):
 
 class WithCredentialsInputDTO(ApplicationDTO):
     credentials: CredentialsInputDTO
+
+
+class BaseRegisterUserDTO(WithCredentialsInputDTO):
+    pass

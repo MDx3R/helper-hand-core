@@ -1,6 +1,7 @@
 from typing import Literal
 
 from application.transactions import transactional
+from domain.dto.order.internal.user_command_dto import SetOrderStatusDTO
 from domain.dto.order.response.order_output_dto import OrderOutputDTO
 from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.dto.order.internal.order_managment_dto import (
@@ -46,7 +47,7 @@ class BaseApproveOrderUseCase:
         self,
         request: ApproveOrderDTO,
         status: Literal[OrderStatusEnum.disapproved, OrderStatusEnum.open],
-    ) -> Order:
+    ) -> OrderOutputDTO:
         order = await self._get_order_and_raise_if_not_exists(request.order_id)
         self._check_order_can_be_approved(order, request.context, status)
 
@@ -55,7 +56,7 @@ class BaseApproveOrderUseCase:
         order.admin_id = request.context.user_id
         order.status = status
         order = await self._save_order(order)
-        return order
+        return OrderMapper.to_output(order)
 
     async def _get_order_and_raise_if_not_exists(self, order_id: int) -> Order:
         order = await self.query_repository.get_order(order_id)
@@ -121,7 +122,7 @@ class BaseChangeOrderStatusUseCase:
         self._check_order_status_can_be_changed(order, context, status)
 
         return await self.command_repository.set_order_status(
-            order.order_id, status
+            SetOrderStatusDTO(order_id=order.order_id, status=status)
         )
 
     def _check_order_status_can_be_changed(

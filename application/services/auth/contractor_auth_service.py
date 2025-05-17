@@ -1,10 +1,9 @@
-from application.usecases.user.register_user_use_case import (
+from application.usecases.auth.register_user_use_case import (
     RegisterContractorUseCase,
 )
-from application.usecases.user.reset_user_use_case import (
+from application.usecases.auth.reset_user_use_case import (
     ResetContractorUseCase,
 )
-
 from domain.dto.user.request.contractor.contractor_registration_dto import (
     RegisterContractorDTO,
     ResetContractorDTO,
@@ -13,6 +12,7 @@ from domain.dto.user.response.contractor.contractor_output_dto import (
     ContractorOutputDTO,
     ContractorRegistationOutputDTO,
 )
+from domain.services.auth.contractor_auth_service import ContractorAuthService
 
 
 class ContractorAuthServiceImpl(ContractorAuthService):

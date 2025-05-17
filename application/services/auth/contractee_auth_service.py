@@ -1,7 +1,7 @@
-from application.usecases.user.register_user_use_case import (
+from application.usecases.auth.register_user_use_case import (
     RegisterContracteeUseCase,
 )
-from application.usecases.user.reset_user_use_case import (
+from application.usecases.auth.reset_user_use_case import (
     ResetContracteeUseCase,
 )
 from domain.dto.user.request.contractee.contractee_registration_dto import (

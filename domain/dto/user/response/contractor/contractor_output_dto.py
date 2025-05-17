@@ -1,8 +1,8 @@
 from domain.dto.user.response.user_output_dto import (
+    BaseCompleteUserOutputDTO,
+    BaseUserRegistationOutputDTO,
     UserOutputDTO,
     UserProfileOutputDTO,
-    WithAuthOutputDTO,
-    WithCredentialsOutputDTO,
 )
 
 
@@ -14,9 +14,9 @@ class ContractorOutputDTO(ContractorProfileOutputDTO, UserOutputDTO):
     pass
 
 
-class CompleteContractorOutputDTO(WithCredentialsOutputDTO):
+class CompleteContractorOutputDTO(BaseCompleteUserOutputDTO):
     user: ContractorOutputDTO
 
 
-class ContractorRegistationOutputDTO(WithAuthOutputDTO):
-    user: ContractorOutputDTO  # TODO: CompleteContractorOutputDTO
+class ContractorRegistationOutputDTO(BaseUserRegistationOutputDTO):
+    user: CompleteContractorOutputDTO

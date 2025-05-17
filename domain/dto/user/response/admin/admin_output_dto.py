@@ -3,6 +3,7 @@ from domain.dto.user.response.contractor.contractor_output_dto import (
     ContractorOutputDTO,
 )
 from domain.dto.user.response.user_output_dto import (
+    BaseCompleteUserOutputDTO,
     UserOutputDTO,
     UserProfileOutputDTO,
     WithCredentialsOutputDTO,
@@ -17,6 +18,6 @@ class AdminOutputDTO(AdminProfileOutputDTO, UserOutputDTO):
     contractor_id: Optional[int] = None
 
 
-class CompleteAdminOutputDTO(WithCredentialsOutputDTO):
+class CompleteAdminOutputDTO(BaseCompleteUserOutputDTO):
     user: AdminOutputDTO
     contractor: Optional[ContractorOutputDTO] = None

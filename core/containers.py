@@ -10,6 +10,15 @@ from application.services.user.admin_user_service import (
     AdminUserQueryServiceImpl,
 )
 from application.usecases.auth.login_use_case import LoginUseCase
+from application.usecases.auth.create_user_use_case import (
+    CreateContracteeUseCase,
+    CreateContractorUseCase,
+    CreateCredentialsUseCase,
+)
+from application.usecases.auth.register_user_use_case import (
+    RegisterContracteeUseCase,
+    RegisterContractorUseCase,
+)
 from application.usecases.user.admin.get_pending_user_use_case import (
     GetPendingUserUseCase,
 )
@@ -19,6 +28,12 @@ from application.usecases.user.admin.get_user_use_case import (
 )
 from core.config import Config
 from domain.entities import user
+from domain.repositories.user.contractee.contractee_command_repository import (
+    ContracteeCommandRepository,
+)
+from domain.repositories.user.contractor.contractor_command_repository import (
+    ContractorCommandRepository,
+)
 from infrastructure.database.database import (
     Database,
 )
@@ -90,6 +105,12 @@ class Container(containers.DeclarativeContainer):
     admin_command_repository = providers.Singleton(
         AdminCommandRepositoryImpl, executor=query_executor
     )
+    contractee_command_repository = providers.Singleton(
+        ContracteeCommandRepository, executor=query_executor
+    )
+    contractor_command_repository = providers.Singleton(
+        ContractorCommandRepository, executor=query_executor
+    )
 
     # Token Repositories
     token_query_repository = providers.Singleton(
@@ -109,6 +130,35 @@ class Container(containers.DeclarativeContainer):
         black_list=token_black_list,
         config=auth_config,
     )
+
+    # Create Users UseCase
+    create_credentials_use_case = providers.Singleton(
+        CreateCredentialsUseCase,
+        user_command_repository=user_command_repository,
+        password_hasher=password_hasher,
+    )
+    create_contractee_use_case = providers.Singleton(
+        CreateContracteeUseCase,
+        create_credentials_use_case=create_credentials_use_case,
+        contractee_command_repository=contractee_command_repository,
+    )
+    create_contractor_use_case = providers.Singleton(
+        CreateContractorUseCase,
+        create_credentials_use_case=create_credentials_use_case,
+        contractor_command_repository=contractor_command_repository,
+    )
+
+    register_contractee_use_case = providers.Singleton(
+        RegisterContracteeUseCase,
+        token_service=token_service,
+        create_contractee_use_case=create_contractee_use_case,
+    )
+    register_contractor_use_case = providers.Singleton(
+        RegisterContractorUseCase,
+        token_service=token_service,
+        create_contractor_use_case=create_contractor_use_case,
+    )
+
     login_use_case = providers.Singleton(
         LoginUseCase,
         token_service=token_service,
@@ -118,8 +168,8 @@ class Container(containers.DeclarativeContainer):
     auth_service = providers.Singleton(
         UserAuthServiceImpl,
         login_use_case=login_use_case,
-        register_contractor_use_case=None,
-        register_contractee_use_case=None,
+        register_contractee_use_case=register_contractee_use_case,
+        register_contractor_use_case=register_contractor_use_case,
     )
 
     # User Query UseCases
