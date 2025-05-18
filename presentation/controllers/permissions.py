@@ -46,12 +46,12 @@ def build_token_exception(exc: Exception) -> HTTPException:
 
 
 @inject
-def get_claims_from_token(
+async def get_claims_from_token(
     token: str = Depends(oauth2_scheme),
     service: TokenService = Depends(Provide[Container.token_service]),
-) -> UserContextDTO:
+) -> TokenClaims:
     try:
-        return service.extract_claims(token)
+        return await service.extract_claims(token)
     except Exception as e:
         raise build_token_exception(e)
 
@@ -98,6 +98,7 @@ def require_guest(request: Request) -> bool:
             detail="You are already logged in",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    return True
 
 
 def require_roles(*allowed_roles: RoleEnum) -> Callable:

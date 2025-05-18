@@ -1,5 +1,6 @@
 from typing import List
 
+from domain.dto.base import SortingOrder
 from domain.dto.order.internal.order_filter_dto import OrderFilterDTO
 from domain.dto.order.internal.order_query_dto import (
     GetOrderDTO,
@@ -93,7 +94,7 @@ class ListUserOrdersUseCase:  # TODO: Не думаю, что этот клас�
             return []
 
         orders = await self.order_repository.filter_orders(
-            self._build_filter(query)
+            self._build_filter(user, query)
         )
 
         return [OrderMapper.to_output(i) for i in orders]
@@ -133,7 +134,7 @@ class ListAdminOrdersUseCase:
                 admin_id=query.user_id,
                 last_id=query.last_id,
                 size=query.size,
-                order="descending",
+                sorting=SortingOrder.descending,
             )
         )
 
@@ -153,7 +154,7 @@ class ListContractorOrdersUseCase:
                 contractor_id=query.user_id,
                 last_id=query.last_id,
                 size=query.size,
-                order="descending",
+                sorting=SortingOrder.descending,
             )
         )
 
@@ -173,7 +174,7 @@ class ListContracteeOrdersUseCase:
                 contractee_id=query.user_id,
                 last_id=query.last_id,
                 size=query.size,
-                order="descending",
+                sorting=SortingOrder.descending,
             )
         )
 

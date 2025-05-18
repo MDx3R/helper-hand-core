@@ -1,8 +1,9 @@
 from datetime import date, datetime, time
 from typing import Any, List, Optional
+from uuid import UUID
 
 from sqlalchemy import BigInteger, ForeignKey, Integer, String, func, text
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, UUID as PG_UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import DateTime
 
@@ -174,6 +175,7 @@ class TokenBase(Base):
         BigInteger, primary_key=True, autoincrement=True
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("User.user_id"))
+    session_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True))
     token: Mapped[str] = mapped_column(String, unique=True)
     type: Mapped[TokenTypeEnum]
     revoked: Mapped[bool] = mapped_column(server_default=text("false"))

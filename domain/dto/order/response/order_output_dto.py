@@ -39,8 +39,6 @@ class OrderWithDetailsOutputDTO(ApplicationDTO):
     details: List[OrderDetailOutputDTO]
 
 
-class CompleteOrderOutputDTO(ApplicationDTO):
-    order: OrderOutputDTO
-    details: List[OrderDetailOutputDTO]
+class CompleteOrderOutputDTO(OrderWithDetailsOutputDTO):
     contractor: ContractorOutputDTO
     admin: Optional[AdminOutputDTO]

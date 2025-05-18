@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 from application.transactions import transactional
 from domain.dto.order.internal.order_filter_dto import OrderFilterDTO
 from domain.dto.order.internal.order_query_dto import (
@@ -84,7 +84,7 @@ class GetSuitableDetailsFromOrderUseCase:
         ]
 
     def _is_detail_suitable(
-        self, detail: OrderDetail, contractee: Contractee
+        self, detail: OrderDetailOutputDTO, contractee: ContracteeOutputDTO
     ) -> bool:
         if not OrderDetailDomainService.is_relevant_at_current_time(detail):
             return False
@@ -105,8 +105,8 @@ class GetUnavailableDetailsForContractee:
     async def execute(self, user_id: int) -> UnavailableDetails:
         replies = await self._get_contractee_replies(user_id)
         return UnavailableDetails(
-            taken_details=self._to_detail_ids(replies),
-            taken_intervals=self._to_busy_intervals(replies),
+            details=self._to_detail_ids(replies),
+            intervals=self._to_busy_intervals(replies),
         )
 
     async def _get_contractee_replies(
@@ -221,7 +221,7 @@ class GetSuitableOrderUseCase:
                 orders, taken, contractee
             )
             if order:
-                return OrderMapper.to_complete(order)
+                return order
 
             last_id = orders[-1].order.order_id
 
@@ -234,7 +234,7 @@ class GetSuitableOrderUseCase:
             raise NotFoundException(user_id)
         return contractee
 
-    def _build_filter(self, last_id: int) -> OrderFilterDTO:
+    def _build_filter(self, last_id: Optional[int]) -> OrderFilterDTO:
         return OrderFilterDTO(
             last_id=last_id,
             status=OrderStatusEnum.open,
@@ -245,14 +245,15 @@ class GetSuitableOrderUseCase:
         self,
         orders: List[CompleteOrder],
         taken: UnavailableDetails,
-        contractee: ContracteeOutputDTO,
+        contractee: Contractee,
     ) -> CompleteOrderOutputDTO | None:
         for order in orders:
             order_dto = OrderMapper.to_complete(order)
+            contractee_dto = ContracteeMapper.to_output(contractee)
             details = self.filtering_use_case.execute(
                 CheckOrderSuits(
                     order=order_dto,
-                    contractee=contractee,
+                    contractee=contractee_dto,
                     taken=taken,
                 )
             )

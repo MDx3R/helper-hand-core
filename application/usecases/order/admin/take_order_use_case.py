@@ -42,6 +42,9 @@ class TakeOrderUseCase:
     async def _take_order(
         self, order: Order, context: UserContextDTO
     ) -> Order:
+        if not order.order_id:
+            raise
+
         if not OrderDomainService.can_be_assigned(order):
             raise OrderSupervisorAssignmentNotAllowedException(order.order_id)
 

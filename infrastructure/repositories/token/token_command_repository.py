@@ -1,3 +1,5 @@
+from typing import List
+from uuid import UUID
 from sqlalchemy import update
 from domain.entities.token.token import Token
 from domain.exceptions.service.common import NotFoundException
@@ -29,3 +31,13 @@ class TokenCommandRepositoryImpl(TokenCommandRepository):
         if not result:
             raise NotFoundException()
         return TokenMapper.to_model(result)
+
+    async def revoke_tokens_by_session(self, session: UUID) -> List[Token]:
+        stmt = (
+            update(TokenBase)
+            .where(TokenBase.session_id == session)
+            .values(revoked=True)
+            .returning(TokenBase)
+        )
+        result = await self.executor.execute_scalar_many(stmt)
+        return [TokenMapper.to_model(token) for token in result]

@@ -1,4 +1,5 @@
 from application.transactions import transactional
+from domain.dto.user.internal.user_command_dto import SetUserStatusDTO
 from domain.dto.user.internal.user_managment_dto import (
     ApproveUserDTO,
     BanUserDTO,
@@ -51,7 +52,7 @@ class ChangeUserStatusUseCase:
         self._check_user_status_can_be_changed(user, status)
 
         return await self.command_repository.set_user_status(
-            user.user_id, status
+            SetUserStatusDTO(user_id=user.user_id, status=status)
         )
 
     def _check_user_status_can_be_changed(

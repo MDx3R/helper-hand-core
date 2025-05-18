@@ -23,6 +23,11 @@ from domain.repositories.order.order_command_repository import (
 from domain.wager import calculate_pay
 
 
+class PostOrderUseCase:
+    # TODO: Объявить
+    pass
+
+
 class CreateOrderUseCase:
     def __init__(
         self,

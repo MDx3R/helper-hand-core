@@ -19,5 +19,5 @@ class TokenService(ABC):
         pass
 
     @abstractmethod
-    def extract_claims(self, token: str) -> TokenClaims:
+    async def extract_claims(self, token: str) -> TokenClaims:
         pass

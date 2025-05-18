@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta, timezone
+from uuid import UUID, uuid4
 from jose import ExpiredSignatureError, jwt, JWTError
 from application.external.blacklist import TokenBlacklist
 from application.transactions import transactional
@@ -61,7 +62,9 @@ class InvalidCredentialsException(Exception):
     pass
 
 
-# TODO: Перенести в Infrastructure
+# TODO: Перенести в Infrastructure/Может быть вовсе не нужен
+# здесь (можно использовать как интерфейс внутри обертки репозитория) или вообще,
+# если обеспечить целостность через обертку репозитория - проверять и добавлять там.
 class JWTTokenBlacklist(TokenBlacklist):
     # TODO: Redis
     def __init__(self):
@@ -90,8 +93,9 @@ class JWTTokenService(TokenService):
 
     @transactional
     async def generate_token(self, context: UserContextDTO) -> AuthOutputDTO:
-        access_token = self._create_access_token(context)
-        refresh_token = self._create_refresh_token(context)
+        session = self._generate_session_id()
+        access_token = self._create_access_token(context, session)
+        refresh_token = self._create_refresh_token(context, session)
 
         # Сохраняем в БД/Redis
         await self.command_repository.create_token(access_token)
@@ -105,7 +109,7 @@ class JWTTokenService(TokenService):
 
     @transactional
     async def refresh_token(self, token: str):
-        claims = self.extract_claims(token)
+        claims = await self.extract_claims(token)
         if not claims.is_refresh:
             raise InvalidCredentialsException
 
@@ -120,13 +124,16 @@ class JWTTokenService(TokenService):
         # Можно ревокать старый токен и при изменении контекста возвращать новый
         context = claims.user
 
-        access_token = self._create_access_token(context)
-        refresh_token = self._create_refresh_token(context)
+        session = self._generate_session_id()
+        access_token = self._create_access_token(context, session)
+        refresh_token = self._create_refresh_token(context, session)
+
+        # Сбрасываем старую пару access/refresh
+        await self.command_repository.revoke_tokens_by_session(claims.session)
 
         # Пересохраняем в БД/Redis
         await self.command_repository.create_token(access_token)
         await self.command_repository.create_token(refresh_token)
-        await self.command_repository.revoke_token(token)
 
         return AuthOutputDTO(
             user_id=context.user_id,
@@ -138,13 +145,16 @@ class JWTTokenService(TokenService):
         if await self.black_list.contains(token):
             raise CredentialsRevokedException
 
-        claims = self.extract_claims(token)
+        claims = await self.extract_claims(token)
         if not claims.is_access:
             raise InvalidCredentialsException
 
         return claims.user
 
-    def extract_claims(self, token: str) -> TokenClaims:
+    async def extract_claims(self, token: str) -> TokenClaims:
+        if await self.black_list.contains(token):
+            raise CredentialsRevokedException
+
         try:
             claims = jwt.decode(
                 token,
@@ -155,20 +165,30 @@ class JWTTokenService(TokenService):
         except ExpiredSignatureError as e:
             raise CredentialsExpiredException from e
         except JWTError as e:
+            print(e)
             raise InvalidCredentialsException from e
 
-    def _create_access_token(self, context: UserContextDTO) -> Token:
+    def _generate_session_id(self) -> UUID:
+        return uuid4()
+
+    def _create_access_token(
+        self, context: UserContextDTO, session: UUID
+    ) -> Token:
         claims = self._build_claims(
             context,
+            session,
             TokenTypeEnum.access,
             self.config.ACCESS_TOKEN_EXPIRATION_TIME,
         )
         jwt = self._create_jwt_token(claims)
         return self._build_token(context, jwt, claims)
 
-    def _create_refresh_token(self, context: UserContextDTO) -> Token:
+    def _create_refresh_token(
+        self, context: UserContextDTO, session: UUID
+    ) -> Token:
         claims = self._build_claims(
             context,
+            session,
             TokenTypeEnum.refresh,
             self.config.REFRESH_TOKEN_EXPIRATION_TIME,
         )
@@ -178,11 +198,13 @@ class JWTTokenService(TokenService):
     def _build_claims(
         self,
         user: UserContextDTO,
+        session: UUID,
         type: TokenTypeEnum,
         expires_in: timedelta,
     ) -> TokenClaims:
         return TokenClaims(
             user=user,
+            session=session,
             type=type,
             exp=self._get_expiration_date(expires_in),
         )
@@ -192,6 +214,7 @@ class JWTTokenService(TokenService):
     ) -> Token:
         return Token(
             user_id=user.user_id,
+            session_id=claims.session,
             token=token,
             type=claims.type,
             expires_at=claims.exp,
@@ -199,6 +222,7 @@ class JWTTokenService(TokenService):
 
     def _create_jwt_token(self, token: TokenClaims) -> str:
         to_encode = token.model_dump()
+        to_encode["session"] = str(token.session)
         to_encode.update({"sub": str(token.user.user_id)})
         to_encode.update({"iat": get_current_time().timestamp()})
         return jwt.encode(

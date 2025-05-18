@@ -1,5 +1,8 @@
 from datetime import datetime
 from typing import Literal, Optional
+from uuid import UUID
+
+from pydantic import UUID4
 from domain.dto.base import ApplicationDTO
 from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.entities.token.enums import TokenTypeEnum
@@ -7,6 +10,7 @@ from domain.entities.token.enums import TokenTypeEnum
 
 class TokenClaims(ApplicationDTO):
     user: UserContextDTO
+    session: UUID4
     type: TokenTypeEnum
     exp: datetime
     """Дата и вермя истечения токена"""
@@ -22,6 +26,7 @@ class TokenClaims(ApplicationDTO):
 
 class TokenFilter(ApplicationDTO):
     user_id: Optional[int] = None
+    session_id: Optional[UUID] = None
     type: Optional[TokenTypeEnum] = None
     revoked: Optional[bool] = None
     expired: Optional[bool] = None

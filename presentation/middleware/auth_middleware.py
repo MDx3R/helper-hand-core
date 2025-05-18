@@ -12,7 +12,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         claims = None
         if token:
             try:
-                claims = get_claims_from_token(token)
+                claims = await get_claims_from_token(token)
             except HTTPException as e:
                 return JSONResponse(
                     status_code=e.status_code,
