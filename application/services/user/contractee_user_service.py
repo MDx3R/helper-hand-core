@@ -13,7 +13,7 @@ from domain.services.user.contractee_user_service import (
 
 
 class ContracteeUserQueryServiceImpl(
-    ContracteeUserQueryService, BaseUserQueryService
+    BaseUserQueryService, ContracteeUserQueryService
 ):
     def __init__(
         self,

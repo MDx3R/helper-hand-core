@@ -1,4 +1,6 @@
-from application.usecases.user.user_query_use_case import GetUserUseCase
+from application.usecases.user.user_query_use_case import (
+    GetCompleteUserUseCase,
+)
 from domain.dto.user.internal.user_query_dto import GetUserDTO
 from domain.dto.user.response.admin.admin_output_dto import (
     CompleteAdminOutputDTO,
@@ -14,7 +16,7 @@ from domain.dto.user.response.contractor.contractor_output_dto import (
 class BaseUserQueryService:
     def __init__(
         self,
-        get_user_use_case: GetUserUseCase,
+        get_user_use_case: GetCompleteUserUseCase,
     ):
         self.get_user_use_case = get_user_use_case
 

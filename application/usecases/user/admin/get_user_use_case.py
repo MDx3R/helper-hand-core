@@ -1,4 +1,6 @@
-from application.usecases.user.user_query_use_case import GetUserUseCase
+from application.usecases.user.user_query_use_case import (
+    GetCompleteUserUseCase,
+)
 from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.dto.user.internal.user_query_dto import GetUserDTO
 from domain.dto.user.response.admin.admin_output_dto import (
@@ -16,7 +18,7 @@ from domain.repositories.user.admin.admin_query_repository import (
 )
 
 
-class GetUserForAdminUseCase(GetUserUseCase):
+class GetUserForAdminUseCase(GetCompleteUserUseCase):
     pass
 
 

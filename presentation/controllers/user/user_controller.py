@@ -1,4 +1,7 @@
 from fastapi import APIRouter, Depends
+from application.usecases.user.user_query_use_case import (
+    GetProfileForUserUseCase,
+)
 from core.containers import Container
 from dependency_injector.wiring import Provide, inject
 from domain.dto.user.internal.user_context_dto import UserContextDTO
@@ -8,9 +11,11 @@ from domain.dto.user.response.admin.admin_output_dto import (
     CompleteAdminOutputDTO,
 )
 from domain.dto.user.response.contractee.contractee_output_dto import (
+    CompleteContracteeOutputDTO,
     ContracteeOutputDTO,
 )
 from domain.dto.user.response.contractor.contractor_output_dto import (
+    CompleteContractorOutputDTO,
     ContractorOutputDTO,
 )
 from domain.dto.user.response.user_output_dto import UserOutputDTO
@@ -36,6 +41,29 @@ from presentation.controllers.permissions import (
 
 # Общий роутер для пользователей
 router = APIRouter()
+
+
+@inject
+def get_user_use_case_factory(
+    use_case: GetProfileForUserUseCase = Depends(
+        Provide[Container.get_profile_for_user_use_case]
+    ),
+):
+    return use_case
+
+
+@cbv(router)
+class UserController:
+    get_profile_use_case: GetProfileForUserUseCase = Depends(
+        get_user_use_case_factory
+    )
+
+    @router.get(
+        "/me",
+        response_model=UserOutputDTO,
+    )
+    async def get_me(self, user: UserContextDTO = Depends(authenticated)):
+        return await self.get_profile_use_case.execute(user)
 
 
 # @cbv(router)
@@ -71,21 +99,27 @@ def contractee_user_query_service_factory(
 
 @cbv(contractee_router)
 class ContracteeUserController:
+    service: ContracteeUserQueryService = Depends(
+        contractee_user_query_service_factory
+    )
+
     @contractee_router.get(
         "/me",
-        response_model=ContracteeOutputDTO,
+        response_model=CompleteContracteeOutputDTO,
     )
     async def get_me(self, user: UserContextDTO = Depends(require_contractee)):
-        pass
+        return await self.service.get_profile(user)
 
     @contractee_router.get(
         "/{user_id}",
-        response_model=UserOutputDTO,
+        # response_model=UserOutputDTO, # TODO: Правильный тип
     )
     async def get_user(
         self, user_id: int, user: UserContextDTO = Depends(require_contractee)
     ):
-        pass
+        return await self.service.get_user(
+            GetUserDTO(user_id=user_id, context=user)
+        )
 
 
 # Контроллер для исполнителей (Contractor)
@@ -103,21 +137,27 @@ def contractor_user_query_service_factory(
 
 @cbv(contractor_router)
 class ContractorUserController:
+    service: ContractorUserQueryService = Depends(
+        contractor_user_query_service_factory
+    )
+
     @contractor_router.get(
         "/me",
-        response_model=ContractorOutputDTO,
+        response_model=CompleteContractorOutputDTO,
     )
     async def get_me(self, user: UserContextDTO = Depends(require_contractor)):
-        pass
+        return await self.service.get_profile(user)
 
     @contractor_router.get(
         "/{user_id}",
-        response_model=UserOutputDTO,
+        # response_model=UserOutputDTO, # TODO: Правильный тип
     )
     async def get_user(
         self, user_id: int, user: UserContextDTO = Depends(require_contractor)
     ):
-        pass
+        return await self.service.get_user(
+            GetUserDTO(user_id=user_id, context=user)
+        )
 
 
 # Контроллер для администраторов

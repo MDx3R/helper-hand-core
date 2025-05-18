@@ -46,6 +46,7 @@ from domain.services.auth.token_service import TokenService
 from domain.services.auth.user_auth_service import (
     UserAuthService,
 )
+from domain.time import get_current_time
 
 
 class CredentialsExpiredException(Exception):
@@ -92,7 +93,7 @@ class JWTTokenService(TokenService):
         access_token = self._create_access_token(context)
         refresh_token = self._create_refresh_token(context)
 
-        # TODO: Сохранять в БД/Redis
+        # Сохраняем в БД/Redis
         await self.command_repository.create_token(access_token)
         await self.command_repository.create_token(refresh_token)
 
@@ -102,12 +103,17 @@ class JWTTokenService(TokenService):
             refresh_token=refresh_token.token,
         )
 
+    @transactional
     async def refresh_token(self, token: str):
-        # TODO: Проверка на существование
-        await self.query_repository.get_token(TokenSignature(token=token))
-
         claims = self.extract_claims(token)
         if not claims.is_refresh:
+            raise InvalidCredentialsException
+
+        # Проверка на существование
+        refresh_token = await self.query_repository.get_token(
+            TokenSignature(token=token)
+        )
+        if not refresh_token:
             raise InvalidCredentialsException
 
         # TODO: Получать актуальный контекст?
@@ -117,9 +123,10 @@ class JWTTokenService(TokenService):
         access_token = self._create_access_token(context)
         refresh_token = self._create_refresh_token(context)
 
-        # TODO: Пересохранять в БД/Redis
+        # Пересохраняем в БД/Redis
         await self.command_repository.create_token(access_token)
         await self.command_repository.create_token(refresh_token)
+        await self.command_repository.revoke_token(token)
 
         return AuthOutputDTO(
             user_id=context.user_id,
@@ -192,19 +199,16 @@ class JWTTokenService(TokenService):
 
     def _create_jwt_token(self, token: TokenClaims) -> str:
         to_encode = token.model_dump()
-        to_encode.update({"sub": token.user.user_id})
-        to_encode.update({"iat": self._get_now().timestamp()})
+        to_encode.update({"sub": str(token.user.user_id)})
+        to_encode.update({"iat": get_current_time().timestamp()})
         return jwt.encode(
-            token.model_dump(),
+            to_encode,
             self.config.SECRET_KEY,
             algorithm=self.config.ALGORITHM,
         )
 
     def _get_expiration_date(self, expiration_time: timedelta) -> datetime:
-        return self._get_now() + expiration_time
-
-    def _get_now(self) -> datetime:
-        return datetime.now(timezone.utc)
+        return get_current_time() + expiration_time
 
 
 class UserAuthServiceImpl(UserAuthService):

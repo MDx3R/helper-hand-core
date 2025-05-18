@@ -16,7 +16,7 @@ from domain.services.user.contractor_user_service import (
 
 
 class ContractorUserQueryServiceImpl(
-    ContractorUserQueryService, BaseUserQueryService
+    BaseUserQueryService, ContractorUserQueryService
 ):
     def __init__(
         self,

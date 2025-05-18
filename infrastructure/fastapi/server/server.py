@@ -64,9 +64,16 @@ class FastAPIServer:
 
     def _register_user_routers(self):
         from presentation.controllers.user.user_controller import (
+            router as user_router,
             contractor_router as contractor_user_router,
             contractee_router as contractee_user_router,
             admin_router as admin_user_router,
+        )
+
+        self.app.include_router(
+            user_router,
+            prefix="/users",
+            tags=["Users"],
         )
 
         self.app.include_router(

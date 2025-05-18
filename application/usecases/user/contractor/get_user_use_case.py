@@ -1,4 +1,6 @@
-from application.usecases.user.user_query_use_case import GetUserUseCase
+from application.usecases.user.user_query_use_case import (
+    GetCompleteUserUseCase,
+)
 from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.dto.user.response.contractor.contractor_output_dto import (
     CompleteContractorOutputDTO,
@@ -9,7 +11,7 @@ from domain.repositories.user.contractor.contractor_query_repository import (
 )
 
 
-class GetUserForContractorUseCase(GetUserUseCase):
+class GetUserForContractorUseCase(GetCompleteUserUseCase):
     pass
 
 

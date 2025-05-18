@@ -329,7 +329,7 @@ class CompleteRoleMapper:
         web: Optional[WebCredentialsBase],
         telegram: Optional[TelegramCredentialsBase],
     ) -> CompleteAdmin | CompleteContractor | CompleteContractee:
-        if not admin or not contractor or not contractee:
+        if not (admin or contractor or contractee):
             raise ValueError(f"Отсутсвует роль: {user.role}")
         match user.role:
             case RoleEnum.admin:

@@ -9,6 +9,12 @@ from application.services.auth.user_auth_service import (
 from application.services.user.admin_user_service import (
     AdminUserQueryServiceImpl,
 )
+from application.services.user.contractee_user_service import (
+    ContracteeUserQueryServiceImpl,
+)
+from application.services.user.contractor_user_service import (
+    ContractorUserQueryServiceImpl,
+)
 from application.usecases.auth.login_use_case import LoginUseCase
 from application.usecases.auth.create_user_use_case import (
     CreateContracteeUseCase,
@@ -25,6 +31,17 @@ from application.usecases.user.admin.get_pending_user_use_case import (
 from application.usecases.user.admin.get_user_use_case import (
     GetProfileForAdminUseCase,
     GetUserForAdminUseCase,
+)
+from application.usecases.user.contractee.get_user_use_case import (
+    GetProfileForContracteeUseCase,
+    GetUserForContracteeUseCase,
+)
+from application.usecases.user.contractor.get_user_use_case import (
+    GetProfileForContractorUseCase,
+    GetUserForContractorUseCase,
+)
+from application.usecases.user.user_query_use_case import (
+    GetProfileForUserUseCase,
 )
 from core.config import Config
 from domain.entities import user
@@ -49,6 +66,18 @@ from infrastructure.repositories.user.admin.admin_command_repository import (
 )
 from infrastructure.repositories.user.admin.admin_query_repository import (
     AdminQueryRepositoryImpl,
+)
+from infrastructure.repositories.user.contractee.contractee_command_repository import (
+    ContracteeCommandRepositoryImpl,
+)
+from infrastructure.repositories.user.contractee.contractee_query_repository import (
+    ContracteeQueryRepositoryImpl,
+)
+from infrastructure.repositories.user.contractor.contractor_command_repository import (
+    ContractorCommandRepositoryImpl,
+)
+from infrastructure.repositories.user.contractor.contractor_query_repository import (
+    ContractorQueryRepositoryImpl,
 )
 from infrastructure.repositories.user.user_command_repository import (
     UserCommandRepositoryImpl,
@@ -97,6 +126,12 @@ class Container(containers.DeclarativeContainer):
     admin_query_repository = providers.Singleton(
         AdminQueryRepositoryImpl, executor=query_executor
     )
+    contractor_query_repository = providers.Singleton(
+        ContractorQueryRepositoryImpl, executor=query_executor
+    )
+    contractee_query_repository = providers.Singleton(
+        ContracteeQueryRepositoryImpl, executor=query_executor
+    )
 
     # User Command Repositories
     user_command_repository = providers.Singleton(
@@ -106,10 +141,10 @@ class Container(containers.DeclarativeContainer):
         AdminCommandRepositoryImpl, executor=query_executor
     )
     contractee_command_repository = providers.Singleton(
-        ContracteeCommandRepository, executor=query_executor
+        ContracteeCommandRepositoryImpl, executor=query_executor
     )
     contractor_command_repository = providers.Singleton(
-        ContractorCommandRepository, executor=query_executor
+        ContractorCommandRepositoryImpl, executor=query_executor
     )
 
     # Token Repositories
@@ -173,6 +208,11 @@ class Container(containers.DeclarativeContainer):
     )
 
     # User Query UseCases
+    get_profile_for_user_use_case = providers.Singleton(
+        GetProfileForUserUseCase, repository=user_query_repository
+    )
+
+    # Admin
     get_user_for_admin_use_case = providers.Singleton(
         GetUserForAdminUseCase, repository=user_role_query_repository
     )
@@ -183,6 +223,22 @@ class Container(containers.DeclarativeContainer):
         GetProfileForAdminUseCase, repository=admin_query_repository
     )
 
+    # Contractor
+    get_user_for_contractor_use_case = providers.Singleton(
+        GetUserForContractorUseCase, repository=user_role_query_repository
+    )
+    get_profile_for_contractor_use_case = providers.Singleton(
+        GetProfileForContractorUseCase, repository=contractor_query_repository
+    )
+
+    # Contractor
+    get_user_for_contractee_use_case = providers.Singleton(
+        GetUserForContracteeUseCase, repository=user_role_query_repository
+    )
+    get_profile_for_contractee_use_case = providers.Singleton(
+        GetProfileForContracteeUseCase, repository=contractee_query_repository
+    )
+
     # UserQuery
     # UseCases
     admin_user_query_service = providers.Singleton(
@@ -191,5 +247,13 @@ class Container(containers.DeclarativeContainer):
         get_pending_user_use_case=get_pending_user_use_case,
         get_profile_use_case=get_profile_for_admin_use_case,
     )
-    contractor_user_query_service = providers.Singleton(MockUserAuthService)
-    contractee_user_query_service = providers.Singleton(MockUserAuthService)
+    contractor_user_query_service = providers.Singleton(
+        ContractorUserQueryServiceImpl,
+        get_user_use_case=get_user_for_contractor_use_case,
+        get_profile_use_case=get_profile_for_contractor_use_case,
+    )
+    contractee_user_query_service = providers.Singleton(
+        ContracteeUserQueryServiceImpl,
+        get_user_use_case=get_user_for_contractee_use_case,
+        get_profile_use_case=get_profile_for_contractee_use_case,
+    )
