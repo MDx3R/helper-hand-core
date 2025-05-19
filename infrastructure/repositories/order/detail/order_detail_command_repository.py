@@ -36,7 +36,14 @@ class OrderDetailCommandRepositoryImpl(OrderDetailCommandRepository):
         query = (
             insert(OrderDetailBase)
             .values(
-                [detail.get_fields(exclude_none=True) for detail in details]
+                [
+                    {
+                        k: v
+                        for k, v in detail.get_fields().items()
+                        if k != "detail_id"
+                    }
+                    for detail in details
+                ]
             )
             .returning(OrderDetailBase)
         )
