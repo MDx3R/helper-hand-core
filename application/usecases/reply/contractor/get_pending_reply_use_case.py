@@ -18,7 +18,7 @@ from domain.repositories.reply.composite_reply_query_repository import (
 from domain.services.domain.services import OrderDomainService
 
 
-class GetPendingReplyUseCase:
+class GetPendingReplyForOrderUseCase:
     def __init__(
         self,
         order_repository: OrderQueryRepository,

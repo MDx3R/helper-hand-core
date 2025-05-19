@@ -8,7 +8,7 @@ from application.usecases.reply.contractor.change_reply_status_use_case import (
     DisapproveReplyUseCase,
 )
 from application.usecases.reply.contractor.get_pending_reply_use_case import (
-    GetPendingReplyUseCase,
+    GetPendingReplyForOrderUseCase,
 )
 from application.usecases.reply.contractor.get_reply_use_case import (
     GetReplyForContractorUseCase,
@@ -65,7 +65,7 @@ class ContractorReplyServiceImpl(ContractorReplyService, BaseReplyService):
     def __init__(
         self,
         get_reply_use_case: GetReplyForContractorUseCase,
-        get_pending_reply_use_case: GetPendingReplyUseCase,
+        get_pending_reply_use_case: GetPendingReplyForOrderUseCase,
         get_order_replies_use_case: ListOrderRepliesForContractorUseCase,
         get_detail_replies_use_case: ListDetailRepliesForContractorUseCase,
     ):

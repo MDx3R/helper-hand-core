@@ -30,8 +30,8 @@ class GetReplyForContractorUseCase(GetReplyUseCase):
         order_repository: OrderQueryRepository,
         reply_repository: CompositeReplyQueryRepository,
     ):
+        super().__init__(reply_repository)
         self.order_repository = order_repository
-        self.reply_repository = reply_repository
 
     @transactional
     async def execute(
@@ -46,8 +46,4 @@ class GetReplyForContractorUseCase(GetReplyUseCase):
         ):
             return None
 
-        reply = await self.reply_repository.get_complete_reply(query)
-        if not reply:
-            return None
-
-        return ReplyMapper.to_complete(reply)
+        return await super().execute(query)

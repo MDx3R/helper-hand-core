@@ -15,19 +15,9 @@ from domain.repositories.reply.reply_query_repository import (
 
 
 class ListOrderRepliesForContractorUseCase(ListOrderRepliesUseCase):
-    def __init__(self, repository: ReplyQueryRepository):
-        self.repository = repository
-
     async def execute(self, query: GetOrderRepliesDTO) -> List[ReplyOutputDTO]:
         # TODO: Проверка на заказ и заказчика
-        replies = await self.repository.filter_replies(
-            ReplyFilterDTO(
-                order_id=query.order_id,
-                last_id=query.last_id,
-                size=query.size,
-            )
-        )
-        return [ReplyMapper.to_output(i) for i in replies]
+        return await super().execute(query)
 
 
 class ListDetailRepliesForContractorUseCase:

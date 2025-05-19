@@ -25,13 +25,13 @@ from domain.repositories.reply.reply_query_repository import (
 
 # Common
 class GetReplyUseCase:
-    def __init__(self, order_repository: CompositeReplyQueryRepository):
-        self.order_repository = order_repository
+    def __init__(self, reply_repository: CompositeReplyQueryRepository):
+        self.reply_repository = reply_repository
 
     async def execute(
         self, query: GetReplyDTO
     ) -> CompleteReplyOutputDTO | None:
-        reply = await self.order_repository.get_complete_reply(query)
+        reply = await self.reply_repository.get_complete_reply(query)
         if not reply:
             return None
         return ReplyMapper.to_complete(reply)
@@ -44,13 +44,17 @@ class ListOrderRepliesUseCase:
 
     async def execute(self, query: GetOrderRepliesDTO) -> List[ReplyOutputDTO]:
         replies = await self.repository.filter_replies(
-            ReplyFilterDTO(
-                order_id=query.order_id,
-                last_id=query.last_id,
-                size=query.size,
-            )
+            self._build_filter(query)
         )
         return [ReplyMapper.to_output(i) for i in replies]
+
+    def _build_filter(self, query: GetOrderRepliesDTO) -> ReplyFilterDTO:
+        return ReplyFilterDTO(
+            order_id=query.order_id,
+            last_id=query.last_id,
+            size=query.size,
+            sorting=SortingOrder.descending,
+        )
 
 
 class ListDetailRepliesUseCase:
