@@ -52,7 +52,7 @@ ALIASES = {
     "detail": OrderDetailBase,
     "order": OrderBase,
     "contractee_user": UserBase,
-    "contractor": ContracteeBase,
+    "contractee": ContracteeBase,
 }
 
 

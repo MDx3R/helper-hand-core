@@ -8,7 +8,7 @@ from domain.repositories.reply.contractee_reply_query_repository import (
 )
 
 
-class ListFutureRepliesUseCase:
+class ListFutureRepliesForContracteeUseCase:
     def __init__(self, repository: ContracteeReplyQueryRepository):
         self.repository = repository
 

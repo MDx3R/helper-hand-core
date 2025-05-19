@@ -3,7 +3,6 @@ from application.external.password_hasher import BcryptPasswordHasher
 from application.services.auth.user_auth_service import (
     JWTTokenBlacklist,
     JWTTokenService,
-    MockUserAuthService,
     UserAuthServiceImpl,
 )
 from application.services.order.admin_order_service import (
@@ -16,6 +15,14 @@ from application.services.order.contractee_order_service import (
 from application.services.order.contractor_order_service import (
     ContractorOrderManagementServiceImpl,
     ContractorOrderQueryServiceImpl,
+)
+from application.services.reply.contractee_reply_service import (
+    ContracteeReplyManagmentServiceImpl,
+    ContracteeReplyQueryServiceImpl,
+)
+from application.services.reply.contractor_reply_service import (
+    ContractorReplyManagmentServiceImpl,
+    ContractorReplyQueryServiceImpl,
 )
 from application.services.user.admin_user_service import (
     AdminUserQueryServiceImpl,
@@ -75,6 +82,33 @@ from application.usecases.order.contractor.get_order_use_case import (
 from application.usecases.order.contractor.list_owned_orders_use_case import (
     ListOwnedOrdersUseCase,
 )
+from application.usecases.reply.contractee.create_reply_use_case import (
+    CreateReplyUseCase,
+)
+from application.usecases.reply.contractee.get_reply_use_case import (
+    GetReplyForContracteeUseCase,
+)
+from application.usecases.reply.contractee.list_future_replies_use_case import (
+    ListFutureRepliesForContracteeUseCase,
+)
+from application.usecases.reply.contractee.list_submitted_replies_use_case import (
+    ListSubmittedRepliesForContracteeUseCase,
+    ListSubmittedRepliesForOrderAndContracteeUseCase,
+)
+from application.usecases.reply.contractor.change_reply_status_use_case import (
+    ApproveReplyUseCase,
+    DisapproveReplyUseCase,
+)
+from application.usecases.reply.contractor.get_pending_reply_use_case import (
+    GetPendingReplyForOrderUseCase,
+)
+from application.usecases.reply.contractor.get_reply_use_case import (
+    GetReplyForContractorUseCase,
+)
+from application.usecases.reply.contractor.list_order_replies_use_case import (
+    ListDetailRepliesForContractorUseCase,
+    ListOrderRepliesForContractorUseCase,
+)
 from application.usecases.user.admin.get_pending_user_use_case import (
     GetPendingUserUseCase,
 )
@@ -94,19 +128,6 @@ from application.usecases.user.user_query_use_case import (
     GetProfileForUserUseCase,
 )
 from core.config import Config
-from domain.entities import user
-from domain.repositories.order.composite_order_query_repository import (
-    CompositeOrderQueryRepository,
-)
-from domain.repositories.order.order_command_repository import (
-    OrderCommandRepository,
-)
-from domain.repositories.user.contractee.contractee_command_repository import (
-    ContracteeCommandRepository,
-)
-from domain.repositories.user.contractor.contractor_command_repository import (
-    ContractorCommandRepository,
-)
 from infrastructure.database.database import (
     Database,
 )
@@ -117,6 +138,9 @@ from infrastructure.repositories.order.composite_order_query_repository import (
 from infrastructure.repositories.order.detail.order_detail_command_repository import (
     OrderDetailCommandRepositoryImpl,
 )
+from infrastructure.repositories.order.detail.order_detail_query_repository import (
+    OrderDetailQueryRepositoryImpl,
+)
 from infrastructure.repositories.order.order_command_repository import (
     OrderCommandRepositoryImpl,
 )
@@ -125,6 +149,15 @@ from infrastructure.repositories.order.order_query_repository import (
 )
 from infrastructure.repositories.reply.composite_reply_query_repository import (
     CompositeReplyQueryRepositoryImpl,
+)
+from infrastructure.repositories.reply.contractee_reply_query_repository import (
+    ContracteeReplyQueryRepositoryImpl,
+)
+from infrastructure.repositories.reply.reply_command_repository import (
+    ReplyCommandRepositoryImpl,
+)
+from infrastructure.repositories.reply.reply_query_repository import (
+    ReplyQueryRepositoryImpl,
 )
 from infrastructure.repositories.token.token_command_repository import (
     TokenCommandRepositoryImpl,
@@ -226,13 +259,25 @@ class Container(containers.DeclarativeContainer):
     order_command_repository = providers.Singleton(
         OrderCommandRepositoryImpl, query_executor
     )
+    order_detail_query_repository = providers.Singleton(
+        OrderDetailQueryRepositoryImpl, query_executor
+    )
     order_detail_command_repository = providers.Singleton(
         OrderDetailCommandRepositoryImpl, query_executor
     )
 
     # --- Reply Repositories ---
+    reply_query_repository = providers.Singleton(
+        ReplyQueryRepositoryImpl, query_executor
+    )
+    reply_command_repository = providers.Singleton(
+        ReplyCommandRepositoryImpl, query_executor
+    )
     composite_reply_query_repository = providers.Singleton(
         CompositeReplyQueryRepositoryImpl, query_executor
+    )
+    contractee_reply_query_repository = providers.Singleton(
+        ContracteeReplyQueryRepositoryImpl, query_executor
     )
 
     # --- Token Repositories ---
@@ -388,6 +433,61 @@ class Container(containers.DeclarativeContainer):
     )
 
     # --- Reply ---
+    create_reply_use_case = providers.Singleton(
+        CreateReplyUseCase,
+        contractee_repository=contractee_query_repository,
+        order_repository=order_query_repository,
+        detail_repository=order_detail_query_repository,
+        reply_query_repository=reply_query_repository,
+        reply_command_repository=reply_command_repository,
+        contractee_reply_repository=contractee_reply_query_repository,
+    )
+    get_reply_for_contractee_use_case = providers.Singleton(
+        GetReplyForContracteeUseCase,
+        composite_reply_query_repository,
+    )
+    get_reply_for_contractor_use_case = providers.Singleton(
+        GetReplyForContractorUseCase,
+        order_repository=order_query_repository,
+        reply_repository=composite_reply_query_repository,
+    )
+    get_pending_reply_for_order_use_case = providers.Singleton(
+        GetPendingReplyForOrderUseCase,
+        order_repository=order_query_repository,
+        reply_repository=composite_reply_query_repository,
+    )
+    list_order_replies_for_contractor_use_case = providers.Singleton(
+        ListOrderRepliesForContractorUseCase,
+        reply_query_repository,
+    )
+    list_detail_replies_for_contractor_use_case = providers.Singleton(
+        ListDetailRepliesForContractorUseCase,
+        reply_query_repository,
+    )
+    list_submitted_replies_use_case = providers.Singleton(
+        ListSubmittedRepliesForContracteeUseCase,
+        reply_query_repository,
+    )
+    list_submitted_replies_for_order_use_case = providers.Singleton(
+        ListSubmittedRepliesForOrderAndContracteeUseCase,
+        reply_query_repository,
+    )
+    list_future_replies_for_contractee_use_case = providers.Singleton(
+        ListFutureRepliesForContracteeUseCase,
+        contractee_reply_query_repository,
+    )
+    approve_reply_use_case = providers.Singleton(
+        ApproveReplyUseCase,
+        reply_query_repository=reply_query_repository,
+        reply_command_repository=reply_command_repository,
+        composite_reply_query_repository=composite_reply_query_repository,
+        order_repository=order_command_repository,
+    )
+    disapprove_reply_use_case = providers.Singleton(
+        DisapproveReplyUseCase,
+        reply_command_repository=reply_command_repository,
+        composite_reply_query_repository=composite_reply_query_repository,
+    )
 
     # ---------------------- Services ----------------------
 
@@ -459,4 +559,33 @@ class Container(containers.DeclarativeContainer):
         get_orders_use_case=list_owned_orders_use_case,
         get_suitable_order_use_case=get_suitable_order_use_case,
         get_suitable_details_use_case=get_suitable_details_use_case,
+    )
+
+    # --- Reply ---
+
+    contractor_reply_query_service = providers.Singleton(
+        ContractorReplyQueryServiceImpl,
+        get_reply_use_case=get_reply_for_contractor_use_case,
+        get_pending_reply_use_case=get_pending_reply_for_order_use_case,
+        get_order_replies_use_case=list_order_replies_for_contractor_use_case,
+        get_detail_replies_use_case=list_detail_replies_for_contractor_use_case,
+    )
+    contractor_reply_managment_service = providers.Singleton(
+        ContractorReplyManagmentServiceImpl,
+        approve_reply_use_case=approve_reply_use_case,
+        disapprove_reply_use_case=disapprove_reply_use_case,
+        contractee_notification_service=None,  # TODO: inject service
+    )
+
+    contractee_reply_query_service = providers.Singleton(
+        ContracteeReplyQueryServiceImpl,
+        get_reply_use_case=get_reply_for_contractee_use_case,
+        get_replies_use_case=list_submitted_replies_use_case,
+        get_order_replies_use_case=list_submitted_replies_for_order_use_case,
+        get_future_replies_use_case=list_future_replies_for_contractee_use_case,
+    )
+    contractee_reply_managment_service = providers.Singleton(
+        ContracteeReplyManagmentServiceImpl,
+        create_reply_use_case=create_reply_use_case,
+        contractor_notification_service=None,  # TODO: inject service
     )

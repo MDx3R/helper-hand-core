@@ -14,8 +14,3 @@ class OrderDetailQueryRepository(ABC):
         self, order_id: int
     ) -> List[OrderDetail]:
         pass
-
-    @abstractmethod
-    async def get_free_order_details(self, order_id: int) -> List[OrderDetail]:
-        # Не заполненные
-        pass

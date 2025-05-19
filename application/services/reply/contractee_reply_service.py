@@ -9,9 +9,12 @@ from application.usecases.reply.contractee.create_reply_use_case import (
 from application.usecases.reply.contractee.get_reply_use_case import (
     GetReplyForContracteeUseCase,
 )
+from application.usecases.reply.contractee.list_future_replies_use_case import (
+    ListFutureRepliesForContracteeUseCase,
+)
 from application.usecases.reply.contractee.list_submitted_replies_use_case import (
-    ListSubmittedRepliesForOrderUseCase,
-    ListSubmittedRepliesUseCase,
+    ListSubmittedRepliesForOrderAndContracteeUseCase,
+    ListSubmittedRepliesForContracteeUseCase,
 )
 from application.usecases.reply.reply_query_use_case import (
     GetReplyUseCase,
@@ -28,7 +31,7 @@ from domain.dto.user.internal.user_context_dto import PaginatedDTO
 from domain.entities.reply.composite_reply import CompleteReply
 from domain.services.reply.contractee_reply_service import (
     ContracteeReplyManagmentService,
-    ContracteeReplyService,
+    ContracteeReplyQueryService,
 )
 
 
@@ -47,13 +50,15 @@ class ContracteeReplyManagmentServiceImpl(ContracteeReplyManagmentService):
         return reply
 
 
-class ContracteeReplyServiceImpl(BaseReplyService, ContracteeReplyService):
+class ContracteeReplyQueryServiceImpl(
+    BaseReplyService, ContracteeReplyQueryService
+):
     def __init__(
         self,
         get_reply_use_case: GetReplyForContracteeUseCase,
-        get_replies_use_case: ListSubmittedRepliesUseCase,
-        get_order_replies_use_case: ListSubmittedRepliesForOrderUseCase,
-        get_future_replies_use_case: ListContracteeFutureRepliesUseCase,
+        get_replies_use_case: ListSubmittedRepliesForContracteeUseCase,
+        get_order_replies_use_case: ListSubmittedRepliesForOrderAndContracteeUseCase,
+        get_future_replies_use_case: ListFutureRepliesForContracteeUseCase,
     ):
         super().__init__(get_reply_use_case, get_order_replies_use_case)
         self.get_replies_use_case = get_replies_use_case
@@ -65,10 +70,4 @@ class ContracteeReplyServiceImpl(BaseReplyService, ContracteeReplyService):
     async def get_future_replies(
         self, query: PaginatedDTO
     ) -> List[ReplyOutputDTO]:
-        return await self.get_future_replies_use_case.execute(
-            GetContracteeRepliesDTO(
-                last_id=query.last_id,
-                size=query.size,
-                user_id=query.context.user_id,
-            )
-        )
+        return await self.get_future_replies_use_case.execute(query)

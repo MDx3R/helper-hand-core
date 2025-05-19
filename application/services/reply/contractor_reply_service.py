@@ -33,7 +33,7 @@ from domain.dto.reply.response.reply_output_dto import (
 )
 from domain.services.reply.contractor_reply_service import (
     ContractorReplyManagmentService,
-    ContractorReplyService,
+    ContractorReplyQueryService,
 )
 
 
@@ -61,7 +61,9 @@ class ContractorReplyManagmentServiceImpl(ContractorReplyManagmentService):
         return reply
 
 
-class ContractorReplyServiceImpl(ContractorReplyService, BaseReplyService):
+class ContractorReplyQueryServiceImpl(
+    BaseReplyService, ContractorReplyQueryService
+):
     def __init__(
         self,
         get_reply_use_case: GetReplyForContractorUseCase,

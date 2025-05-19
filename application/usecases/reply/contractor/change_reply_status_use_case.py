@@ -57,12 +57,14 @@ class ApproveReplyUseCase:
         self,
         reply_query_repository: ReplyQueryRepository,
         reply_command_repository: ReplyCommandRepository,
-        composite_query_repository: CompositeReplyQueryRepository,
+        composite_reply_query_repository: CompositeReplyQueryRepository,
         order_repository: OrderCommandRepository,
     ):
         self.reply_query_repository = reply_query_repository
         self.reply_command_repository = reply_command_repository
-        self.composite_query_repository = composite_query_repository
+        self.composite_reply_query_repository = (
+            composite_reply_query_repository
+        )
         self.order_repository = order_repository
 
     @transactional
@@ -154,7 +156,7 @@ class ApproveReplyUseCase:
     async def _get_complete_reply_and_raise_if_not_exists(
         self, request: ReplyManagementDTO
     ) -> CompleteReply:
-        reply = await self.composite_query_repository.get_complete_reply(
+        reply = await self.composite_reply_query_repository.get_complete_reply(
             ReplyIdDTO(
                 contractee_id=request.contractee_id,
                 detail_id=request.detail_id,
@@ -212,7 +214,7 @@ class ApproveReplyUseCase:
         self, order_id: int
     ) -> List[AvailableRepliesForDetail]:
         return await self.reply_query_repository.get_order_available_replies_count(
-            OrderIdDTO(order_id=order_id)
+            order_id
         )
 
     async def _get_detail_availability(
@@ -231,10 +233,12 @@ class DisapproveReplyUseCase:
     def __init__(
         self,
         reply_command_repository: ReplyCommandRepository,
-        composite_query_repository: CompositeReplyQueryRepository,
+        composite_reply_query_repository: CompositeReplyQueryRepository,
     ):
         self.reply_command_repository = reply_command_repository
-        self.composite_query_repository = composite_query_repository
+        self.composite_reply_query_repository = (
+            composite_reply_query_repository
+        )
 
     @transactional
     async def execute(self, request: DisapproveReplyDTO) -> ReplyOutputDTO:
@@ -266,7 +270,7 @@ class DisapproveReplyUseCase:
     async def _get_complete_reply_and_raise_if_not_exists(
         self, request: ReplyManagementDTO
     ) -> CompleteReply:
-        reply = await self.composite_query_repository.get_complete_reply(
+        reply = await self.composite_reply_query_repository.get_complete_reply(
             ReplyIdDTO(
                 contractee_id=request.contractee_id,
                 detail_id=request.detail_id,

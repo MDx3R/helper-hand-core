@@ -45,6 +45,7 @@ class FastAPIServer:
         self._register_auth_routers()
         self._register_user_routers()
         self._register_order_routers()
+        self._register_reply_routers()
         print("Registered routes:", [route.path for route in self.app.routes])
         print("Done")
 
@@ -112,4 +113,23 @@ class FastAPIServer:
             admin_router,
             prefix="/admin/orders",
             tags=["Admin's Orders"],
+        )
+
+    def _register_reply_routers(self):
+        from presentation.controllers.reply.contractee_reply_controller import (
+            contractee_reply_router,
+        )
+        from presentation.controllers.reply.contractor_reply_controller import (
+            contractor_reply_router,
+        )
+
+        self.app.include_router(
+            contractor_reply_router,
+            prefix="/contractor/replies",
+            tags=["Contractor's Replies"],
+        )
+        self.app.include_router(
+            contractee_reply_router,
+            prefix="/contractee/replies",
+            tags=["Contractee's Replies"],
         )

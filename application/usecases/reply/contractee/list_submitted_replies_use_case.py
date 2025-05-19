@@ -13,7 +13,7 @@ from domain.repositories.reply.reply_query_repository import (
 )
 
 
-class ListSubmittedRepliesUseCase:
+class ListSubmittedRepliesForContracteeUseCase:
     def __init__(self, repository: ReplyQueryRepository):
         self.repository = repository
 
@@ -29,7 +29,9 @@ class ListSubmittedRepliesUseCase:
         return [ReplyMapper.to_output(i) for i in replies]
 
 
-class ListSubmittedRepliesForOrderUseCase(ListOrderRepliesUseCase):
+class ListSubmittedRepliesForOrderAndContracteeUseCase(
+    ListOrderRepliesUseCase
+):
     def __init__(self, repository: ReplyQueryRepository):
         super().__init__(repository)
 

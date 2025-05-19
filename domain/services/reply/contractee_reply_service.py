@@ -20,7 +20,7 @@ class ContracteeReplyManagmentService(ABC):
         pass
 
 
-class ContracteeReplyService(ABC):
+class ContracteeReplyQueryService(ABC):
     @abstractmethod
     async def get_reply(
         self, query: GetReplyDTO
