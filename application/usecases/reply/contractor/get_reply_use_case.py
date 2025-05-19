@@ -1,4 +1,5 @@
 from application.transactions import transactional
+from application.usecases.reply.reply_query_use_case import GetReplyUseCase
 from domain.dto.order.internal.base import DetailIdDTO, OrderIdDTO
 from domain.dto.reply.internal.reply_filter_dto import ReplyFilterDTO
 from domain.dto.reply.internal.reply_query_dto import (
@@ -23,7 +24,7 @@ from domain.services.domain.services import OrderDomainService
 
 
 # Common
-class GetReplyForContractorUseCase:
+class GetReplyForContractorUseCase(GetReplyUseCase):
     def __init__(
         self,
         order_repository: OrderQueryRepository,
@@ -37,7 +38,7 @@ class GetReplyForContractorUseCase:
         self, query: GetReplyDTO
     ) -> CompleteReplyOutputDTO | None:
         order = await self.order_repository.get_order_for_detail(
-            DetailIdDTO(detail_id=query.detail_id)
+            query.detail_id
         )
 
         if not order or not OrderDomainService.is_owned_by(
@@ -50,12 +51,3 @@ class GetReplyForContractorUseCase:
             return None
 
         return ReplyMapper.to_complete(reply)
-
-    async def _get_order_and_raise_if_not_exists(
-        self, detail_id: int
-    ) -> Order:
-        order = await self.order_repository.get_order_for_detail(
-            DetailIdDTO(detail_id=detail_id)
-        )
-
-        return order

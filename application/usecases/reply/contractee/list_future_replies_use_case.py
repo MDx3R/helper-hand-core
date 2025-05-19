@@ -13,7 +13,7 @@ class ListFutureRepliesUseCase:
         self.repository = repository
 
     async def execute(self, query: PaginatedDTO) -> List[ReplyOutputDTO]:
-        replies = self.repository.get_contractee_future_replies(
-            UserIdDTO(user_id=query.context.user_id)
+        replies = await self.repository.get_contractee_future_replies(
+            query.context.user_id
         )
         return [ReplyMapper.to_output(i) for i in replies]

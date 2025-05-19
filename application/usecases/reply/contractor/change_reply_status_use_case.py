@@ -1,3 +1,4 @@
+from datetime import date
 from typing import List, Tuple
 from application.transactions import transactional
 from domain.dto.order.internal.base import OrderIdDTO
@@ -89,7 +90,7 @@ class ApproveReplyUseCase:
         # обновляем количество свободных мест на позицию
         detail_availability.quantity -= 1
 
-        await self._drop_unapproved_replies_by_date(
+        await self._drop_contractee_unapproved_replies_by_date(
             reply.contractee_id, composite_reply.detail.date
         )
 
@@ -110,13 +111,13 @@ class ApproveReplyUseCase:
             )
         )
 
-    async def _drop_unapproved_replies_by_date(
-        self, composite_reply: CompleteReply
+    async def _drop_contractee_unapproved_replies_by_date(
+        self, contractee_id: int, date: date
     ):
         await self.reply_command_repository.drop_replies(
-            ContracteeReplyFilterDTO(
-                contractee_id=composite_reply.reply.contractee_id,
-                date=composite_reply.detail.date,
+            DropReplyDTO(
+                contractee_id=contractee_id,
+                date=date,
             )
         )
 
@@ -133,7 +134,7 @@ class ApproveReplyUseCase:
 
     async def _drop_unapproved_replies_for_detail(self, detail: OrderDetail):
         await self.reply_command_repository.drop_replies(
-            ContracteeReplyFilterDTO(
+            DropReplyDTO(
                 detail_id=detail.detail_id,
             )
         )
@@ -145,7 +146,7 @@ class ApproveReplyUseCase:
             )
         )
         await self.reply_command_repository.drop_replies(
-            ContracteeReplyFilterDTO(
+            DropReplyDTO(
                 order_id=order.order_id,
             )
         )

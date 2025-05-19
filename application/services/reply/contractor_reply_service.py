@@ -50,14 +50,14 @@ class ContractorReplyManagmentServiceImpl(ContractorReplyManagmentService):
 
     async def approve_reply(self, request: ApproveReplyDTO) -> ReplyOutputDTO:
         reply = await self.approve_reply_use_case.execute(request)
-        await self.contractee_notification_service.send_reply_approved_notification()  # TODO: DTO
+        # await self.contractee_notification_service.send_reply_approved_notification()  # TODO: DTO
         return reply
 
     async def disapprove_reply(
         self, request: DisapproveReplyDTO
     ) -> ReplyOutputDTO:
         reply = await self.disapprove_reply_use_case.execute(request)
-        await self.contractee_notification_service.send_reply_disapproved_notification()  # TODO: DTO
+        # await self.contractee_notification_service.send_reply_disapproved_notification()  # TODO: DTO
         return reply
 
 

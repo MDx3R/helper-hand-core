@@ -9,4 +9,4 @@ class GetReplyForContracteeUseCase(GetReplyUseCase):
     ) -> CompleteReplyOutputDTO | None:
         if query.contractee_id != query.context.user_id:
             return None
-        return super().execute(query)
+        return await super().execute(query)

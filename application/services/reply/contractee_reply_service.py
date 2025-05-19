@@ -43,11 +43,11 @@ class ContracteeReplyManagmentServiceImpl(ContracteeReplyManagmentService):
 
     async def submit_reply(self, request: CreateReplyDTO) -> ReplyOutputDTO:
         reply = await self.create_reply_use_case.execute(request)
-        await self.contractor_notification_service.send_new_reply_notification()  # TODO: DTO
+        # await self.contractor_notification_service.send_new_reply_notification()  # TODO: DTO
         return reply
 
 
-class ContracteeReplyServiceImpl(ContracteeReplyService, BaseReplyService):
+class ContracteeReplyServiceImpl(BaseReplyService, ContracteeReplyService):
     def __init__(
         self,
         get_reply_use_case: GetReplyForContracteeUseCase,
@@ -59,18 +59,16 @@ class ContracteeReplyServiceImpl(ContracteeReplyService, BaseReplyService):
         self.get_replies_use_case = get_replies_use_case
         self.get_future_replies_use_case = get_future_replies_use_case
 
-    async def get_reply(self, query: GetReplyDTO) -> CompleteReply | None:
-        return await self.get_reply_use_case.execute(query)
-
     async def get_replies(self, query: PaginatedDTO) -> List[ReplyOutputDTO]:
         return await self.get_replies_use_case.execute(query)
 
-    async def get_order_replies(
-        self, query: GetOrderRepliesDTO
-    ) -> List[ReplyOutputDTO]:
-        return await self.get_order_replies_use_case.execute(query)
-
     async def get_future_replies(
-        self, query: GetContracteeRepliesDTO
+        self, query: PaginatedDTO
     ) -> List[ReplyOutputDTO]:
-        return await self.get_future_replies_use_case.execute(query)
+        return await self.get_future_replies_use_case.execute(
+            GetContracteeRepliesDTO(
+                last_id=query.last_id,
+                size=query.size,
+                user_id=query.context.user_id,
+            )
+        )

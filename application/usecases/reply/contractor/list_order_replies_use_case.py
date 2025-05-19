@@ -1,4 +1,7 @@
 from typing import List
+from application.usecases.reply.reply_query_use_case import (
+    ListOrderRepliesUseCase,
+)
 from domain.dto.reply.internal.reply_filter_dto import ReplyFilterDTO
 from domain.dto.reply.internal.reply_query_dto import (
     GetDetailRepliesDTO,
@@ -11,13 +14,13 @@ from domain.repositories.reply.reply_query_repository import (
 )
 
 
-class ListOrderRepliesForContractorUseCase:
+class ListOrderRepliesForContractorUseCase(ListOrderRepliesUseCase):
     def __init__(self, repository: ReplyQueryRepository):
         self.repository = repository
 
     async def execute(self, query: GetOrderRepliesDTO) -> List[ReplyOutputDTO]:
         # TODO: Проверка на заказ и заказчика
-        replies = self.repository.filter_replies(
+        replies = await self.repository.filter_replies(
             ReplyFilterDTO(
                 order_id=query.order_id,
                 last_id=query.last_id,
@@ -35,7 +38,7 @@ class ListDetailRepliesForContractorUseCase:
         self, query: GetDetailRepliesDTO
     ) -> List[ReplyOutputDTO]:
         # TODO: Проверка на заказ и заказчика
-        replies = self.repository.filter_replies(
+        replies = await self.repository.filter_replies(
             ReplyFilterDTO(
                 detail_id=query.detail_id,
                 last_id=query.last_id,

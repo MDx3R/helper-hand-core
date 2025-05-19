@@ -31,9 +31,7 @@ class GetPendingReplyUseCase:
     async def execute(
         self, query: GetOrderReplyDTO
     ) -> CompleteReplyOutputDTO | None:
-        order = await self.order_repository.get_order(
-            OrderIdDTO(order_id=query.order_id)
-        )
+        order = await self.order_repository.get_order(query.order_id)
         if not order:
             return None
 

@@ -93,24 +93,26 @@ class CreateReplyUseCase:
     async def _get_contractee_and_raise_if_not_exists(
         self, context: UserContextDTO
     ) -> Contractee:
-        contractee = self.contractee_repository.get_contractee(
-            UserIdDTO(user_id=context.user_id)
+        contractee = await self.contractee_repository.get_contractee(
+            context.user_id
         )
-
         if not contractee:
             raise NotFoundException(context.user_id)
+
+        return contractee
 
     async def _get_order_and_detail_and_raise_if_not_exists(
         self, detail_id: int
     ) -> Tuple[Order, OrderDetail]:
-        dto = DetailIdDTO(detail_id=detail_id)
-        detail = await self.detail_repository.get_detail(dto)
+        detail = await self.detail_repository.get_detail(detail_id)
         if not detail:
             raise NotFoundException(detail_id)
 
         # нет необходимости проверять заказ на существование,
         # так как проверка detail уже обеспечила его существование
-        order = await self.order_repository.get_order_for_detail(dto)
+        order = await self.order_repository.get_order_for_detail(detail_id)
+        if not order:
+            raise
 
         return order, detail
 
@@ -168,6 +170,6 @@ class CreateReplyUseCase:
 
     async def _is_detail_full(self, detail: OrderDetail) -> bool:
         detail_availability = await self.reply_query_repository.get_detail_available_replies_count(
-            DetailIdDTO(detail_id=detail.detail_id)
+            detail.detail_id
         )
         return AvailabilityDomainService.is_full(detail_availability)

@@ -6,7 +6,10 @@ from domain.dto.reply.internal.reply_query_dto import (
     GetReplyDTO,
 )
 from domain.dto.reply.request.create_reply_dto import CreateReplyDTO
-from domain.dto.reply.response.reply_output_dto import ReplyOutputDTO
+from domain.dto.reply.response.reply_output_dto import (
+    CompleteReplyOutputDTO,
+    ReplyOutputDTO,
+)
 from domain.dto.user.internal.user_context_dto import PaginatedDTO
 from domain.entities.reply.composite_reply import CompleteReply
 
@@ -19,7 +22,9 @@ class ContracteeReplyManagmentService(ABC):
 
 class ContracteeReplyService(ABC):
     @abstractmethod
-    async def get_reply(self, query: GetReplyDTO) -> CompleteReply | None:
+    async def get_reply(
+        self, query: GetReplyDTO
+    ) -> CompleteReplyOutputDTO | None:
         pass
 
     @abstractmethod

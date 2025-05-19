@@ -1,4 +1,5 @@
 from typing import List
+from domain.dto.base import SortingOrder
 from domain.dto.reply.internal.reply_filter_dto import ReplyFilterDTO
 from domain.dto.reply.internal.reply_query_dto import (
     GetContracteeRepliesDTO,
@@ -30,7 +31,7 @@ class GetReplyUseCase:
     async def execute(
         self, query: GetReplyDTO
     ) -> CompleteReplyOutputDTO | None:
-        reply = self.order_repository.get_complete_reply(query)
+        reply = await self.order_repository.get_complete_reply(query)
         if not reply:
             return None
         return ReplyMapper.to_complete(reply)
@@ -42,7 +43,7 @@ class ListOrderRepliesUseCase:
         self.repository = repository
 
     async def execute(self, query: GetOrderRepliesDTO) -> List[ReplyOutputDTO]:
-        replies = self.repository.filter_replies(
+        replies = await self.repository.filter_replies(
             ReplyFilterDTO(
                 order_id=query.order_id,
                 last_id=query.last_id,
@@ -59,7 +60,7 @@ class ListDetailRepliesUseCase:
     async def execute(
         self, query: GetDetailRepliesDTO
     ) -> List[ReplyOutputDTO]:
-        replies = self.repository.filter_replies(
+        replies = await self.repository.filter_replies(
             ReplyFilterDTO(
                 detail_id=query.detail_id,
                 last_id=query.last_id,
@@ -78,12 +79,12 @@ class ListContracteeRepliesUseCase:
     async def execute(
         self, query: GetContracteeRepliesDTO
     ) -> List[ReplyOutputDTO]:
-        replies = self.repository.filter_replies(
+        replies = await self.repository.filter_replies(
             ReplyFilterDTO(
                 contractee_id=query.user_id,
                 last_id=query.last_id,
                 size=query.size,
-                sorting="descending",
+                sorting=SortingOrder.descending,
             )
         )
         return [ReplyMapper.to_output(i) for i in replies]
@@ -96,5 +97,7 @@ class ListContracteeFutureRepliesUseCase:
     async def execute(
         self, query: GetContracteeRepliesDTO
     ) -> List[ReplyOutputDTO]:
-        replies = self.repository.get_contractee_future_replies(query)
+        replies = await self.repository.get_contractee_future_replies(
+            query.user_id
+        )
         return [ReplyMapper.to_output(i) for i in replies]
