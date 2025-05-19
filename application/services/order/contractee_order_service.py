@@ -26,7 +26,7 @@ from domain.dto.order.response.order_output_dto import (
 
 
 class ContracteeOrderQueryServiceImpl(
-    ContracteeOrderQueryService, BaseOrderQueryService
+    BaseOrderQueryService, ContracteeOrderQueryService
 ):
     def __init__(
         self,

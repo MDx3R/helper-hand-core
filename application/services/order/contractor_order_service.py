@@ -54,27 +54,28 @@ class ContractorOrderManagementServiceImpl(ContractorOrderManagementService):
         self, request: CreateOrderDTO
     ) -> OrderWithDetailsOutputDTO:
         order = await self.create_order_use_case.execute(request)
-        await self.admin_notification_service.send_order_cancelled_notification()  # TODO: DTO
+        # await self.admin_notification_service.send_order_cancelled_notification()  # TODO: DTO
         return order
 
     async def cancel_order(self, request: CancelOrderDTO) -> OrderOutputDTO:
         order = await self.cancel_order_use_case.execute(request)
         if OrderDomainService.has_supervisor(order):
-            await self.admin_notification_service.send_order_cancelled_notification()  # TODO: DTO
-        await self.contractee_notification_service.send_order_cancelled_notification()  # TODO: DTO
+            ...
+            # await self.admin_notification_service.send_order_cancelled_notification()  # TODO: DTO
+        # await self.contractee_notification_service.send_order_cancelled_notification()  # TODO: DTO
         return order
 
     async def set_order_active(
         self, request: SetOrderActiveDTO
     ) -> OrderOutputDTO:
         order = await self.set_order_active_use_case.execute(request)
-        await self.admin_notification_service.send_order_set_active_notification()  # TODO: DTO
-        await self.contractee_notification_service.send_order_cancelled_notification()  # TODO: DTO
+        # await self.admin_notification_service.send_order_set_active_notification()  # TODO: DTO
+        # await self.contractee_notification_service.send_order_cancelled_notification()  # TODO: DTO
         return order
 
 
 class ContractorOrderQueryServiceImpl(
-    ContractorOrderQueryService, BaseOrderQueryService
+    BaseOrderQueryService, ContractorOrderQueryService
 ):
     def __init__(
         self,

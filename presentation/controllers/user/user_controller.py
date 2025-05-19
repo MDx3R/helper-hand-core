@@ -7,19 +7,15 @@ from dependency_injector.wiring import Provide, inject
 from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.dto.user.internal.user_query_dto import GetUserDTO
 from domain.dto.user.response.admin.admin_output_dto import (
-    AdminOutputDTO,
     CompleteAdminOutputDTO,
 )
 from domain.dto.user.response.contractee.contractee_output_dto import (
     CompleteContracteeOutputDTO,
-    ContracteeOutputDTO,
 )
 from domain.dto.user.response.contractor.contractor_output_dto import (
     CompleteContractorOutputDTO,
-    ContractorOutputDTO,
 )
 from domain.dto.user.response.user_output_dto import UserOutputDTO
-from domain.entities.user.enums import RoleEnum, UserStatusEnum
 from domain.services.user.admin_user_service import AdminUserQueryService
 from domain.services.user.contractee_user_service import (
     ContracteeUserQueryService,
@@ -38,6 +34,7 @@ from presentation.controllers.permissions import (
     require_contractee,
     require_contractor,
 )
+from presentation.controllers.utils import or_404
 
 # Общий роутер для пользователей
 router = APIRouter()
@@ -64,24 +61,6 @@ class UserController:
     )
     async def get_me(self, user: UserContextDTO = Depends(authenticated)):
         return await self.get_profile_use_case.execute(user)
-
-
-# @cbv(router)
-# class UserController:
-#     @router.get(
-#         "/me",
-#         response_model=UserOutputDTO,
-#     )
-#     async def get_me(self, user: UserContextDTO =Depends(authenticated)):
-#         return UserOutputDTO(
-#             surname="123",
-#             name="123",
-#             user_id=1,
-#             photos=[],
-#             role=RoleEnum.contractor,
-#             status=UserStatusEnum.registered,
-#             phone_number="123",
-#         )
 
 
 # Контроллер для заказчиков (Contractee)
@@ -117,8 +96,10 @@ class ContracteeUserController:
     async def get_user(
         self, user_id: int, user: UserContextDTO = Depends(require_contractee)
     ):
-        return await self.service.get_user(
-            GetUserDTO(user_id=user_id, context=user)
+        return or_404(
+            await self.service.get_user(
+                GetUserDTO(user_id=user_id, context=user)
+            )
         )
 
 
@@ -155,8 +136,10 @@ class ContractorUserController:
     async def get_user(
         self, user_id: int, user: UserContextDTO = Depends(require_contractor)
     ):
-        return await self.service.get_user(
-            GetUserDTO(user_id=user_id, context=user)
+        return or_404(
+            await self.service.get_user(
+                GetUserDTO(user_id=user_id, context=user)
+            )
         )
 
 
@@ -189,7 +172,7 @@ class AdminUserController:
         # response_model=UserOutputDTO, # TODO: Правильный тип
     )
     async def get_pending_user(self):
-        return await self.service.get_pending_user()
+        return or_404(await self.service.get_pending_user())
 
     @admin_router.get(
         "/{user_id}",
@@ -198,6 +181,8 @@ class AdminUserController:
     async def get_user(
         self, user_id: int, user: UserContextDTO = Depends(require_admin)
     ):
-        return await self.service.get_user(
-            GetUserDTO(user_id=user_id, context=user)
+        return or_404(
+            await self.service.get_user(
+                GetUserDTO(user_id=user_id, context=user)
+            )
         )

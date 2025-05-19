@@ -44,6 +44,7 @@ class FastAPIServer:
     def setup_routes(self):
         self._register_auth_routers()
         self._register_user_routers()
+        self._register_order_routers()
         print("Registered routes:", [route.path for route in self.app.routes])
         print("Done")
 
@@ -65,9 +66,9 @@ class FastAPIServer:
     def _register_user_routers(self):
         from presentation.controllers.user.user_controller import (
             router as user_router,
-            contractor_router as contractor_user_router,
-            contractee_router as contractee_user_router,
-            admin_router as admin_user_router,
+            contractor_router as contractor_router,
+            contractee_router as contractee_router,
+            admin_router as admin_router,
         )
 
         self.app.include_router(
@@ -77,15 +78,38 @@ class FastAPIServer:
         )
 
         self.app.include_router(
-            contractor_user_router,
+            contractor_router,
             prefix="/contractor/users",
             tags=["Contractor's Users"],
         )
         self.app.include_router(
-            contractee_user_router,
+            contractee_router,
             prefix="/contractee/users",
             tags=["Contractee's Users"],
         )
         self.app.include_router(
-            admin_user_router, prefix="/admin/users", tags=["Admin's Users"]
+            admin_router, prefix="/admin/users", tags=["Admin's Users"]
+        )
+
+    def _register_order_routers(self):
+        from presentation.controllers.order.order_contoller import (
+            router as contractor_router,
+            contractee_router as contractee_router,
+            admin_router as admin_router,
+        )
+
+        self.app.include_router(
+            contractor_router,
+            prefix="/contractor/orders",
+            tags=["Contractor's Orders"],
+        )
+        self.app.include_router(
+            contractee_router,
+            prefix="/contractee/orders",
+            tags=["Contractee's Orders"],
+        )
+        self.app.include_router(
+            admin_router,
+            prefix="/admin/orders",
+            tags=["Admin's Orders"],
         )

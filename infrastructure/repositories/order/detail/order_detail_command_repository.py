@@ -35,7 +35,9 @@ class OrderDetailCommandRepositoryImpl(OrderDetailCommandRepository):
     ) -> List[OrderDetail]:
         query = (
             insert(OrderDetailBase)
-            .values([detail.get_fields() for detail in details])
+            .values(
+                [detail.get_fields(exclude_none=True) for detail in details]
+            )
             .returning(OrderDetailBase)
         )
         results = await self.query_executor.execute_scalar_many(query)

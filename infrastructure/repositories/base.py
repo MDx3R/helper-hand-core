@@ -139,13 +139,7 @@ def get_column_value(
 
     Работает как с обычными моделями, так и с aliased(model, name="...").
     """
-    name = getattr(model, "__name__")
-
-    # если это алиас, берем имя алиаса
-    if hasattr(model, "_aliased_insp") and model._aliased_insp.name:
-        name = model._aliased_insp.name
-
-    return getattr(row, name, None)
+    return row._mapping.get(model, None)
 
 
 class QueryExecutor:
@@ -194,6 +188,7 @@ class QueryExecutor:
         self,
         statement: Select[O] | Insert[O] | Update[O] | Delete[O],
     ) -> Result[O]:
+        # print(str(statement), str(statement.compile().params))
         async with self.transaction_manager.get_session() as session:
             result = await session.execute(statement)
             return result

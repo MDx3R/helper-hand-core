@@ -28,6 +28,7 @@ from application.usecases.order.change_order_status_use_case import (
     DisapproveOrderUseCase,
     FulfillOrderUseCase,
     OpenOrderUseCase,
+    SetActiveOrderUseCase,
 )
 from domain.dto.base import LastObjectDTO
 from domain.dto.order.internal.order_managment_dto import (
@@ -37,6 +38,7 @@ from domain.dto.order.internal.order_managment_dto import (
     DisapproveOrderDTO,
     FulfillOrderDTO,
     OpenOrderDTO,
+    SetOrderActiveDTO,
     TakeOrderDTO,
 )
 from domain.dto.order.internal.order_query_dto import (
@@ -67,6 +69,7 @@ class AdminOrderManagementServiceImpl(AdminOrderManagementService):
         cancel_order_use_case: CancelOrderUseCase,
         close_order_use_case: CloseOrderUseCase,
         open_order_use_case: OpenOrderUseCase,
+        set_order_active_use_case: SetActiveOrderUseCase,
         fulfill_order_use_case: FulfillOrderUseCase,
         contractee_notification_service: ContracteeOrderNotificationService,
         contractor_notification_service: ContractorOrderNotificationService,
@@ -78,6 +81,7 @@ class AdminOrderManagementServiceImpl(AdminOrderManagementService):
         self.cancel_order_use_case = cancel_order_use_case
         self.close_order_use_case = close_order_use_case
         self.open_order_use_case = open_order_use_case
+        self.set_order_active_use_case = set_order_active_use_case
         self.fulfill_order_use_case = fulfill_order_use_case
 
         self.contractee_notification_service = contractee_notification_service
@@ -87,7 +91,7 @@ class AdminOrderManagementServiceImpl(AdminOrderManagementService):
         self, request: CreateOrderDTO
     ) -> OrderWithDetailsOutputDTO:
         order = await self.create_order_use_case.execute(request)
-        await self.contractee_notification_service.send_new_order_notification()  # TODO: DTO
+        # await self.contractee_notification_service.send_new_order_notification()  # TODO: DTO
         return order
 
     async def take_order(self, request: TakeOrderDTO) -> OrderOutputDTO:
@@ -95,7 +99,8 @@ class AdminOrderManagementServiceImpl(AdminOrderManagementService):
         # Проверка на владение заказа не имеет смысла, так как подразумевается,
         # что заказ, созданный админом, не может быть заново подтвежден
         if not OrderDomainService.is_owned_by(order, request.context.user_id):
-            await self.contractor_notification_service.send_admin_assigned_notification()  # TODO: DTO
+            ...
+            # await self.contractor_notification_service.send_admin_assigned_notification()  # TODO: DTO
         return order
 
     async def approve_order(self, request: ApproveOrderDTO) -> OrderOutputDTO:
@@ -103,7 +108,8 @@ class AdminOrderManagementServiceImpl(AdminOrderManagementService):
         # Проверка на владение заказа не имеет смысла, так как подразумевается,
         # что заказ, созданный админом, не может быть заново подтвежден
         if not OrderDomainService.is_owned_by(order, request.context.user_id):
-            await self.contractor_notification_service.send_order_approved_notification()  # TODO: DTO
+            ...
+            # await self.contractor_notification_service.send_order_approved_notification()  # TODO: DTO
         return order
 
     async def disapprove_order(
@@ -113,38 +119,49 @@ class AdminOrderManagementServiceImpl(AdminOrderManagementService):
         # Проверка на владение заказа не имеет смысла, так как подразумевается,
         # что заказ, созданный админом, не может быть заново подтвежден
         if not OrderDomainService.is_owned_by(order, request.context.user_id):
-            await self.contractor_notification_service.send_order_disapproved_notification()  # TODO: DTO
+            ...
+            # await self.contractor_notification_service.send_order_disapproved_notification()  # TODO: DTO
         return order
 
     async def cancel_order(self, request: CancelOrderDTO) -> OrderOutputDTO:
         order = await self.cancel_order_use_case.execute(request)
         if not OrderDomainService.is_owned_by(order, request.context.user_id):
-            await self.contractor_notification_service.send_order_cancelled_notification()  # TODO: DTO
-        await self.contractee_notification_service.send_order_cancelled_notification()  # TODO: DTO
+            ...
+            # await self.contractor_notification_service.send_order_cancelled_notification()  # TODO: DTO
+        # await self.contractee_notification_service.send_order_cancelled_notification()  # TODO: DTO
         return order
 
     async def close_order(self, request: CloseOrderDTO) -> OrderOutputDTO:
         order = await self.close_order_use_case.execute(request)
         if not OrderDomainService.is_owned_by(order, request.context.user_id):
-            await self.contractor_notification_service.send_order_closed_notification()  # TODO: DTO
+            ...
+            # await self.contractor_notification_service.send_order_closed_notification()  # TODO: DTO
         return order
 
     async def open_order(self, request: OpenOrderDTO) -> OrderOutputDTO:
         order = await self.open_order_use_case.execute(request)
         if not OrderDomainService.is_owned_by(order, request.context.user_id):
-            await self.contractor_notification_service.send_order_opened_notification()  # TODO: DTO
+            ...
+            # await self.contractor_notification_service.send_order_opened_notification()  # TODO: DTO
         return order
+
+    async def set_order_active(
+        self, request: SetOrderActiveDTO
+    ) -> OrderOutputDTO:
+        # TODO: Уведомления
+        return await self.set_order_active_use_case.execute(request)
 
     async def fulfill_order(self, request: FulfillOrderDTO) -> OrderOutputDTO:
         order = await self.fulfill_order_use_case.execute(request)
         if not OrderDomainService.is_owned_by(order, request.context.user_id):
-            await self.contractor_notification_service.send_order_fulfilled_notification()  # TODO: DTO
-        await self.contractee_notification_service.send_order_fulfilled_notification()  # TODO: DTO
+            ...
+            # await self.contractor_notification_service.send_order_fulfilled_notification()  # TODO: DTO
+        # await self.contractee_notification_service.send_order_fulfilled_notification()  # TODO: DTO
         return order
 
 
 class AdminOrderQueryServiceImpl(
-    AdminOrderQueryService, BaseOrderQueryService
+    BaseOrderQueryService, AdminOrderQueryService
 ):
     def __init__(
         self,
@@ -164,4 +181,4 @@ class AdminOrderQueryServiceImpl(
         self, query: GetUserOrdersDTO
     ) -> List[OrderOutputDTO]:
         # TODO: Добавить Use Case
-        pass
+        return []

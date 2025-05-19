@@ -6,6 +6,17 @@ from application.services.auth.user_auth_service import (
     MockUserAuthService,
     UserAuthServiceImpl,
 )
+from application.services.order.admin_order_service import (
+    AdminOrderManagementServiceImpl,
+    AdminOrderQueryServiceImpl,
+)
+from application.services.order.contractee_order_service import (
+    ContracteeOrderQueryServiceImpl,
+)
+from application.services.order.contractor_order_service import (
+    ContractorOrderManagementServiceImpl,
+    ContractorOrderQueryServiceImpl,
+)
 from application.services.user.admin_user_service import (
     AdminUserQueryServiceImpl,
 )
@@ -24,6 +35,45 @@ from application.usecases.auth.create_user_use_case import (
 from application.usecases.auth.register_user_use_case import (
     RegisterContracteeUseCase,
     RegisterContractorUseCase,
+)
+from application.usecases.order.admin.create_order_use_case import (
+    CreateOrderForAdminUseCase,
+)
+from application.usecases.order.admin.get_order_use_case import (
+    GetOrderForAdminUseCase,
+)
+from application.usecases.order.admin.get_unassigned_order_use_case import (
+    GetUnassignedOrderUseCase,
+)
+from application.usecases.order.admin.list_supervised_orders_use_case import (
+    ListSupervisedOrdersUseCase,
+)
+from application.usecases.order.admin.take_order_use_case import (
+    TakeOrderUseCase,
+)
+from application.usecases.order.change_order_status_use_case import (
+    ApproveOrderUseCase,
+    CancelOrderUseCase,
+    CloseOrderUseCase,
+    DisapproveOrderUseCase,
+    FulfillOrderUseCase,
+    OpenOrderUseCase,
+    SetActiveOrderUseCase,
+)
+from application.usecases.order.contractee.get_suitable_order_use_case import (
+    GetSuitableDetailsFromOrderUseCase,
+    GetSuitableDetailsUseCase,
+    GetSuitableOrderUseCase,
+    GetUnavailableDetailsForContracteeUseCase,
+)
+from application.usecases.order.contractor.create_order_use_case import (
+    CreateOrderForContractorUseCase,
+)
+from application.usecases.order.contractor.get_order_use_case import (
+    GetOrderForContractorUseCase,
+)
+from application.usecases.order.contractor.list_owned_orders_use_case import (
+    ListOwnedOrdersUseCase,
 )
 from application.usecases.user.admin.get_pending_user_use_case import (
     GetPendingUserUseCase,
@@ -45,6 +95,12 @@ from application.usecases.user.user_query_use_case import (
 )
 from core.config import Config
 from domain.entities import user
+from domain.repositories.order.composite_order_query_repository import (
+    CompositeOrderQueryRepository,
+)
+from domain.repositories.order.order_command_repository import (
+    OrderCommandRepository,
+)
 from domain.repositories.user.contractee.contractee_command_repository import (
     ContracteeCommandRepository,
 )
@@ -55,6 +111,21 @@ from infrastructure.database.database import (
     Database,
 )
 from infrastructure.repositories.base import QueryExecutor
+from infrastructure.repositories.order.composite_order_query_repository import (
+    CompositeOrderQueryRepositoryImpl,
+)
+from infrastructure.repositories.order.detail.order_detail_command_repository import (
+    OrderDetailCommandRepositoryImpl,
+)
+from infrastructure.repositories.order.order_command_repository import (
+    OrderCommandRepositoryImpl,
+)
+from infrastructure.repositories.order.order_query_repository import (
+    OrderQueryRepositoryImpl,
+)
+from infrastructure.repositories.reply.composite_reply_query_repository import (
+    CompositeReplyQueryRepositoryImpl,
+)
 from infrastructure.repositories.token.token_command_repository import (
     TokenCommandRepositoryImpl,
 )
@@ -98,64 +169,81 @@ class Container(containers.DeclarativeContainer):
         packages=["presentation.controllers", "run"],
     )
 
-    # Config
+    # ---------------------- Config ----------------------
     config = providers.Singleton(Config.load)
     auth_config = config.provided.auth
     db_config = config.provided.db
 
-    # Database
+    # ---------------------- Database ----------------------
     database = providers.Singleton(Database, config=db_config)
-
     session_factory = providers.Singleton(
-        lambda database: database.get_session_factory(), database=database
+        lambda db: db.get_session_factory(), database
     )
     transaction_manager = providers.Singleton(
         SQLAlchemyTransactionManager, session_factory=session_factory
     )
-    query_executor = providers.Singleton(
-        QueryExecutor, transaction_manager=transaction_manager
-    )
+    query_executor = providers.Singleton(QueryExecutor, transaction_manager)
 
-    # User Query Repositories
+    # ---------------------- Repositories ----------------------
+
+    # --- User Repositories ---
     user_query_repository = providers.Singleton(
-        UserQueryRepositoryImpl, executor=query_executor
+        UserQueryRepositoryImpl, query_executor
     )
     user_role_query_repository = providers.Singleton(
-        UserRoleQueryRepositoryImpl, executor=query_executor
+        UserRoleQueryRepositoryImpl, query_executor
     )
     admin_query_repository = providers.Singleton(
-        AdminQueryRepositoryImpl, executor=query_executor
+        AdminQueryRepositoryImpl, query_executor
     )
     contractor_query_repository = providers.Singleton(
-        ContractorQueryRepositoryImpl, executor=query_executor
+        ContractorQueryRepositoryImpl, query_executor
     )
     contractee_query_repository = providers.Singleton(
-        ContracteeQueryRepositoryImpl, executor=query_executor
+        ContracteeQueryRepositoryImpl, query_executor
     )
 
-    # User Command Repositories
     user_command_repository = providers.Singleton(
-        UserCommandRepositoryImpl, executor=query_executor
+        UserCommandRepositoryImpl, query_executor
     )
     admin_command_repository = providers.Singleton(
-        AdminCommandRepositoryImpl, executor=query_executor
-    )
-    contractee_command_repository = providers.Singleton(
-        ContracteeCommandRepositoryImpl, executor=query_executor
+        AdminCommandRepositoryImpl, query_executor
     )
     contractor_command_repository = providers.Singleton(
-        ContractorCommandRepositoryImpl, executor=query_executor
+        ContractorCommandRepositoryImpl, query_executor
+    )
+    contractee_command_repository = providers.Singleton(
+        ContracteeCommandRepositoryImpl, query_executor
     )
 
-    # Token Repositories
+    # --- Order Repositories ---
+    order_query_repository = providers.Singleton(
+        OrderQueryRepositoryImpl, query_executor
+    )
+    composite_order_query_repository = providers.Singleton(
+        CompositeOrderQueryRepositoryImpl, query_executor
+    )
+    order_command_repository = providers.Singleton(
+        OrderCommandRepositoryImpl, query_executor
+    )
+    order_detail_command_repository = providers.Singleton(
+        OrderDetailCommandRepositoryImpl, query_executor
+    )
+
+    # --- Reply Repositories ---
+    composite_reply_query_repository = providers.Singleton(
+        CompositeReplyQueryRepositoryImpl, query_executor
+    )
+
+    # --- Token Repositories ---
     token_query_repository = providers.Singleton(
-        TokenQueryRepositoryImpl, executor=query_executor
+        TokenQueryRepositoryImpl, query_executor
     )
     token_command_repository = providers.Singleton(
-        TokenCommandRepositoryImpl, executor=query_executor
+        TokenCommandRepositoryImpl, query_executor
     )
 
-    # Auth
+    # ---------------------- Auth ----------------------
     token_black_list = providers.Singleton(JWTTokenBlacklist)
     password_hasher = providers.Singleton(BcryptPasswordHasher)
     token_service = providers.Singleton(
@@ -166,81 +254,152 @@ class Container(containers.DeclarativeContainer):
         config=auth_config,
     )
 
-    # Create Users UseCase
+    # ---------------------- UseCases ----------------------
+
+    # --- Create Users ---
     create_credentials_use_case = providers.Singleton(
-        CreateCredentialsUseCase,
-        user_command_repository=user_command_repository,
-        password_hasher=password_hasher,
+        CreateCredentialsUseCase, user_command_repository, password_hasher
     )
     create_contractee_use_case = providers.Singleton(
         CreateContracteeUseCase,
-        create_credentials_use_case=create_credentials_use_case,
-        contractee_command_repository=contractee_command_repository,
+        create_credentials_use_case,
+        contractee_command_repository,
     )
     create_contractor_use_case = providers.Singleton(
         CreateContractorUseCase,
-        create_credentials_use_case=create_credentials_use_case,
-        contractor_command_repository=contractor_command_repository,
+        create_credentials_use_case,
+        contractor_command_repository,
     )
 
     register_contractee_use_case = providers.Singleton(
-        RegisterContracteeUseCase,
-        token_service=token_service,
-        create_contractee_use_case=create_contractee_use_case,
+        RegisterContracteeUseCase, token_service, create_contractee_use_case
     )
     register_contractor_use_case = providers.Singleton(
-        RegisterContractorUseCase,
-        token_service=token_service,
-        create_contractor_use_case=create_contractor_use_case,
+        RegisterContractorUseCase, token_service, create_contractor_use_case
     )
 
     login_use_case = providers.Singleton(
-        LoginUseCase,
-        token_service=token_service,
-        password_hasher=password_hasher,
-        user_query_repository=user_query_repository,
+        LoginUseCase, token_service, password_hasher, user_query_repository
     )
+
+    # --- Profile & Role UseCases ---
+    get_profile_for_user_use_case = providers.Singleton(
+        GetProfileForUserUseCase, user_query_repository
+    )
+
+    get_user_for_admin_use_case = providers.Singleton(
+        GetUserForAdminUseCase, user_role_query_repository
+    )
+    get_pending_user_use_case = providers.Singleton(
+        GetPendingUserUseCase, user_role_query_repository
+    )
+    get_profile_for_admin_use_case = providers.Singleton(
+        GetProfileForAdminUseCase, admin_query_repository
+    )
+
+    get_user_for_contractor_use_case = providers.Singleton(
+        GetUserForContractorUseCase, user_role_query_repository
+    )
+    get_profile_for_contractor_use_case = providers.Singleton(
+        GetProfileForContractorUseCase, contractor_query_repository
+    )
+
+    get_user_for_contractee_use_case = providers.Singleton(
+        GetUserForContracteeUseCase, user_role_query_repository
+    )
+    get_profile_for_contractee_use_case = providers.Singleton(
+        GetProfileForContracteeUseCase, contractee_query_repository
+    )
+
+    # --- Orders ---
+    get_order_for_admin_use_case = providers.Singleton(
+        GetOrderForAdminUseCase, composite_order_query_repository
+    )
+    get_unassigned_order_use_case = providers.Singleton(
+        GetUnassignedOrderUseCase, composite_order_query_repository
+    )
+    get_order_for_contracor_use_case = providers.Singleton(
+        GetOrderForContractorUseCase, composite_order_query_repository
+    )
+    get_suitable_details_from_order_use_case = providers.Singleton(
+        GetSuitableDetailsFromOrderUseCase
+    )
+    get_unavailable_details_for_contractee_use_case = providers.Singleton(
+        GetUnavailableDetailsForContracteeUseCase,
+        composite_reply_query_repository,
+    )
+    get_suitable_order_use_case = providers.Singleton(
+        GetSuitableOrderUseCase,
+        order_repository=composite_order_query_repository,
+        contractee_repository=contractee_query_repository,
+        filtering_use_case=get_suitable_details_from_order_use_case,
+        unavailable_details_use_case=get_unavailable_details_for_contractee_use_case,
+    )
+    get_suitable_details_use_case = providers.Singleton(
+        GetSuitableDetailsUseCase,
+        order_repository=composite_order_query_repository,
+        reply_repository=composite_reply_query_repository,
+        contractee_repository=contractee_query_repository,
+        unavailable_details_use_case=get_unavailable_details_for_contractee_use_case,
+        filtering_use_case=get_suitable_details_from_order_use_case,
+    )
+
+    list_supervised_orders_use_case = providers.Singleton(
+        ListSupervisedOrdersUseCase, order_query_repository
+    )
+    list_owned_orders_use_case = providers.Singleton(
+        ListOwnedOrdersUseCase, order_query_repository
+    )
+    create_order_for_admin_use_case = providers.Singleton(
+        CreateOrderForAdminUseCase,
+        order_command_repository,
+        order_detail_command_repository,
+    )
+    create_order_for_contractor_use_case = providers.Singleton(
+        CreateOrderForContractorUseCase,
+        order_command_repository,
+        order_detail_command_repository,
+    )
+    take_order_use_case = providers.Singleton(
+        TakeOrderUseCase, order_query_repository, order_command_repository
+    )
+    approve_order_use_case = providers.Singleton(
+        ApproveOrderUseCase, order_query_repository, order_command_repository
+    )
+    disapprove_order_use_case = providers.Singleton(
+        DisapproveOrderUseCase,
+        order_query_repository,
+        order_command_repository,
+    )
+    cancel_order_use_case = providers.Singleton(
+        CancelOrderUseCase, order_query_repository, order_command_repository
+    )
+    close_order_use_case = providers.Singleton(
+        CloseOrderUseCase, order_query_repository, order_command_repository
+    )
+    open_order_use_case = providers.Singleton(
+        OpenOrderUseCase, order_query_repository, order_command_repository
+    )
+    set_order_active_use_case = providers.Singleton(
+        SetActiveOrderUseCase, order_query_repository, order_command_repository
+    )
+    fulfill_order_use_case = providers.Singleton(
+        FulfillOrderUseCase, order_query_repository, order_command_repository
+    )
+
+    # --- Reply ---
+
+    # ---------------------- Services ----------------------
+
+    # --- Auth ---
     auth_service = providers.Singleton(
         UserAuthServiceImpl,
         login_use_case=login_use_case,
-        register_contractee_use_case=register_contractee_use_case,
         register_contractor_use_case=register_contractor_use_case,
+        register_contractee_use_case=register_contractee_use_case,
     )
 
-    # User Query UseCases
-    get_profile_for_user_use_case = providers.Singleton(
-        GetProfileForUserUseCase, repository=user_query_repository
-    )
-
-    # Admin
-    get_user_for_admin_use_case = providers.Singleton(
-        GetUserForAdminUseCase, repository=user_role_query_repository
-    )
-    get_pending_user_use_case = providers.Singleton(
-        GetPendingUserUseCase, repository=user_role_query_repository
-    )
-    get_profile_for_admin_use_case = providers.Singleton(
-        GetProfileForAdminUseCase, repository=admin_query_repository
-    )
-
-    # Contractor
-    get_user_for_contractor_use_case = providers.Singleton(
-        GetUserForContractorUseCase, repository=user_role_query_repository
-    )
-    get_profile_for_contractor_use_case = providers.Singleton(
-        GetProfileForContractorUseCase, repository=contractor_query_repository
-    )
-
-    # Contractor
-    get_user_for_contractee_use_case = providers.Singleton(
-        GetUserForContracteeUseCase, repository=user_role_query_repository
-    )
-    get_profile_for_contractee_use_case = providers.Singleton(
-        GetProfileForContracteeUseCase, repository=contractee_query_repository
-    )
-
-    # UserQuery
-    # UseCases
+    # --- Users ---
     admin_user_query_service = providers.Singleton(
         AdminUserQueryServiceImpl,
         get_user_use_case=get_user_for_admin_use_case,
@@ -256,4 +415,48 @@ class Container(containers.DeclarativeContainer):
         ContracteeUserQueryServiceImpl,
         get_user_use_case=get_user_for_contractee_use_case,
         get_profile_use_case=get_profile_for_contractee_use_case,
+    )
+
+    # --- Orders ---
+    admin_order_query_service = providers.Singleton(
+        AdminOrderQueryServiceImpl,
+        get_order_use_case=get_order_for_admin_use_case,
+        get_orders_use_case=list_supervised_orders_use_case,
+        get_unassigned_order_use_case=get_unassigned_order_use_case,
+    )
+    admin_order_managment_service = providers.Singleton(
+        AdminOrderManagementServiceImpl,
+        create_order_use_case=create_order_for_admin_use_case,
+        take_order_use_case=take_order_use_case,
+        approve_order_use_case=approve_order_use_case,
+        disapprove_order_use_case=disapprove_order_use_case,
+        cancel_order_use_case=cancel_order_use_case,
+        close_order_use_case=close_order_use_case,
+        open_order_use_case=open_order_use_case,
+        set_order_active_use_case=set_order_active_use_case,
+        fulfill_order_use_case=fulfill_order_use_case,
+        contractee_notification_service=None,  # TODO: inject service
+        contractor_notification_service=None,  # TODO: inject service
+    )
+
+    contractor_order_query_service = providers.Singleton(
+        ContractorOrderQueryServiceImpl,
+        get_order_use_case=get_order_for_contracor_use_case,
+        get_orders_use_case=list_owned_orders_use_case,
+    )
+    contractor_order_managment_service = providers.Singleton(
+        ContractorOrderManagementServiceImpl,
+        create_order_use_case=create_order_for_contractor_use_case,
+        cancel_order_use_case=cancel_order_use_case,
+        set_order_active_use_case=set_order_active_use_case,
+        admin_notification_service=None,  # TODO: inject service
+        contractee_notification_service=None,  # TODO: inject service
+    )
+
+    contractee_order_query_service = providers.Singleton(
+        ContracteeOrderQueryServiceImpl,
+        get_order_use_case=get_order_for_contracor_use_case,
+        get_orders_use_case=list_owned_orders_use_case,
+        get_suitable_order_use_case=get_suitable_order_use_case,
+        get_suitable_details_use_case=get_suitable_details_use_case,
     )

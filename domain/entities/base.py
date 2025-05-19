@@ -14,7 +14,9 @@ class ApplicationModel(BaseModel):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
-    def get_fields(self) -> dict[str, Any]:
+    def get_fields(self, *, exclude_none: bool = False) -> dict[str, Any]:
         return self.model_dump(
-            by_alias=True, exclude={"created_at", "updated_at"}
+            by_alias=True,
+            exclude={"created_at", "updated_at"},
+            exclude_none=exclude_none,
         )

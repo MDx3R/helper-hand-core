@@ -106,13 +106,14 @@ class SQLAlchemyTransactionManager(TransactionManager):
 
         try:
             if not is_raised:
+                print("transaction commited")
                 await self._commit(session)
             else:
                 await self._rollback(session)
         finally:
             await self._close(session)
             self._drop_session()
-
+        print("transaction done")
         if is_raised:
             self._handle_exception(exc_val)
 

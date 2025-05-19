@@ -4,6 +4,7 @@ from typing import Optional
 
 from domain.entities.base import ApplicationModel
 from domain.entities.enums import GenderEnum, PositionEnum
+from domain.time import TIMEZONE, combine_time
 
 
 @dataclass
@@ -40,7 +41,7 @@ class OrderDetail(ApplicationModel):
 
     @property
     def start_date(self):
-        return datetime.combine(self.date, self.start_at)
+        return combine_time(self.date, self.start_at)
 
     @property
     def end_date(self):
@@ -49,7 +50,7 @@ class OrderDetail(ApplicationModel):
         if self.start_at > self.end_at:
             dt += timedelta(days=1)
 
-        return datetime.combine(dt, self.end_at)
+        return combine_time(dt, self.end_at)
 
     @property
     def inteval(self):

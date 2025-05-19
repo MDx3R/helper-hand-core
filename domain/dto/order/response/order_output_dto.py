@@ -7,6 +7,7 @@ from domain.dto.user.response.contractor.contractor_output_dto import (
     ContractorOutputDTO,
 )
 from domain.entities.order.enums import OrderStatusEnum
+from domain.time import combine_time
 
 
 class OrderOutputDTO(OrderBaseDTO):
@@ -22,7 +23,7 @@ class OrderDetailOutputDTO(OrderDetailBaseDTO):
 
     @property
     def start_date(self):
-        return datetime.combine(self.date, self.start_at)
+        return combine_time(self.date, self.start_at)
 
     @property
     def end_date(self):
@@ -31,7 +32,7 @@ class OrderDetailOutputDTO(OrderDetailBaseDTO):
         if self.start_at > self.end_at:
             dt += timedelta(days=1)
 
-        return datetime.combine(dt, self.end_at)
+        return combine_time(dt, self.end_at)
 
 
 class OrderWithDetailsOutputDTO(ApplicationDTO):

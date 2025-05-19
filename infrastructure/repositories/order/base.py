@@ -47,7 +47,9 @@ class OrderJoinStrategy(JoinStrategy):
                 OrderBase.order_id, OrderDetailBase.order_id, self.join_type
             ),
             self.ContractorUserBase: JoinInfo(
-                OrderBase.contractor_id, UserBase.user_id, self.join_type
+                OrderBase.contractor_id,
+                self.ContractorUserBase.user_id,
+                self.join_type,
             ),
             ContractorBase: JoinInfo(
                 OrderBase.contractor_id,
@@ -55,15 +57,15 @@ class OrderJoinStrategy(JoinStrategy):
                 self.join_type,
             ),
             self.AdminUserBase: JoinInfo(
-                OrderBase.admin_id, UserBase.user_id, self.join_type
+                OrderBase.admin_id, self.AdminUserBase.user_id, JoinType.OUTER
             ),
             AdminBase: JoinInfo(
-                OrderBase.admin_id, AdminBase.admin_id, self.join_type
+                OrderBase.admin_id, AdminBase.admin_id, JoinType.OUTER
             ),
             ReplyBase: JoinInfo(
                 OrderDetailBase.detail_id,
                 ReplyBase.detail_id,
-                self.join_type,
+                JoinType.OUTER,
             ),
         }
 
@@ -97,7 +99,7 @@ class OrderQueryBuilder:
     ):
         self._strategy = strategy
         self._join_type = join_type
-        self._entities = [OrderBase]
+        self._entities: list[type[Base]] = [OrderBase]
         self._joins: list[type[Base]] = []
         self._stmt = select(OrderBase)
 
@@ -109,7 +111,7 @@ class OrderQueryBuilder:
         return self.require_model(ContractorBase, join_type)
 
     def add_admin(self, join_type: Optional[JoinType] = None) -> Self:
-        self.require_model(OrderJoinStrategy.ContractorUserBase, join_type)
+        self.require_model(OrderJoinStrategy.AdminUserBase, join_type)
         return self.require_model(AdminBase, join_type)
 
     def join_detail(self, join_type: Optional[JoinType] = None) -> Self:
@@ -217,7 +219,7 @@ class OrderQueryBuilder:
             select(func.count())
             .select_from(ReplyBase)
             .where(
-                ReplyBase.detail_id == OrderDetail.detail_id,
+                ReplyBase.detail_id == OrderDetailBase.detail_id,
                 ReplyBase.status == ReplyStatusEnum.accepted,
                 ReplyBase.dropped == False,
             )

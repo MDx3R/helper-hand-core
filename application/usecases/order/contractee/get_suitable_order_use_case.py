@@ -95,7 +95,7 @@ class GetSuitableDetailsFromOrderUseCase:
         return True
 
 
-class GetUnavailableDetailsForContractee:
+class GetUnavailableDetailsForContracteeUseCase:
     def __init__(
         self,
         reply_repository: CompositeReplyQueryRepository,
@@ -140,7 +140,7 @@ class GetSuitableDetailsUseCase:
         order_repository: CompositeOrderQueryRepository,
         reply_repository: CompositeReplyQueryRepository,
         contractee_repository: ContracteeQueryRepository,
-        unavailable_details_use_case: GetUnavailableDetailsForContractee,
+        unavailable_details_use_case: GetUnavailableDetailsForContracteeUseCase,
         filtering_use_case: GetSuitableDetailsFromOrderUseCase,
     ):
         self.order_repository = order_repository
@@ -193,7 +193,7 @@ class GetSuitableOrderUseCase:
         order_repository: CompositeOrderQueryRepository,
         contractee_repository: ContracteeQueryRepository,
         filtering_use_case: GetSuitableDetailsFromOrderUseCase,
-        unavailable_details_use_case: GetUnavailableDetailsForContractee,
+        unavailable_details_use_case: GetUnavailableDetailsForContracteeUseCase,
     ):
         self.order_repository = order_repository
         self.contractee_repository = contractee_repository
