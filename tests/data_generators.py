@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field, fields
-import datetime
-from datetime import date
+from datetime import date, datetime
 from typing import Any, List, Optional, Type, TypeVar
 from enum import Enum
 from typing import Any, Optional
@@ -49,7 +48,7 @@ class ContractorData(UserData):
 class ContracteeData(UserData):
     birthday: date = date(2000, 1, 1)
     height: int = 180
-    gender: GenderEnum.male = GenderEnum.male
+    gender: GenderEnum = GenderEnum.male
     citizenship: CitizenshipEnum = CitizenshipEnum.russia
     positions: List[PositionEnum] = field(default_factory=list)
 
@@ -57,7 +56,7 @@ class ContracteeData(UserData):
 @dataclass
 class AdminData(UserData):
     about: str = ""
-    contractor_id: Optional[str] = None
+    contractor_id: Optional[int] = None
 
 
 @dataclass
@@ -82,8 +81,8 @@ class OrderData:
     address: str
     admin_id: Optional[int]
     status: OrderStatusEnum
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
+    created_at: datetime
+    updated_at: datetime
 
 
 @dataclass
@@ -98,8 +97,8 @@ class OrderDetailData:
     wager: int
     fee: int
     gender: Optional[GenderEnum]
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
+    created_at: datetime
+    updated_at: datetime
 
 
 @dataclass
@@ -108,9 +107,12 @@ class ReplyData:
     detail_id: int
     wager: int
     status: ReplyStatusEnum
-    paid: Optional[datetime.datetime]
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
+    paid: Optional[datetime]
+    created_at: datetime
+    updated_at: datetime
+
+
+ENUM = TypeVar("ENUM", bound=Enum)
 
 
 class DataGenerator(ABC):

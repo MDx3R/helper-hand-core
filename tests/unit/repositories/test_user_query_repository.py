@@ -66,7 +66,7 @@ class TestUserQueryRepositoryImpl:
     @pytest.mark.asyncio
     async def test_filter_users_returns_list_of_users(self):
         """Проверить, что filter_users возвращает список пользователей, если найдены совпадения."""
-        query = UserFilterDTO(name="Test")
+        query = UserFilterDTO(phone_number="Test")
         user_bases = [self._get_base() for _ in range(3)]
         self._setup_executor_scalar_many(user_bases)
 
@@ -85,7 +85,7 @@ class TestUserQueryRepositoryImpl:
     @pytest.mark.asyncio
     async def test_filter_users_returns_empty_list_when_no_matches(self):
         """Проверить, что filter_users возвращает пустой список, если нет совпадений."""
-        query = UserFilterDTO(name="Nonexistent")
+        query = UserFilterDTO(phone_number="Nonexistent")
         self._setup_executor_scalar_many([])
 
         result = await self.repository.filter_users(query)
@@ -96,7 +96,7 @@ class TestUserQueryRepositoryImpl:
     @pytest.mark.asyncio
     async def test_exists_by_query_returns_true_when_user_exists(self):
         """Проверить, что exists_by_query возвращает True, если пользователь найден по запросу."""
-        query = UserFilterDTO(name="Test")
+        query = UserFilterDTO(phone_number="Test")
         user_base = self._get_base()
         self._setup_executor_scalar_one(user_base)
 
@@ -108,7 +108,7 @@ class TestUserQueryRepositoryImpl:
     @pytest.mark.asyncio
     async def test_exists_by_query_returns_false_when_no_user_exists(self):
         """Проверить, что exists_by_query возвращает False, если пользователь не найден по запросу."""
-        query = UserFilterDTO(name="Nonexistent")
+        query = UserFilterDTO(phone_number="Nonexistent")
         self._setup_executor_scalar_one(None)
 
         result = await self.repository.exists_by_query(query)

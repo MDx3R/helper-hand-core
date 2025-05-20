@@ -9,6 +9,7 @@ from domain.entities.user.enums import UserStatusEnum
 from domain.entities.user.user import User
 from tests.builders import (
     AdminBuilder,
+    BaseUserBuilder,
     ContracteeBuilder,
     ContractorBuilder,
     TelegramCredentialsBuilder,
@@ -17,9 +18,9 @@ from tests.builders import (
 )
 from tests.data_generators import DataGenerator
 
-U = TypeVar("T", bound=User)
+USER = TypeVar("USER", bound=User)
 M = TypeVar("M", bound=ApplicationModel)
-UB = TypeVar("UB", bound=UserBuilder)
+USER_BUILDER = TypeVar("USER_BUILDER", bound=BaseUserBuilder)
 
 
 class BaseFactory(ABC):
@@ -28,30 +29,30 @@ class BaseFactory(ABC):
         self._data = generator.generate()
 
 
-class BaseUserFactory(BaseFactory, Generic[U, UB]):
+class BaseUserFactory(BaseFactory, Generic[USER, USER_BUILDER]):
     @abstractmethod
-    def _builder(self) -> UB:
+    def _builder(self) -> USER_BUILDER:
         pass
 
-    def create_default(self) -> U:
+    def create_default(self) -> USER:
         return self._builder().with_status(UserStatusEnum.registered).build()
 
-    def create_minimal(self) -> U:
+    def create_minimal(self) -> USER:
         return self._builder().with_patronymic(None).with_photos([]).build()
 
-    def create_created(self) -> U:
+    def create_created(self) -> USER:
         return self._builder().with_status(UserStatusEnum.created).build()
 
-    def create_pending(self) -> U:
+    def create_pending(self) -> USER:
         return self._builder().with_status(UserStatusEnum.pending).build()
 
-    def create_disapproved(self) -> U:
+    def create_disapproved(self) -> USER:
         return self._builder().with_status(UserStatusEnum.disapproved).build()
 
-    def create_dropped(self) -> U:
+    def create_dropped(self) -> USER:
         return self._builder().with_status(UserStatusEnum.dropped).build()
 
-    def create_banned(self) -> U:
+    def create_banned(self) -> USER:
         return self._builder().with_status(UserStatusEnum.banned).build()
 
 
