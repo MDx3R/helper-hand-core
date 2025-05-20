@@ -16,9 +16,9 @@ class TestUserQueryRepositoryImpl:
     """Тестовый набор для класса UserQueryRepositoryImpl."""
 
     @pytest.fixture(autouse=True)
-    def setup(self):
+    def setup(self, query_executor):
         """Настроить тестовую среду с поддельными зависимостями."""
-        self.mock_executor = AsyncMock(QueryExecutor)
+        self.mock_executor = query_executor
         self.repository = UserQueryRepositoryImpl(self.mock_executor)
 
     def _get_base(self) -> UserBase:
