@@ -1,5 +1,5 @@
 from datetime import date, datetime, time
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Self
 from uuid import UUID
 
 from sqlalchemy import BigInteger, ForeignKey, Integer, String, func, text
@@ -43,7 +43,7 @@ class Base(DeclarativeBase):
         return {k: v for k, v in data.items() if k in cls._get_column_names()}
 
     @classmethod
-    def base_validate(cls, data: dict[str, Any]) -> "Base":
+    def base_validate(cls, data: dict[str, Any]) -> Self:
         return cls(**cls._filter_fields(data))
 
 
