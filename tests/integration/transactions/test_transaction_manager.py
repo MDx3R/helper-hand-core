@@ -47,8 +47,7 @@ async def setup_db(database: Database):
     yield
     await asyncio.sleep(0.1)
     try:
-        pass
-        # await database.drop_database(meta)
+        await database.drop_database(meta)
     except InterfaceError:
         print("WARNING: DB drop failed due to pending operation (ignored)")
 
