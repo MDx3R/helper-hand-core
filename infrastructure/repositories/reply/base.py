@@ -173,7 +173,7 @@ class ReplyQueryBuilder:
             self.where_contractee_id(filter.contractee_id)
         if filter.status:
             self._stmt = self._stmt.where(ReplyBase.status == filter.status)
-        if filter.dropped:
+        if filter.dropped is not None:
             self._stmt = self._stmt.where(ReplyBase.dropped == filter.dropped)
         if filter.date:
             self.join_detail()
