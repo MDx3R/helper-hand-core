@@ -3,6 +3,7 @@ from functools import wraps
 import inspect
 from typing import Awaitable, Callable, List
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 
 class FastAPIServer:
@@ -55,9 +56,20 @@ class FastAPIServer:
         )
 
         self.app.add_middleware(AuthMiddleware)
+        self.include_cors_middleware()
+        self.include_exception_handlers()
 
     def include_exception_handlers(self):
         pass
+
+    def include_cors_middleware(self):
+        self.app.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],  # TODO: Добавить в Config
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
 
     def _register_auth_routers(self):
         from presentation.controllers.auth.auth import router as auth_router
