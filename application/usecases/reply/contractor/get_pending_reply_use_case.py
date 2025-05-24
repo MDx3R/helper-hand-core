@@ -57,6 +57,7 @@ class ListPendingRepliesForOrderUseCase:
             ReplyFilterDTO(
                 order_id=query.order_id,
                 status=ReplyStatusEnum.created,
+                dropped=False,
                 size=query.size,
                 last_id=query.last_id,
             )
@@ -102,6 +103,7 @@ class ListPendingRepliesUseCase:
             ReplyFilterDTO(
                 contractor_id=query.context.user_id,
                 status=ReplyStatusEnum.created,
+                dropped=False,
                 size=query.size,
                 last_id=query.last_id,
             )

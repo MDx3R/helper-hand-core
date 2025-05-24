@@ -497,7 +497,7 @@ class Container(containers.DeclarativeContainer):
     )
     list_submitted_replies_use_case = providers.Singleton(
         ListSubmittedRepliesForContracteeUseCase,
-        reply_query_repository,
+        composite_reply_query_repository,
     )
     list_submitted_replies_for_order_use_case = providers.Singleton(
         ListSubmittedRepliesForOrderAndContracteeUseCase,
