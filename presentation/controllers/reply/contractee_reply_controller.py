@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi_utils.cbv import cbv
 from dependency_injector.wiring import Provide, inject
 from core.containers import Container
+from domain.dto.base import PaginationDTO
 from domain.dto.reply.request.create_reply_dto import CreateReplyDTO
 from domain.dto.reply.response.reply_output_dto import (
     CompleteReplyOutputDTO,
@@ -56,59 +57,50 @@ class ContracteeReplyController:
         contractee_reply_managment_service_factory
     )
 
-    @contractee_reply_router.get("/", response_model=List[ReplyOutputDTO])
+    @contractee_reply_router.get(
+        "/", response_model=List[CompleteReplyOutputDTO]
+    )
     async def list_replies(
         self,
-        last_id: int = Query(None, ge=1),
-        size: int = Query(None, gt=0),
+        params: PaginationDTO = Depends(),
         user: UserContextDTO = Depends(require_contractee),
     ):
-        if not size and last_id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Size is required when last_id is provided",
-            )
         return await self.query_service.get_replies(
-            PaginatedDTO(last_id=last_id, size=size, context=user)
+            PaginatedDTO(
+                last_id=params.last_id, size=params.size, context=user
+            )
         )
 
     @contractee_reply_router.get(
-        "/order/{order_id}", response_model=List[ReplyOutputDTO]
+        "/order/{order_id}", response_model=List[CompleteReplyOutputDTO]
     )
     async def list_order_replies(
         self,
         order_id: int,
-        last_id: int = Query(None, ge=1),
-        size: int = Query(None, gt=0),
+        params: PaginationDTO = Depends(),
         user: UserContextDTO = Depends(require_contractee),
     ):
-        if not size and last_id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Size is required when last_id is provided",
-            )
         return await self.query_service.get_order_replies(
             GetOrderRepliesDTO(
-                order_id=order_id, last_id=last_id, size=size, context=user
+                order_id=order_id,
+                last_id=params.last_id,
+                size=params.size,
+                context=user,
             )
         )
 
     @contractee_reply_router.get(
-        "/future", response_model=List[ReplyOutputDTO]
+        "/future", response_model=List[CompleteReplyOutputDTO]
     )
     async def list_future_replies(
         self,
-        last_id: int = Query(None, ge=1),
-        size: int = Query(None, gt=0),
+        params: PaginationDTO = Depends(),
         user: UserContextDTO = Depends(require_contractee),
     ):
-        if not size and last_id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Size is required when last_id is provided",
-            )
         return await self.query_service.get_future_replies(
-            PaginatedDTO(last_id=last_id, size=size, context=user)
+            PaginatedDTO(
+                last_id=params.last_id, size=params.size, context=user
+            )
         )
 
     @contractee_reply_router.get(

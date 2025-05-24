@@ -7,19 +7,10 @@ from domain.dto.reply.internal.reply_query_dto import (
     GetOrderRepliesDTO,
     GetReplyDTO,
 )
-from domain.dto.reply.response.reply_output_dto import (
-    CompleteReplyOutputDTO,
-    ReplyOutputDTO,
-)
+from domain.dto.reply.response.reply_output_dto import CompleteReplyOutputDTO
 from domain.mappers.reply_mappers import ReplyMapper
 from domain.repositories.reply.composite_reply_query_repository import (
     CompositeReplyQueryRepository,
-)
-from domain.repositories.reply.contractee_reply_query_repository import (
-    ContracteeReplyQueryRepository,
-)
-from domain.repositories.reply.reply_query_repository import (
-    ReplyQueryRepository,
 )
 
 
@@ -39,14 +30,16 @@ class GetReplyUseCase:
 
 # Order's
 class ListOrderRepliesUseCase:
-    def __init__(self, repository: ReplyQueryRepository):
+    def __init__(self, repository: CompositeReplyQueryRepository):
         self.repository = repository
 
-    async def execute(self, query: GetOrderRepliesDTO) -> List[ReplyOutputDTO]:
-        replies = await self.repository.filter_replies(
+    async def execute(
+        self, query: GetOrderRepliesDTO
+    ) -> List[CompleteReplyOutputDTO]:
+        replies = await self.repository.filter_complete_replies(
             self._build_filter(query)
         )
-        return [ReplyMapper.to_output(i) for i in replies]
+        return [ReplyMapper.to_complete(i) for i in replies]
 
     def _build_filter(self, query: GetOrderRepliesDTO) -> ReplyFilterDTO:
         return ReplyFilterDTO(
@@ -58,13 +51,14 @@ class ListOrderRepliesUseCase:
 
 
 class ListDetailRepliesUseCase:
-    def __init__(self, repository: ReplyQueryRepository):
+    def __init__(self, repository: CompositeReplyQueryRepository):
         self.repository = repository
 
+    # TODO: Изменить возвращаемый тип
     async def execute(
         self, query: GetDetailRepliesDTO
-    ) -> List[ReplyOutputDTO]:
-        replies = await self.repository.filter_replies(
+    ) -> List[CompleteReplyOutputDTO]:
+        replies = await self.repository.filter_complete_replies(
             ReplyFilterDTO(
                 detail_id=query.detail_id,
                 last_id=query.last_id,
@@ -72,18 +66,19 @@ class ListDetailRepliesUseCase:
             )
         )
 
-        return [ReplyMapper.to_output(i) for i in replies]
+        return [ReplyMapper.to_complete(i) for i in replies]
 
 
 # Contractee's
 class ListContracteeRepliesUseCase:
-    def __init__(self, repository: ReplyQueryRepository):
+    def __init__(self, repository: CompositeReplyQueryRepository):
         self.repository = repository
 
+    # TODO: Изменить возвращаемый тип
     async def execute(
         self, query: GetContracteeRepliesDTO
-    ) -> List[ReplyOutputDTO]:
-        replies = await self.repository.filter_replies(
+    ) -> List[CompleteReplyOutputDTO]:
+        replies = await self.repository.filter_complete_replies(
             ReplyFilterDTO(
                 contractee_id=query.user_id,
                 last_id=query.last_id,
@@ -91,17 +86,4 @@ class ListContracteeRepliesUseCase:
                 sorting=SortingOrder.descending,
             )
         )
-        return [ReplyMapper.to_output(i) for i in replies]
-
-
-class ListContracteeFutureRepliesUseCase:
-    def __init__(self, repository: ContracteeReplyQueryRepository):
-        self.repository = repository
-
-    async def execute(
-        self, query: GetContracteeRepliesDTO
-    ) -> List[ReplyOutputDTO]:
-        replies = await self.repository.get_contractee_future_replies(
-            query.user_id
-        )
-        return [ReplyMapper.to_output(i) for i in replies]
+        return [ReplyMapper.to_complete(i) for i in replies]

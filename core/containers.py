@@ -489,11 +489,11 @@ class Container(containers.DeclarativeContainer):
     )
     list_order_replies_for_contractor_use_case = providers.Singleton(
         ListOrderRepliesForContractorUseCase,
-        reply_query_repository,
+        composite_reply_query_repository,
     )
     list_detail_replies_for_contractor_use_case = providers.Singleton(
         ListDetailRepliesForContractorUseCase,
-        reply_query_repository,
+        composite_reply_query_repository,
     )
     list_submitted_replies_use_case = providers.Singleton(
         ListSubmittedRepliesForContracteeUseCase,
@@ -501,11 +501,11 @@ class Container(containers.DeclarativeContainer):
     )
     list_submitted_replies_for_order_use_case = providers.Singleton(
         ListSubmittedRepliesForOrderAndContracteeUseCase,
-        reply_query_repository,
+        composite_reply_query_repository,
     )
     list_future_replies_for_contractee_use_case = providers.Singleton(
         ListFutureRepliesForContracteeUseCase,
-        contractee_reply_query_repository,
+        composite_reply_query_repository,
     )
     approve_reply_use_case = providers.Singleton(
         ApproveReplyUseCase,

@@ -52,11 +52,11 @@ class ContractorReplyQueryService(ABC):
     @abstractmethod
     async def get_order_replies(
         self, query: GetOrderRepliesDTO
-    ) -> List[ReplyOutputDTO]:
+    ) -> List[CompleteReplyOutputDTO]:
         pass
 
     @abstractmethod
     async def get_detail_replies(
         self, query: GetDetailRepliesDTO
-    ) -> List[ReplyOutputDTO]:
+    ) -> List[CompleteReplyOutputDTO]:
         pass

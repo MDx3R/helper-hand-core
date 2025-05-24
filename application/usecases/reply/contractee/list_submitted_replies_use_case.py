@@ -5,20 +5,28 @@ from application.usecases.reply.reply_query_use_case import (
 from domain.dto.base import SortingOrder
 from domain.dto.reply.internal.reply_filter_dto import ReplyFilterDTO
 from domain.dto.reply.internal.reply_query_dto import GetOrderRepliesDTO
-from domain.dto.reply.response.reply_output_dto import ReplyOutputDTO
+from domain.dto.reply.response.reply_output_dto import (
+    CompleteReplyOutputDTO,
+    ReplyOutputDTO,
+)
 from domain.dto.user.internal.user_context_dto import PaginatedDTO
 from domain.mappers.reply_mappers import ReplyMapper
+from domain.repositories.reply.composite_reply_query_repository import (
+    CompositeReplyQueryRepository,
+)
 from domain.repositories.reply.reply_query_repository import (
     ReplyQueryRepository,
 )
 
 
 class ListSubmittedRepliesForContracteeUseCase:
-    def __init__(self, repository: ReplyQueryRepository):
+    def __init__(self, repository: CompositeReplyQueryRepository):
         self.repository = repository
 
-    async def execute(self, query: PaginatedDTO) -> List[ReplyOutputDTO]:
-        replies = await self.repository.filter_replies(
+    async def execute(
+        self, query: PaginatedDTO
+    ) -> List[CompleteReplyOutputDTO]:
+        replies = await self.repository.filter_complete_replies(
             ReplyFilterDTO(
                 contractee_id=query.context.user_id,
                 last_id=query.last_id,
@@ -26,13 +34,13 @@ class ListSubmittedRepliesForContracteeUseCase:
                 sorting=SortingOrder.descending,
             )
         )
-        return [ReplyMapper.to_output(i) for i in replies]
+        return [ReplyMapper.to_complete(i) for i in replies]
 
 
 class ListSubmittedRepliesForOrderAndContracteeUseCase(
     ListOrderRepliesUseCase
 ):
-    def __init__(self, repository: ReplyQueryRepository):
+    def __init__(self, repository: CompositeReplyQueryRepository):
         super().__init__(repository)
 
     def _build_filter(self, query: GetOrderRepliesDTO) -> ReplyFilterDTO:

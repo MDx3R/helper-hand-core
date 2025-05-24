@@ -29,5 +29,5 @@ class BaseReplyService:
 
     async def get_order_replies(
         self, query: GetOrderRepliesDTO
-    ) -> List[ReplyOutputDTO]:
+    ) -> List[CompleteReplyOutputDTO]:
         return await self.get_order_replies_use_case.execute(query)

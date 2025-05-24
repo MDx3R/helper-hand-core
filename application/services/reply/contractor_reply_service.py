@@ -96,5 +96,5 @@ class ContractorReplyQueryServiceImpl(
 
     async def get_detail_replies(
         self, query: GetDetailRepliesDTO
-    ) -> List[ReplyOutputDTO]:
+    ) -> List[CompleteReplyOutputDTO]:
         return await self.get_detail_replies_use_case.execute(query)

@@ -7,28 +7,30 @@ from domain.dto.reply.internal.reply_query_dto import (
     GetDetailRepliesDTO,
     GetOrderRepliesDTO,
 )
-from domain.dto.reply.response.reply_output_dto import ReplyOutputDTO
+from domain.dto.reply.response.reply_output_dto import CompleteReplyOutputDTO
 from domain.mappers.reply_mappers import ReplyMapper
-from domain.repositories.reply.reply_query_repository import (
-    ReplyQueryRepository,
+from domain.repositories.reply.composite_reply_query_repository import (
+    CompositeReplyQueryRepository,
 )
 
 
 class ListOrderRepliesForContractorUseCase(ListOrderRepliesUseCase):
-    async def execute(self, query: GetOrderRepliesDTO) -> List[ReplyOutputDTO]:
+    async def execute(
+        self, query: GetOrderRepliesDTO
+    ) -> List[CompleteReplyOutputDTO]:
         # TODO: Проверка на заказ и заказчика
         return await super().execute(query)
 
 
 class ListDetailRepliesForContractorUseCase:
-    def __init__(self, repository: ReplyQueryRepository):
+    def __init__(self, repository: CompositeReplyQueryRepository):
         self.repository = repository
 
     async def execute(
         self, query: GetDetailRepliesDTO
-    ) -> List[ReplyOutputDTO]:
+    ) -> List[CompleteReplyOutputDTO]:
         # TODO: Проверка на заказ и заказчика
-        replies = await self.repository.filter_replies(
+        replies = await self.repository.filter_complete_replies(
             ReplyFilterDTO(
                 detail_id=query.detail_id,
                 last_id=query.last_id,
@@ -36,4 +38,4 @@ class ListDetailRepliesForContractorUseCase:
             )
         )
 
-        return [ReplyMapper.to_output(i) for i in replies]
+        return [ReplyMapper.to_complete(i) for i in replies]

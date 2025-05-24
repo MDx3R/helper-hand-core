@@ -1,3 +1,4 @@
+from re import S
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi_utils.cbv import cbv
@@ -63,27 +64,39 @@ class ContractorReplyController:
     )
 
     @contractor_reply_router.get(
-        "/order/{order_id}", response_model=List[ReplyOutputDTO]
+        "/order/{order_id}", response_model=List[CompleteReplyOutputDTO]
     )
     async def list_order_replies(
         self,
         order_id: int,
+        params: PaginationDTO = Depends(),
         user: UserContextDTO = Depends(require_contractor),
     ):
         return await self.query_service.get_order_replies(
-            GetOrderRepliesDTO(order_id=order_id, context=user)
+            GetOrderRepliesDTO(
+                order_id=order_id,
+                context=user,
+                last_id=params.last_id,
+                size=params.size,
+            )
         )
 
     @contractor_reply_router.get(
-        "/detail/{detail_id}", response_model=List[ReplyOutputDTO]
+        "/detail/{detail_id}", response_model=List[CompleteReplyOutputDTO]
     )
     async def list_detail_replies(
         self,
         detail_id: int,
+        params: PaginationDTO = Depends(),
         user: UserContextDTO = Depends(require_contractor),
     ):
         return await self.query_service.get_detail_replies(
-            GetDetailRepliesDTO(detail_id=detail_id, context=user)
+            GetDetailRepliesDTO(
+                detail_id=detail_id,
+                context=user,
+                last_id=params.last_id,
+                size=params.size,
+            )
         )
 
     @contractor_reply_router.get(

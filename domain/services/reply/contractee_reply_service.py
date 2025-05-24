@@ -28,17 +28,19 @@ class ContracteeReplyQueryService(ABC):
         pass
 
     @abstractmethod
-    async def get_replies(self, query: PaginatedDTO) -> List[ReplyOutputDTO]:
+    async def get_replies(
+        self, query: PaginatedDTO
+    ) -> List[CompleteReplyOutputDTO]:
         pass
 
     @abstractmethod
     async def get_order_replies(
         self, query: GetOrderRepliesDTO
-    ) -> List[ReplyOutputDTO]:
+    ) -> List[CompleteReplyOutputDTO]:
         pass
 
     @abstractmethod
     async def get_future_replies(
         self, query: PaginatedDTO
-    ) -> List[ReplyOutputDTO]:
+    ) -> List[CompleteReplyOutputDTO]:
         pass
