@@ -208,16 +208,18 @@ class ContracteeUserController:
 
     @contractee_router.get(
         "/suitable",
-        response_model=CompleteOrderOutputDTO,
+        response_model=List[OrderWithDetailsOutputDTO],
     )
-    async def get_suitable_order(
+    async def get_suitable_orders(
         self,
-        last_id: Optional[int] = Query(None, ge=1),
+        params: PaginationDTO = Depends(),
         user: UserContextDTO = Depends(require_contractee),
     ):
-        return or_404(
-            await self.service.get_suitable_order(
-                GetOrderAfterDTO(last_id=last_id, context=user)
+        return await self.service.get_suitable_orders(
+            PaginatedDTO(
+                last_id=params.last_id,
+                size=params.size,
+                context=user,
             )
         )
 
@@ -225,15 +227,13 @@ class ContracteeUserController:
         "/suitable/{order_id}",
         response_model=List[OrderDetailOutputDTO],
     )
-    async def get_suitable_details(
+    async def get_suitable_details_for_order(
         self,
         order_id: int,
         user: UserContextDTO = Depends(require_contractee),
     ):
-        return or_404(
-            await self.service.get_suitable_details(
-                GetOrderDTO(order_id=order_id, context=user)
-            )
+        return await self.service.get_suitable_details_for_order(
+            GetOrderDTO(order_id=order_id, context=user)
         )
 
     @contractee_router.get(

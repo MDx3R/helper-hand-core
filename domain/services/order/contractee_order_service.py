@@ -9,6 +9,7 @@ from domain.dto.order.response.order_output_dto import (
     CompleteOrderOutputDTO,
     OrderDetailOutputDTO,
     OrderOutputDTO,
+    OrderWithDetailsOutputDTO,
 )
 from domain.dto.user.internal.user_context_dto import PaginatedDTO
 
@@ -21,13 +22,13 @@ class ContracteeOrderQueryService(ABC):
         pass
 
     @abstractmethod
-    async def get_suitable_order(
-        self, query: GetOrderAfterDTO
-    ) -> CompleteOrderOutputDTO | None:
+    async def get_suitable_orders(
+        self, query: PaginatedDTO
+    ) -> List[OrderWithDetailsOutputDTO]:
         pass
 
     @abstractmethod
-    async def get_suitable_details(
+    async def get_suitable_details_for_order(
         self, query: GetOrderDTO
     ) -> List[OrderDetailOutputDTO]:
         pass

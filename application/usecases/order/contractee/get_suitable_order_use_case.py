@@ -9,9 +9,11 @@ from domain.dto.order.internal.order_query_dto import (
 from domain.dto.order.response.order_output_dto import (
     CompleteOrderOutputDTO,
     OrderDetailOutputDTO,
+    OrderOutputDTO,
     OrderWithDetailsOutputDTO,
 )
 from domain.dto.reply.internal.reply_filter_dto import ReplyFilterDTO
+from domain.dto.user.internal.user_context_dto import PaginatedDTO
 from domain.dto.user.response.contractee.contractee_output_dto import (
     ContracteeOutputDTO,
 )
@@ -134,7 +136,7 @@ class GetUnavailableDetailsForContracteeUseCase:
         ]
 
 
-class GetSuitableDetailsUseCase:
+class GetSuitableDetailsForOrderUseCase:
     def __init__(
         self,
         order_repository: CompositeOrderQueryRepository,
@@ -186,8 +188,9 @@ class GetSuitableDetailsUseCase:
         return contractee
 
 
-# TODO: DTO с доступными позициями/Отправлять только доступные позиции
-class GetSuitableOrderUseCase:
+class ListSuitableOrdersUseCase:
+    SIZE = 25
+
     def __init__(
         self,
         order_repository: CompositeOrderQueryRepository,
@@ -202,30 +205,13 @@ class GetSuitableOrderUseCase:
 
     @transactional
     async def execute(
-        self, query: GetOrderAfterDTO
-    ) -> CompleteOrderOutputDTO | None:
+        self, query: PaginatedDTO
+    ) -> List[OrderWithDetailsOutputDTO]:
         taken = await self.unavailable_details_use_case.execute(
             query.context.user_id
         )
         contractee = await self._get_contractee(query.context.user_id)
-
-        last_id = query.last_id
-        while True:
-            orders = await self.order_repository.filter_complete_orders(
-                self._build_filter(last_id)
-            )
-            if not orders:
-                break
-
-            order = await self._select_suitable_order(
-                orders, taken, contractee
-            )
-            if order:
-                return order
-
-            last_id = orders[-1].order.order_id
-
-        return None
+        return await self._get_suitable_orders(query, taken, contractee)
 
     async def _get_contractee(self, user_id: int) -> Contractee:
         contractee = await self.contractee_repository.get_contractee(user_id)
@@ -234,21 +220,47 @@ class GetSuitableOrderUseCase:
             raise NotFoundException(user_id)
         return contractee
 
+    async def _get_suitable_orders(
+        self,
+        query: PaginatedDTO,
+        taken: UnavailableDetails,
+        contractee: Contractee,
+    ) -> List[OrderWithDetailsOutputDTO]:
+        result = []
+        last_id = query.last_id
+        while True and len(result) <= query.size:
+            orders = await self.order_repository.filter_orders_with_details(
+                self._build_filter(last_id)
+            )
+            if not orders:
+                break
+
+            orders = await self._select_suitable_orders(
+                orders, taken, contractee
+            )
+            if orders:
+                last_id = orders[-1].order.order_id
+                result.extend(orders)
+
+        return result
+
     def _build_filter(self, last_id: Optional[int]) -> OrderFilterDTO:
         return OrderFilterDTO(
             last_id=last_id,
             status=OrderStatusEnum.open,
             only_available_details=True,
+            size=self.SIZE,
         )
 
-    async def _select_suitable_order(
+    async def _select_suitable_orders(
         self,
-        orders: List[CompleteOrder],
+        orders: List[OrderWithDetails],
         taken: UnavailableDetails,
         contractee: Contractee,
-    ) -> CompleteOrderOutputDTO | None:
+    ) -> List[OrderWithDetailsOutputDTO]:
+        result = []
         for order in orders:
-            order_dto = OrderMapper.to_complete(order)
+            order_dto = OrderMapper.to_output_with_details(order)
             contractee_dto = ContracteeMapper.to_output(contractee)
             details = self.filtering_use_case.execute(
                 CheckOrderSuits(
@@ -259,5 +271,37 @@ class GetSuitableOrderUseCase:
             )
             if details:
                 order_dto.details = details
-                return order_dto
-        return None
+                result.append(order_dto)
+        return result
+
+
+# TODO: DTO с доступными позициями/Отправлять только доступные позиции
+class GetSuitableOrderUseCase:
+    def __init__(
+        self,
+        list_suitable_orders_use_case: ListSuitableOrdersUseCase,
+        order_repository: CompositeOrderQueryRepository,
+    ):
+        self.list_suitable_orders_use_case = list_suitable_orders_use_case
+        self.order_repository = order_repository
+
+    @transactional
+    async def execute(
+        self, query: GetOrderAfterDTO
+    ) -> CompleteOrderOutputDTO | None:
+        result = await self.list_suitable_orders_use_case.execute(
+            PaginatedDTO(last_id=query.last_id, size=1, context=query.context)
+        )
+        if not result:
+            return None
+        order_with_details = result[0]
+
+        complete_order = await self.order_repository.get_complete_order(
+            order_with_details.order.order_id
+        )
+        if not complete_order:
+            raise
+
+        output = OrderMapper.to_complete(complete_order)
+        output.details = order_with_details.details
+        return output

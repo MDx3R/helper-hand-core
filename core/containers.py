@@ -73,9 +73,10 @@ from application.usecases.order.change_order_status_use_case import (
 )
 from application.usecases.order.contractee.get_suitable_order_use_case import (
     GetSuitableDetailsFromOrderUseCase,
-    GetSuitableDetailsUseCase,
+    GetSuitableDetailsForOrderUseCase,
     GetSuitableOrderUseCase,
     GetUnavailableDetailsForContracteeUseCase,
+    ListSuitableOrdersUseCase,
 )
 from application.usecases.order.contractor.create_order_use_case import (
     CreateOrderForContractorUseCase,
@@ -378,15 +379,8 @@ class Container(containers.DeclarativeContainer):
         GetUnavailableDetailsForContracteeUseCase,
         composite_reply_query_repository,
     )
-    get_suitable_order_use_case = providers.Singleton(
-        GetSuitableOrderUseCase,
-        order_repository=composite_order_query_repository,
-        contractee_repository=contractee_query_repository,
-        filtering_use_case=get_suitable_details_from_order_use_case,
-        unavailable_details_use_case=get_unavailable_details_for_contractee_use_case,
-    )
     get_suitable_details_use_case = providers.Singleton(
-        GetSuitableDetailsUseCase,
+        GetSuitableDetailsForOrderUseCase,
         order_repository=composite_order_query_repository,
         reply_repository=composite_reply_query_repository,
         contractee_repository=contractee_query_repository,
@@ -405,6 +399,18 @@ class Container(containers.DeclarativeContainer):
     )
     list_owned_orders_use_case = providers.Singleton(
         ListOwnedOrdersUseCase, order_query_repository
+    )
+    list_suitable_orders_use_case = providers.Singleton(
+        ListSuitableOrdersUseCase,
+        order_repository=composite_order_query_repository,
+        contractee_repository=contractee_query_repository,
+        filtering_use_case=get_suitable_details_from_order_use_case,
+        unavailable_details_use_case=get_unavailable_details_for_contractee_use_case,
+    )
+    get_suitable_order_use_case = providers.Singleton(
+        GetSuitableOrderUseCase,
+        list_suitable_orders_use_case=list_suitable_orders_use_case,
+        order_repository=composite_order_query_repository,
     )
     create_order_for_admin_use_case = providers.Singleton(
         CreateOrderForAdminUseCase,
@@ -573,7 +579,7 @@ class Container(containers.DeclarativeContainer):
         ContracteeOrderQueryServiceImpl,
         get_order_use_case=get_order_for_contracor_use_case,
         get_orders_use_case=list_owned_orders_use_case,
-        get_suitable_order_use_case=get_suitable_order_use_case,
+        list_suitable_orders_use_case=list_suitable_orders_use_case,
         get_suitable_details_use_case=get_suitable_details_use_case,
     )
 
