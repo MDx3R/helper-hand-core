@@ -310,15 +310,18 @@ class AdminUserController:
 
     @admin_router.get(
         "/pending",
-        response_model=CompleteOrderOutputDTO,
+        response_model=List[OrderOutputDTO],
     )
-    async def get_pending(
+    async def list_pending_orders(
         self,
-        last_id: Optional[int] = Query(None, ge=1),
+        params: PaginationDTO = Depends(),
+        user: UserContextDTO = Depends(require_admin),
     ):
-        return or_404(
-            await self.query_service.get_unassigned_order(
-                LastObjectDTO(last_id=last_id)
+        return await self.query_service.get_unassigned_orders(
+            PaginatedDTO(
+                last_id=params.last_id,
+                size=params.size,
+                context=user,
             )
         )
 

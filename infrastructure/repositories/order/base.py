@@ -178,7 +178,7 @@ class OrderQueryBuilder:
             self._stmt = self._stmt.where(
                 OrderBase.contractor_id == filter.contractor_id
             )
-        if filter.admin_id:
+        if filter.admin_id_set:
             self._stmt = self._stmt.where(
                 OrderBase.admin_id == filter.admin_id
             )

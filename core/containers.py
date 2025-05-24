@@ -54,6 +54,7 @@ from application.usecases.order.admin.get_order_use_case import (
 )
 from application.usecases.order.admin.get_unassigned_order_use_case import (
     GetUnassignedOrderUseCase,
+    ListUnassignedOrdersUseCase,
 )
 from application.usecases.order.admin.list_supervised_orders_use_case import (
     ListSupervisedOrdersUseCase,
@@ -367,9 +368,6 @@ class Container(containers.DeclarativeContainer):
     get_order_for_admin_use_case = providers.Singleton(
         GetOrderForAdminUseCase, composite_order_query_repository
     )
-    get_unassigned_order_use_case = providers.Singleton(
-        GetUnassignedOrderUseCase, composite_order_query_repository
-    )
     get_order_for_contracor_use_case = providers.Singleton(
         GetOrderForContractorUseCase, composite_order_query_repository
     )
@@ -398,6 +396,9 @@ class Container(containers.DeclarativeContainer):
 
     list_recent_orders_use_case = providers.Singleton(
         ListRecentOrdersUseCase, order_query_repository
+    )
+    list_unassigned_orders_use_case = providers.Singleton(
+        ListUnassignedOrdersUseCase, order_query_repository
     )
     list_supervised_orders_use_case = providers.Singleton(
         ListSupervisedOrdersUseCase, order_query_repository
@@ -537,7 +538,7 @@ class Container(containers.DeclarativeContainer):
         AdminOrderQueryServiceImpl,
         get_order_use_case=get_order_for_admin_use_case,
         get_orders_use_case=list_supervised_orders_use_case,
-        get_unassigned_order_use_case=get_unassigned_order_use_case,
+        list_unassigned_orders_use_case=list_unassigned_orders_use_case,
     )
     admin_order_managment_service = providers.Singleton(
         AdminOrderManagementServiceImpl,

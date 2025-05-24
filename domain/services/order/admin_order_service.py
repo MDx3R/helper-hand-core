@@ -77,9 +77,9 @@ class AdminOrderQueryService(ABC):
         pass
 
     @abstractmethod
-    async def get_unassigned_order(
-        self, query: LastObjectDTO
-    ) -> CompleteOrderOutputDTO | None:
+    async def get_unassigned_orders(
+        self, query: PaginatedDTO
+    ) -> List[OrderOutputDTO]:
         pass
 
     @abstractmethod

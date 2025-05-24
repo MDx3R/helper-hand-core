@@ -14,6 +14,7 @@ from application.usecases.order.admin.get_order_use_case import (
 )
 from application.usecases.order.admin.get_unassigned_order_use_case import (
     GetUnassignedOrderUseCase,
+    ListUnassignedOrdersUseCase,
 )
 from application.usecases.order.admin.list_supervised_orders_use_case import (
     ListSupervisedOrdersUseCase,
@@ -167,15 +168,15 @@ class AdminOrderQueryServiceImpl(
         self,
         get_order_use_case: GetOrderForAdminUseCase,
         get_orders_use_case: ListSupervisedOrdersUseCase,
-        get_unassigned_order_use_case: GetUnassignedOrderUseCase,
+        list_unassigned_orders_use_case: ListUnassignedOrdersUseCase,
     ):
         super().__init__(get_order_use_case, get_orders_use_case)
-        self.get_unassigned_order_use_case = get_unassigned_order_use_case
+        self.list_unassigned_orders_use_case = list_unassigned_orders_use_case
 
-    async def get_unassigned_order(
-        self, query: LastObjectDTO
-    ) -> CompleteOrderOutputDTO | None:
-        return await self.get_unassigned_order_use_case.execute(query)
+    async def get_unassigned_orders(
+        self, query: PaginatedDTO
+    ) -> List[OrderOutputDTO]:
+        return await self.list_unassigned_orders_use_case.execute(query)
 
     async def get_user_orders(
         self, query: GetUserOrdersDTO
