@@ -171,6 +171,11 @@ class ReplyQueryBuilder:
             self.where_detail_id(filter.detail_id)
         if filter.contractee_id:
             self.where_contractee_id(filter.contractee_id)
+        if filter.contractor_id:
+            self.join_order()
+            self._stmt = self._stmt.where(
+                OrderBase.contractor_id == filter.contractor_id
+            )
         if filter.status:
             self._stmt = self._stmt.where(ReplyBase.status == filter.status)
         if filter.dropped is not None:

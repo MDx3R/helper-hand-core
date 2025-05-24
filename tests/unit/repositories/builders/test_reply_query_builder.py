@@ -47,6 +47,7 @@ class TestReplyQueryBuilder(BaseTestQueryBuilder):
     def test_filter_limit_and_sorting(self):
         dto = ReplyFilterDTO(
             contractee_id=3,
+            contractor_id=2,
             detail_id=2,
             last_id=5,
             size=50,
@@ -58,6 +59,7 @@ class TestReplyQueryBuilder(BaseTestQueryBuilder):
 
         expected_clauses = [
             f'"{self.reply_table}".contractee_id = {dto.contractee_id}',
+            f'"{self.order_table}".contractor_id = {dto.contractor_id}',
             f'"{self.reply_table}".detail_id = {dto.detail_id}',
             f'"{self.reply_table}".reply_id > {dto.last_id}',
             f'ORDER BY "{self.reply_table}".created_at DESC',

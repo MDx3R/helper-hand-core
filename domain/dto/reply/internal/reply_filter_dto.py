@@ -6,6 +6,7 @@ from domain.entities.reply.enums import ReplyStatusEnum
 
 class BaseReplyFilterDTO(InternalDTO):
     order_id: Optional[int] = None
+    contractor_id: Optional[int] = None
     detail_id: Optional[int] = None
     status: Optional[ReplyStatusEnum] = None
     dropped: Optional[bool] = None
