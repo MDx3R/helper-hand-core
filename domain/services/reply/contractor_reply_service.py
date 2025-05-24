@@ -15,6 +15,7 @@ from domain.dto.reply.response.reply_output_dto import (
     CompleteReplyOutputDTO,
     ReplyOutputDTO,
 )
+from domain.dto.user.internal.user_context_dto import PaginatedDTO
 
 
 class ContractorReplyManagmentService(ABC):
@@ -37,9 +38,15 @@ class ContractorReplyQueryService(ABC):
         pass
 
     @abstractmethod
-    async def get_pending_reply(
-        self, query: GetOrderReplyDTO
-    ) -> CompleteReplyOutputDTO | None:
+    async def get_pending_replies(
+        self, query: PaginatedDTO
+    ) -> List[CompleteReplyOutputDTO]:
+        pass
+
+    @abstractmethod
+    async def get_pending_replies_for_order(
+        self, query: GetOrderRepliesDTO
+    ) -> List[CompleteReplyOutputDTO]:
         pass
 
     @abstractmethod

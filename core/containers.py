@@ -109,6 +109,9 @@ from application.usecases.reply.contractor.change_reply_status_use_case import (
 )
 from application.usecases.reply.contractor.get_pending_reply_use_case import (
     GetPendingReplyForOrderUseCase,
+    GetPendingReplyUseCase,
+    ListPendingRepliesForOrderUseCase,
+    ListPendingRepliesUseCase,
 )
 from application.usecases.reply.contractor.get_reply_use_case import (
     GetReplyForContractorUseCase,
@@ -468,10 +471,21 @@ class Container(containers.DeclarativeContainer):
         order_repository=order_query_repository,
         reply_repository=composite_reply_query_repository,
     )
-    get_pending_reply_for_order_use_case = providers.Singleton(
-        GetPendingReplyForOrderUseCase,
+    list_pending_replies_use_case = providers.Singleton(
+        ListPendingRepliesUseCase,
         order_repository=order_query_repository,
         reply_repository=composite_reply_query_repository,
+    )
+    list_pending_replies_for_order_use_case = providers.Singleton(
+        ListPendingRepliesForOrderUseCase,
+        order_repository=order_query_repository,
+        reply_repository=composite_reply_query_repository,
+    )
+    get_pending_reply_use_case = providers.Singleton(
+        GetPendingReplyUseCase, list_pending_replies_use_case
+    )
+    get_pending_reply_for_order_use_case = providers.Singleton(
+        GetPendingReplyForOrderUseCase, list_pending_replies_for_order_use_case
     )
     list_order_replies_for_contractor_use_case = providers.Singleton(
         ListOrderRepliesForContractorUseCase,
@@ -588,7 +602,8 @@ class Container(containers.DeclarativeContainer):
     contractor_reply_query_service = providers.Singleton(
         ContractorReplyQueryServiceImpl,
         get_reply_use_case=get_reply_for_contractor_use_case,
-        get_pending_reply_use_case=get_pending_reply_for_order_use_case,
+        list_pending_replies_use_case=list_pending_replies_use_case,
+        list_pending_replies_for_order_use_case=list_pending_replies_for_order_use_case,
         get_order_replies_use_case=list_order_replies_for_contractor_use_case,
         get_detail_replies_use_case=list_detail_replies_for_contractor_use_case,
     )

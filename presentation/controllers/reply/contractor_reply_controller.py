@@ -3,11 +3,15 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi_utils.cbv import cbv
 from dependency_injector.wiring import Provide, inject
 from core.containers import Container
+from domain.dto.base import PaginationDTO
 from domain.dto.reply.response.reply_output_dto import (
     CompleteReplyOutputDTO,
     ReplyOutputDTO,
 )
-from domain.dto.user.internal.user_context_dto import UserContextDTO
+from domain.dto.user.internal.user_context_dto import (
+    PaginatedDTO,
+    UserContextDTO,
+)
 from domain.dto.reply.internal.reply_query_dto import (
     GetOrderRepliesDTO,
     GetDetailRepliesDTO,
@@ -83,6 +87,40 @@ class ContractorReplyController:
         )
 
     @contractor_reply_router.get(
+        "/pending", response_model=List[CompleteReplyOutputDTO]
+    )
+    async def get_pending_replies(
+        self,
+        params: PaginationDTO = Depends(),
+        user: UserContextDTO = Depends(require_contractor),
+    ):
+        return await self.query_service.get_pending_replies(
+            PaginatedDTO(
+                context=user,
+                last_id=params.last_id,
+                size=params.size,
+            )
+        )
+
+    @contractor_reply_router.get(
+        "/pending/{order_id}", response_model=List[CompleteReplyOutputDTO]
+    )
+    async def get_pending_replies_for_order(
+        self,
+        order_id: int,
+        params: PaginationDTO = Depends(),
+        user: UserContextDTO = Depends(require_contractor),
+    ):
+        return await self.query_service.get_pending_replies_for_order(
+            GetOrderRepliesDTO(
+                order_id=order_id,
+                context=user,
+                last_id=params.last_id,
+                size=params.size,
+            )
+        )
+
+    @contractor_reply_router.get(
         "/{detail_id}/{contractee_id}", response_model=CompleteReplyOutputDTO
     )
     async def get_reply(
@@ -98,20 +136,6 @@ class ContractorReplyController:
                     contractee_id=contractee_id,
                     context=user,
                 )
-            )
-        )
-
-    @contractor_reply_router.get(
-        "/pending/{order_id}", response_model=CompleteReplyOutputDTO
-    )
-    async def get_pending_reply(
-        self,
-        order_id: int,
-        user: UserContextDTO = Depends(require_contractor),
-    ):
-        return or_404(
-            await self.query_service.get_pending_reply(
-                GetOrderReplyDTO(order_id=order_id, context=user)
             )
         )
 

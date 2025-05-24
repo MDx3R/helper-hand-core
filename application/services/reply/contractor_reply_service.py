@@ -9,6 +9,8 @@ from application.usecases.reply.contractor.change_reply_status_use_case import (
 )
 from application.usecases.reply.contractor.get_pending_reply_use_case import (
     GetPendingReplyForOrderUseCase,
+    ListPendingRepliesForOrderUseCase,
+    ListPendingRepliesUseCase,
 )
 from application.usecases.reply.contractor.get_reply_use_case import (
     GetReplyForContractorUseCase,
@@ -31,6 +33,7 @@ from domain.dto.reply.response.reply_output_dto import (
     CompleteReplyOutputDTO,
     ReplyOutputDTO,
 )
+from domain.dto.user.internal.user_context_dto import PaginatedDTO
 from domain.services.reply.contractor_reply_service import (
     ContractorReplyManagmentService,
     ContractorReplyQueryService,
@@ -67,18 +70,29 @@ class ContractorReplyQueryServiceImpl(
     def __init__(
         self,
         get_reply_use_case: GetReplyForContractorUseCase,
-        get_pending_reply_use_case: GetPendingReplyForOrderUseCase,
+        list_pending_replies_use_case: ListPendingRepliesUseCase,
+        list_pending_replies_for_order_use_case: ListPendingRepliesForOrderUseCase,
         get_order_replies_use_case: ListOrderRepliesForContractorUseCase,
         get_detail_replies_use_case: ListDetailRepliesForContractorUseCase,
     ):
         super().__init__(get_reply_use_case, get_order_replies_use_case)
-        self.get_pending_reply_use_case = get_pending_reply_use_case
+        self.list_pending_replies_use_case = list_pending_replies_use_case
+        self.list_pending_replies_for_order_use_case = (
+            list_pending_replies_for_order_use_case
+        )
         self.get_detail_replies_use_case = get_detail_replies_use_case
 
-    async def get_pending_reply(
-        self, query: GetOrderReplyDTO
-    ) -> CompleteReplyOutputDTO | None:
-        return await self.get_pending_reply_use_case.execute(query)
+    async def get_pending_replies(
+        self, query: PaginatedDTO
+    ) -> List[CompleteReplyOutputDTO]:
+        return await self.list_pending_replies_use_case.execute(query)
+
+    async def get_pending_replies_for_order(
+        self, query: GetOrderRepliesDTO
+    ) -> List[CompleteReplyOutputDTO]:
+        return await self.list_pending_replies_for_order_use_case.execute(
+            query
+        )
 
     async def get_detail_replies(
         self, query: GetDetailRepliesDTO
