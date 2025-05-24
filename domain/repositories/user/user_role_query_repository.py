@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
+from typing import List
 
+from domain.dto.user.internal.user_filter_dto import UserFilterDTO
 from domain.entities.user.admin.admin import Admin
 from domain.entities.user.admin.composite_admin import CompleteAdmin
 from domain.entities.user.contractee.composite_contractee import (
@@ -26,7 +28,7 @@ class UserRoleQueryRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_first_pending_user(
-        self,
-    ) -> CompleteContractee | CompleteContractor | None:
+    async def filter_users(
+        self, query: UserFilterDTO
+    ) -> List[CompleteContractee | CompleteContractor]:
         pass

@@ -116,7 +116,7 @@ from application.usecases.reply.contractor.list_order_replies_use_case import (
     ListOrderRepliesForContractorUseCase,
 )
 from application.usecases.user.admin.get_pending_user_use_case import (
-    GetPendingUserUseCase,
+    ListPendingUsersUseCase,
 )
 from application.usecases.user.admin.get_user_use_case import (
     GetProfileForAdminUseCase,
@@ -341,9 +341,6 @@ class Container(containers.DeclarativeContainer):
     get_user_for_admin_use_case = providers.Singleton(
         GetUserForAdminUseCase, user_role_query_repository
     )
-    get_pending_user_use_case = providers.Singleton(
-        GetPendingUserUseCase, user_role_query_repository
-    )
     get_profile_for_admin_use_case = providers.Singleton(
         GetProfileForAdminUseCase, admin_query_repository
     )
@@ -360,6 +357,10 @@ class Container(containers.DeclarativeContainer):
     )
     get_profile_for_contractee_use_case = providers.Singleton(
         GetProfileForContracteeUseCase, contractee_query_repository
+    )
+
+    list_pending_users_use_case = providers.Singleton(
+        ListPendingUsersUseCase, user_query_repository
     )
 
     # --- Orders ---
@@ -512,7 +513,7 @@ class Container(containers.DeclarativeContainer):
     admin_user_query_service = providers.Singleton(
         AdminUserQueryServiceImpl,
         get_user_use_case=get_user_for_admin_use_case,
-        get_pending_user_use_case=get_pending_user_use_case,
+        list_pending_users_use_case=list_pending_users_use_case,
         get_profile_use_case=get_profile_for_admin_use_case,
     )
     contractor_user_query_service = providers.Singleton(

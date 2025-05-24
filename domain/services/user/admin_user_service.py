@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
+from typing import List
 
-from domain.dto.user.internal.user_context_dto import UserContextDTO
+from domain.dto.user.internal.user_context_dto import (
+    PaginatedDTO,
+    UserContextDTO,
+)
 from domain.dto.user.internal.user_managment_dto import (
     ApproveUserDTO,
     BanUserDTO,
@@ -40,9 +44,9 @@ class AdminUserQueryService(ABC):
         pass
 
     @abstractmethod
-    async def get_pending_user(
-        self,
-    ) -> CompleteContracteeOutputDTO | CompleteContractorOutputDTO | None:
+    async def get_pending_users(
+        self, query: PaginatedDTO
+    ) -> List[UserOutputDTO]:
         pass
 
 

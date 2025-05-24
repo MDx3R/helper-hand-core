@@ -1,10 +1,15 @@
-from fastapi import APIRouter, Depends
+from typing import List, Optional
+from fastapi import APIRouter, Depends, Query
 from application.usecases.user.user_query_use_case import (
     GetProfileForUserUseCase,
 )
 from core.containers import Container
 from dependency_injector.wiring import Provide, inject
-from domain.dto.user.internal.user_context_dto import UserContextDTO
+from domain.dto.base import PaginationDTO
+from domain.dto.user.internal.user_context_dto import (
+    PaginatedDTO,
+    UserContextDTO,
+)
 from domain.dto.user.internal.user_query_dto import GetUserDTO
 from domain.dto.user.response.admin.admin_output_dto import (
     CompleteAdminOutputDTO,
@@ -169,10 +174,18 @@ class AdminUserController:
 
     @admin_router.get(
         "/pending",
-        # response_model=UserOutputDTO, # TODO: Правильный тип
+        response_model=List[UserOutputDTO],
     )
-    async def get_pending_user(self):
-        return or_404(await self.service.get_pending_user())
+    async def list_pending_users(
+        self,
+        params: PaginationDTO = Depends(),
+        user: UserContextDTO = Depends(require_admin),
+    ):
+        return await self.service.get_pending_users(
+            PaginatedDTO(
+                last_id=params.last_id, size=params.size, context=user
+            )
+        )
 
     @admin_router.get(
         "/{user_id}",

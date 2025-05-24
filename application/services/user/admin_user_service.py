@@ -1,3 +1,4 @@
+from typing import List
 from application.dto.notification.user_status_change import (
     RegistrationApprovedNotificationDTO,
     RegistrationDisapprovedNotificationDTO,
@@ -16,13 +17,17 @@ from application.usecases.user.admin.chage_user_status_use_case import (
 )
 from application.usecases.user.admin.get_pending_user_use_case import (
     GetPendingUserUseCase,
+    ListPendingUsersUseCase,
 )
 from application.usecases.user.admin.get_user_use_case import (
     GetProfileForAdminUseCase,
     GetUserForAdminUseCase,
 )
 from domain.dto.order.internal.order_managment_dto import DisapproveOrderDTO
-from domain.dto.user.internal.user_context_dto import UserContextDTO
+from domain.dto.user.internal.user_context_dto import (
+    PaginatedDTO,
+    UserContextDTO,
+)
 from domain.dto.user.internal.user_managment_dto import (
     ApproveUserDTO,
     BanUserDTO,
@@ -56,11 +61,11 @@ class AdminUserQueryServiceImpl(BaseUserQueryService, AdminUserQueryService):
     def __init__(
         self,
         get_user_use_case: GetUserForAdminUseCase,
-        get_pending_user_use_case: GetPendingUserUseCase,
+        list_pending_users_use_case: ListPendingUsersUseCase,
         get_profile_use_case: GetProfileForAdminUseCase,
     ):
         super().__init__(get_user_use_case)
-        self.get_pending_user_use_case = get_pending_user_use_case
+        self.list_pending_users_use_case = list_pending_users_use_case
         self.get_profile_use_case = get_profile_use_case
 
     async def get_profile(
@@ -68,10 +73,10 @@ class AdminUserQueryServiceImpl(BaseUserQueryService, AdminUserQueryService):
     ) -> CompleteAdminOutputDTO:
         return await self.get_profile_use_case.execute(context)
 
-    async def get_pending_user(
-        self,
-    ) -> CompleteContracteeOutputDTO | CompleteContractorOutputDTO | None:
-        return await self.get_pending_user_use_case.execute()
+    async def get_pending_users(
+        self, query: PaginatedDTO
+    ) -> List[UserOutputDTO]:
+        return await self.list_pending_users_use_case.execute(query)
 
 
 class MockAdminUserQueryService(AdminUserQueryService):
@@ -117,10 +122,10 @@ class MockAdminUserQueryService(AdminUserQueryService):
     ) -> CompleteAdminOutputDTO:
         return self.admin
 
-    async def get_pending_user(
-        self,
-    ) -> CompleteContracteeOutputDTO | CompleteContractorOutputDTO | None:
-        return self.contractor
+    async def get_pending_users(
+        self, query: PaginatedDTO
+    ) -> List[UserOutputDTO]:
+        return [self.contractor.user]
 
 
 class AdminUserManagementServiceImpl(AdminUserManagementService):

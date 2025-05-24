@@ -75,12 +75,9 @@ class GuestOrderController:
     @guest_router.get("/", response_model=List[OrderOutputDTO])
     async def list_orders(
         self,
-        last_id: Optional[int] = Query(None, ge=1),
-        size: int = Query(None, gt=0),
+        params: PaginationDTO = Depends(),
     ):
-        return await self.service.get_recent_orders(
-            PaginationDTO(last_id=last_id, size=size)
-        )
+        return await self.service.get_recent_orders(params)
 
 
 contractor_router = APIRouter(dependencies=[Depends(is_contractor)])
@@ -130,19 +127,13 @@ class ContractorUserController:
     @contractor_router.get("/", response_model=List[OrderOutputDTO])
     async def list_orders(
         self,
-        last_id: Optional[int] = Query(None, ge=1),
-        size: int = Query(None, gt=0),
+        params: PaginationDTO = Depends(),
         user: UserContextDTO = Depends(require_admin),
     ):
-        if not size and last_id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Size is required when last_id is provided",
-            )
         return await self.query_service.get_orders(
             PaginatedDTO(
-                last_id=last_id,
-                size=size,
+                last_id=params.last_id,
+                size=params.size,
                 context=user,
             )
         )
@@ -204,19 +195,13 @@ class ContracteeUserController:
     @contractee_router.get("/", response_model=List[OrderOutputDTO])
     async def list_orders(
         self,
-        last_id: Optional[int] = Query(None, ge=1),
-        size: int = Query(None, gt=0),
+        params: PaginationDTO = Depends(),
         user: UserContextDTO = Depends(require_contractee),
     ):
-        if not size and last_id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Size is required when last_id is provided",
-            )
         return await self.service.get_orders(
             PaginatedDTO(
-                last_id=last_id,
-                size=size,
+                last_id=params.last_id,
+                size=params.size,
                 context=user,
             )
         )
@@ -312,19 +297,13 @@ class AdminUserController:
     @admin_router.get("/", response_model=List[OrderOutputDTO])
     async def list_orders(
         self,
-        last_id: Optional[int] = Query(None, ge=1),
-        size: int = Query(None, gt=0),
+        params: PaginationDTO = Depends(),
         user: UserContextDTO = Depends(require_admin),
     ):
-        if not size and last_id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Size is required when last_id is provided",
-            )
         return await self.query_service.get_orders(
             PaginatedDTO(
-                last_id=last_id,
-                size=size,
+                last_id=params.last_id,
+                size=params.size,
                 context=user,
             )
         )

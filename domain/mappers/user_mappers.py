@@ -1,3 +1,4 @@
+from typing import Union, overload
 from domain.dto.user.base import UserCredentialsDTO
 from domain.dto.user.internal.user_context_dto import UserContextDTO
 from domain.dto.user.request.admin.create_admin_dto import AdminInputDTO
@@ -66,9 +67,19 @@ class UserMapper:
 
 class UserRoleMapper:
     @staticmethod
+    @overload
+    def to_output(user: Admin) -> AdminOutputDTO: ...
+    @staticmethod
+    @overload
+    def to_output(user: Contractor) -> ContractorOutputDTO: ...
+    @staticmethod
+    @overload
+    def to_output(user: Contractee) -> ContracteeOutputDTO: ...
+
+    @staticmethod
     def to_output(
-        user: Admin | Contractor | Contractee,
-    ) -> AdminOutputDTO | ContracteeOutputDTO | ContractorOutputDTO:
+        user: Union[Admin, Contractor, Contractee],
+    ) -> Union[AdminOutputDTO, ContractorOutputDTO, ContracteeOutputDTO]:
         mapper = {
             Admin: AdminOutputDTO,
             Contractor: ContractorOutputDTO,
@@ -80,13 +91,23 @@ class UserRoleMapper:
         )
 
     @staticmethod
+    @overload
+    def to_profile(user: Admin) -> AdminProfileOutputDTO: ...
+    @staticmethod
+    @overload
+    def to_profile(user: Contractor) -> ContractorProfileOutputDTO: ...
+    @staticmethod
+    @overload
+    def to_profile(user: Contractee) -> ContracteeProfileOutputDTO: ...
+
+    @staticmethod
     def to_profile(
-        user: Admin | Contractor | Contractee,
-    ) -> (
-        AdminProfileOutputDTO
-        | ContractorProfileOutputDTO
-        | ContracteeProfileOutputDTO
-    ):
+        user: Union[Admin, Contractor, Contractee],
+    ) -> Union[
+        AdminProfileOutputDTO,
+        ContractorProfileOutputDTO,
+        ContracteeProfileOutputDTO,
+    ]:
         mapper = {
             Admin: AdminProfileOutputDTO,
             Contractor: ContractorProfileOutputDTO,
@@ -98,13 +119,27 @@ class UserRoleMapper:
         )
 
     @staticmethod
+    @overload
+    def to_complete(user: CompleteAdmin) -> CompleteAdminOutputDTO: ...
+    @staticmethod
+    @overload
     def to_complete(
-        user: CompleteAdmin | CompleteContractor | CompleteContractee,
-    ) -> (
-        CompleteAdminOutputDTO
-        | CompleteContractorOutputDTO
-        | CompleteContracteeOutputDTO
-    ):
+        user: CompleteContractor,
+    ) -> CompleteContractorOutputDTO: ...
+    @staticmethod
+    @overload
+    def to_complete(
+        user: CompleteContractee,
+    ) -> CompleteContracteeOutputDTO: ...
+
+    @staticmethod
+    def to_complete(
+        user: Union[CompleteAdmin, CompleteContractor, CompleteContractee],
+    ) -> Union[
+        CompleteAdminOutputDTO,
+        CompleteContractorOutputDTO,
+        CompleteContracteeOutputDTO,
+    ]:
         mapper = {
             CompleteAdmin: CompleteAdminOutputDTO,
             CompleteContractor: CompleteContractorOutputDTO,

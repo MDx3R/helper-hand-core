@@ -1,5 +1,6 @@
-from typing import Optional
+from typing import List, Optional
 from sqlalchemy import Select
+from domain.dto.user.internal.user_filter_dto import UserFilterDTO
 from domain.entities.user.admin.admin import Admin
 from domain.entities.user.admin.composite_admin import CompleteAdmin
 from domain.entities.user.contractee.composite_contractee import (
@@ -104,17 +105,16 @@ class UserRoleQueryRepositoryImpl(UserRoleQueryRepository):
 
         return await self._execute_one_complete_role(stmt)
 
-    async def get_first_pending_user(
-        self,
-    ) -> CompleteContractee | CompleteContractor | None:
+    async def filter_users(
+        self, query: UserFilterDTO
+    ) -> List[CompleteContractee | CompleteContractor]:
         query_builder = self._get_query_buider()
         stmt = (
             query_builder.add_contractee()
             .add_contractor()
             .add_credentials()
+            .apply_user_filter(query)
             .build()
-            .where(UserBase.status == UserStatusEnum.pending)
-            .limit(1)
         )
 
         return await self._execute_one_complete_role(stmt)
@@ -123,22 +123,34 @@ class UserRoleQueryRepositoryImpl(UserRoleQueryRepository):
         return UserQueryBuilder(self.strategy)
 
     async def _execute_one_complete_role(self, statement: Select):
-        unmapped_user = await self._execute_one(statement)
-        if not unmapped_user:
+        unmapped = await self._execute_one(statement)
+        if not unmapped:
             return None
 
+        return self._unmapped_to_complete(unmapped)
+
+    async def _execute_many_complete_role(self, statement: Select):
+        result = await self._execute_many(statement)
+
+        return [self._unmapped_to_complete(unmapped) for unmapped in result]
+
+    def _unmapped_to_complete(self, unmapped: UnmappedRole):
         return CompleteRoleMapper.to_model(
-            unmapped_user.user,
-            unmapped_user.admin,
-            unmapped_user.contractor,
-            unmapped_user.contractee,
-            unmapped_user.web,
-            unmapped_user.telegram,
+            unmapped.user,
+            unmapped.admin,
+            unmapped.contractor,
+            unmapped.contractee,
+            unmapped.web,
+            unmapped.telegram,
         )
 
     async def _execute_one(self, statement: Select) -> UnmappedRole | None:
-        row = (await self.executor.execute(statement)).first()
+        row = await self.executor.execute_one(statement)
         if not row:
             return None
 
         return UnmappedRole(row)
+
+    async def _execute_many(self, statement: Select) -> List[UnmappedRole]:
+        result = await self.executor.execute_many(statement)
+        return [UnmappedRole(row) for row in result]
