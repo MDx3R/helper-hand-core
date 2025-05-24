@@ -16,6 +16,9 @@ from application.services.order.contractor_order_service import (
     ContractorOrderManagementServiceImpl,
     ContractorOrderQueryServiceImpl,
 )
+from application.services.order.order_query_service import (
+    OrderQueryServiceImpl,
+)
 from application.services.reply.contractee_reply_service import (
     ContracteeReplyManagmentServiceImpl,
     ContracteeReplyQueryServiceImpl,
@@ -81,6 +84,9 @@ from application.usecases.order.contractor.get_order_use_case import (
 )
 from application.usecases.order.contractor.list_owned_orders_use_case import (
     ListOwnedOrdersUseCase,
+)
+from application.usecases.order.order_query_use_case import (
+    ListRecentOrdersUseCase,
 )
 from application.usecases.reply.contractee.create_reply_use_case import (
     CreateReplyUseCase,
@@ -389,6 +395,9 @@ class Container(containers.DeclarativeContainer):
         filtering_use_case=get_suitable_details_from_order_use_case,
     )
 
+    list_recent_orders_use_case = providers.Singleton(
+        ListRecentOrdersUseCase, order_query_repository
+    )
     list_supervised_orders_use_case = providers.Singleton(
         ListSupervisedOrdersUseCase, order_query_repository
     )
@@ -518,6 +527,11 @@ class Container(containers.DeclarativeContainer):
     )
 
     # --- Orders ---
+    order_query_service = providers.Singleton(
+        OrderQueryServiceImpl,
+        list_recent_orders_use_case=list_recent_orders_use_case,
+    )
+
     admin_order_query_service = providers.Singleton(
         AdminOrderQueryServiceImpl,
         get_order_use_case=get_order_for_admin_use_case,

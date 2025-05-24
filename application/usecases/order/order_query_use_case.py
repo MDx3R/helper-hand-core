@@ -1,6 +1,6 @@
 from typing import List
 
-from domain.dto.base import SortingOrder
+from domain.dto.base import LastObjectDTO, PaginationDTO, SortingOrder
 from domain.dto.order.internal.order_filter_dto import OrderFilterDTO
 from domain.dto.order.internal.order_query_dto import (
     GetOrderDTO,
@@ -15,6 +15,7 @@ from domain.dto.user.internal.user_context_dto import (
     PaginatedDTO,
     UserContextDTO,
 )
+from domain.entities.order.enums import OrderStatusEnum
 from domain.entities.user.user import User
 from domain.mappers.order_mappers import OrderMapper
 from domain.repositories.order.composite_order_query_repository import (
@@ -75,6 +76,29 @@ class ListOrdersUseCase:
         else:
             # Не должно вызываться
             raise
+
+        return OrderFilterDTO.model_validate(params)
+
+
+class ListRecentOrdersUseCase:
+    def __init__(
+        self,
+        repository: OrderQueryRepository,
+    ):
+        self.repository = repository
+
+    async def execute(self, query: PaginationDTO) -> List[OrderOutputDTO]:
+        orders = await self.repository.filter_orders(self._build_filter(query))
+
+        return [OrderMapper.to_output(i) for i in orders]
+
+    def _build_filter(self, query: PaginationDTO) -> OrderFilterDTO:
+        params = {
+            "last_id": query.last_id,
+            "size": query.size,
+            "status": OrderStatusEnum.open,
+            "order": "descending",
+        }
 
         return OrderFilterDTO.model_validate(params)
 

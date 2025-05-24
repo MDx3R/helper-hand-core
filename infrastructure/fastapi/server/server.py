@@ -106,11 +106,17 @@ class FastAPIServer:
 
     def _register_order_routers(self):
         from presentation.controllers.order.order_contoller import (
-            router as contractor_router,
-            contractee_router as contractee_router,
-            admin_router as admin_router,
+            guest_router,
+            contractor_router,
+            contractee_router,
+            admin_router,
         )
 
+        self.app.include_router(
+            guest_router,
+            prefix="/orders",
+            tags=["Orders"],
+        )
         self.app.include_router(
             contractor_router,
             prefix="/contractor/orders",

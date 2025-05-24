@@ -4,7 +4,7 @@ from fastapi_utils.cbv import cbv
 
 from dependency_injector.wiring import Provide, inject
 from core.containers import Container
-from domain.dto.base import LastObjectDTO
+from domain.dto.base import LastObjectDTO, PaginationDTO
 from domain.dto.order.internal.order_managment_dto import (
     ApproveOrderDTO,
     CancelOrderDTO,
@@ -43,7 +43,9 @@ from domain.services.order.contractor_order_service import (
     ContractorOrderQueryService,
 )
 
+from domain.services.order.order_service import OrderQueryService
 from presentation.controllers.permissions import (
+    is_guest,
     require_contractor,
     is_contractor,
     is_admin,
@@ -53,7 +55,35 @@ from presentation.controllers.permissions import (
 )
 from presentation.controllers.utils import or_404
 
-router = APIRouter(dependencies=[Depends(is_contractor)])
+
+guest_router = APIRouter(dependencies=[Depends(is_guest)])
+
+
+@inject
+def order_query_service_factory(
+    service: OrderQueryService = Depends(
+        Provide[Container.order_query_service]
+    ),
+):
+    return service
+
+
+@cbv(guest_router)
+class GuestOrderController:
+    service: OrderQueryService = Depends(order_query_service_factory)
+
+    @guest_router.get("/", response_model=List[OrderOutputDTO])
+    async def list_orders(
+        self,
+        last_id: Optional[int] = Query(None, ge=1),
+        size: int = Query(None, gt=0),
+    ):
+        return await self.service.get_recent_orders(
+            PaginationDTO(last_id=last_id, size=size)
+        )
+
+
+contractor_router = APIRouter(dependencies=[Depends(is_contractor)])
 
 
 @inject
@@ -74,7 +104,7 @@ def contractor_order_managment_service_factory(
     return service
 
 
-@cbv(router)
+@cbv(contractor_router)
 class ContractorUserController:
     query_service: ContractorOrderQueryService = Depends(
         contractor_order_query_service_factory
@@ -83,7 +113,7 @@ class ContractorUserController:
         contractor_order_managment_service_factory
     )
 
-    @router.post("/", response_model=OrderWithDetailsOutputDTO)
+    @contractor_router.post("/", response_model=OrderWithDetailsOutputDTO)
     async def create_order(
         self,
         request: OrderWithDetailsInputDTO,
@@ -97,11 +127,11 @@ class ContractorUserController:
             )
         )
 
-    @router.get("/", response_model=List[OrderOutputDTO])
+    @contractor_router.get("/", response_model=List[OrderOutputDTO])
     async def list_orders(
         self,
         last_id: Optional[int] = Query(None, ge=1),
-        size: Optional[int] = Query(None, gt=0),
+        size: int = Query(None, gt=0),
         user: UserContextDTO = Depends(require_admin),
     ):
         if not size and last_id:
@@ -117,7 +147,7 @@ class ContractorUserController:
             )
         )
 
-    @router.get(
+    @contractor_router.get(
         "/{order_id}",
         response_model=CompleteOrderOutputDTO,
     )
@@ -130,7 +160,7 @@ class ContractorUserController:
             )
         )
 
-    @router.post(
+    @contractor_router.post(
         "/{order_id}/cancel",
         response_model=OrderOutputDTO,
     )
@@ -141,7 +171,7 @@ class ContractorUserController:
             CancelOrderDTO(order_id=order_id, context=user)
         )
 
-    @router.post(
+    @contractor_router.post(
         "/{order_id}/set-active",
         response_model=OrderOutputDTO,
     )
@@ -175,7 +205,7 @@ class ContracteeUserController:
     async def list_orders(
         self,
         last_id: Optional[int] = Query(None, ge=1),
-        size: Optional[int] = Query(None, gt=0),
+        size: int = Query(None, gt=0),
         user: UserContextDTO = Depends(require_contractee),
     ):
         if not size and last_id:
@@ -283,7 +313,7 @@ class AdminUserController:
     async def list_orders(
         self,
         last_id: Optional[int] = Query(None, ge=1),
-        size: Optional[int] = Query(None, gt=0),
+        size: int = Query(None, gt=0),
         user: UserContextDTO = Depends(require_admin),
     ):
         if not size and last_id:
