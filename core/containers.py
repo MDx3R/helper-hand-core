@@ -1,10 +1,12 @@
 from dependency_injector import containers, providers
+from application.external.metrics.metrics_repository import MetricsRepository
 from application.external.password_hasher import BcryptPasswordHasher
 from application.services.auth.user_auth_service import (
     JWTTokenBlacklist,
     JWTTokenService,
     UserAuthServiceImpl,
 )
+from application.services.metrics.metrics_service import MetricsServiceImpl
 from application.services.order.admin_order_service import (
     AdminOrderManagementServiceImpl,
     AdminOrderQueryServiceImpl,
@@ -45,6 +47,18 @@ from application.usecases.auth.create_user_use_case import (
 from application.usecases.auth.register_user_use_case import (
     RegisterContracteeUseCase,
     RegisterContractorUseCase,
+)
+from application.usecases.metrics.get_admin_metrics_use_case import (
+    GetAdminMetricsUseCase,
+)
+from application.usecases.metrics.get_app_metrics_use_case import (
+    GetAppMetricsUseCase,
+)
+from application.usecases.metrics.get_contractee_metrics_use_case import (
+    GetContracteeMetricsUseCase,
+)
+from application.usecases.metrics.get_contractor_metrics_use_case import (
+    GetContractorMetricsUseCase,
 )
 from application.usecases.order.admin.create_order_use_case import (
     CreateOrderForAdminUseCase,
@@ -143,6 +157,9 @@ from infrastructure.database.database import (
     Database,
 )
 from infrastructure.repositories.base import QueryExecutor
+from infrastructure.repositories.metrics.metrics_service import (
+    MetricsRepositoryImpl,
+)
 from infrastructure.repositories.order.composite_order_query_repository import (
     CompositeOrderQueryRepositoryImpl,
 )
@@ -297,6 +314,11 @@ class Container(containers.DeclarativeContainer):
     )
     token_command_repository = providers.Singleton(
         TokenCommandRepositoryImpl, query_executor
+    )
+
+    # --- Metrics Repositories ---
+    metrics_repository = providers.Singleton(
+        MetricsRepositoryImpl, query_executor
     )
 
     # ---------------------- Auth ----------------------
@@ -520,7 +542,21 @@ class Container(containers.DeclarativeContainer):
         composite_reply_query_repository=composite_reply_query_repository,
     )
 
-    # ---------------------- Services ----------------------
+    # --- Metrics ---
+    get_app_metrics_use_case = providers.Singleton(
+        GetAppMetricsUseCase, metrics_repository
+    )
+    get_admin_metrics_use_case = providers.Singleton(
+        GetAdminMetricsUseCase, metrics_repository
+    )
+    get_contractee_metrics_use_case = providers.Singleton(
+        GetContracteeMetricsUseCase, metrics_repository
+    )
+    get_contractor_metrics_use_case = providers.Singleton(
+        GetContractorMetricsUseCase, metrics_repository
+    )
+
+    # ---------------------- Services (Facades) ----------------------
 
     # --- Auth ---
     auth_service = providers.Singleton(
@@ -625,4 +661,13 @@ class Container(containers.DeclarativeContainer):
         ContracteeReplyManagmentServiceImpl,
         create_reply_use_case=create_reply_use_case,
         contractor_notification_service=None,  # TODO: inject service
+    )
+
+    # --- Metrics ---
+    metrics_service = providers.Singleton(
+        MetricsServiceImpl,
+        get_app_metrics_use_case=get_app_metrics_use_case,
+        get_admin_metrics_use_case=get_admin_metrics_use_case,
+        get_contractee_metrics_use_case=get_contractee_metrics_use_case,
+        get_contractor_metrics_use_case=get_contractor_metrics_use_case,
     )
