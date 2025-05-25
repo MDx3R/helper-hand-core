@@ -93,7 +93,7 @@ class MetricsRepositoryImpl(MetricsRepository):
                 OrderBase.admin_id == admin_id,
                 OrderBase.status == OrderStatusEnum.fulfilled,
             )
-            .scalar_subquery()
+            .subquery()
         )
         orders = select(func.count(OrderBase.order_id)).where(
             OrderBase.admin_id == admin_id
@@ -102,7 +102,13 @@ class MetricsRepositoryImpl(MetricsRepository):
             OrderBase.admin_id == admin_id,
             OrderBase.status == OrderStatusEnum.open,
         )
-        completed_orders_count = select(func.count(completed_orders))
+        active_orders = select(func.count(OrderBase.order_id)).where(
+            OrderBase.admin_id == admin_id,
+            OrderBase.status == OrderStatusEnum.active,
+        )
+        completed_orders_count = select(func.count()).select_from(
+            completed_orders
+        )
         duration_hours = self._get_duration_hours_expr()
         total_amount = select(
             func.coalesce(
@@ -121,6 +127,7 @@ class MetricsRepositoryImpl(MetricsRepository):
             select(
                 orders.scalar_subquery(),
                 open_orders.scalar_subquery(),
+                active_orders.scalar_subquery(),
                 completed_orders_count.scalar_subquery(),
                 total_amount.scalar_subquery(),
                 hours_worked.scalar_subquery(),
@@ -131,6 +138,7 @@ class MetricsRepositoryImpl(MetricsRepository):
         (
             orders,
             open_orders,
+            active_orders,
             completed_orders_count,
             total_amount,
             hours_worked,
@@ -138,6 +146,7 @@ class MetricsRepositoryImpl(MetricsRepository):
         return AdminMetrics(
             orders=orders,
             open_orders=open_orders,
+            active_orders=active_orders,
             completed_orders=completed_orders_count,
             amount=Decimal(total_amount),
             hours_worked=hours_worked,
@@ -151,7 +160,7 @@ class MetricsRepositoryImpl(MetricsRepository):
         completed_orders = (
             select(OrderBase.order_id)
             .where(OrderBase.status == OrderStatusEnum.fulfilled)
-            .subquery()
+            .scalar_subquery()
         )
         replies = select(func.count(ReplyBase.reply_id)).where(
             ReplyBase.contractee_id == contractee_id
@@ -234,8 +243,16 @@ class MetricsRepositoryImpl(MetricsRepository):
         orders = select(func.count(OrderBase.order_id)).where(
             OrderBase.contractor_id == contractor_id
         )
-        completed_orders_count = select(func.count(OrderBase.order_id)).where(
-            OrderBase.order_id.in_(select(completed_orders))
+        open_orders = select(func.count(OrderBase.order_id)).where(
+            OrderBase.contractor_id == contractor_id,
+            OrderBase.status == OrderStatusEnum.open,
+        )
+        active_orders = select(func.count(OrderBase.order_id)).where(
+            OrderBase.contractor_id == contractor_id,
+            OrderBase.status == OrderStatusEnum.active,
+        )
+        completed_orders_count = select(func.count()).select_from(
+            completed_orders
         )
         replies = (
             select(func.count(ReplyBase.reply_id))
@@ -245,6 +262,19 @@ class MetricsRepositoryImpl(MetricsRepository):
             )
             .join(OrderBase, OrderDetailBase.order_id == OrderBase.order_id)
             .where(OrderBase.contractor_id == contractor_id)
+        )
+        pending_replies = (
+            select(func.count(ReplyBase.reply_id))
+            .join(
+                OrderDetailBase,
+                ReplyBase.detail_id == OrderDetailBase.detail_id,
+            )
+            .join(OrderBase, OrderDetailBase.order_id == OrderBase.order_id)
+            .where(
+                OrderBase.contractor_id == contractor_id,
+                ReplyBase.status == ReplyStatusEnum.created,
+                ReplyBase.dropped == False,
+            )
         )
         total_amount = select(
             func.coalesce(
@@ -262,19 +292,34 @@ class MetricsRepositoryImpl(MetricsRepository):
         results = await self.executor.execute_one(
             select(
                 orders.scalar_subquery(),
+                open_orders.scalar_subquery(),
+                active_orders.scalar_subquery(),
                 completed_orders_count.scalar_subquery(),
                 replies.scalar_subquery(),
+                pending_replies.scalar_subquery(),
                 total_amount.scalar_subquery(),
                 hours_worked.scalar_subquery(),
             )
         )
         if not results:
             raise Exception("Contractor metrics query returned no results")
-        orders, completed_orders_count, replies, spent, hours_worked = results
+        (
+            orders,
+            open_orders,
+            active_orders,
+            completed_orders_count,
+            replies,
+            pending_replies,
+            spent,
+            hours_worked,
+        ) = results
         return ContractorMetrics(
             orders=orders,
+            open_orders=open_orders,
+            active_orders=active_orders,
             completed_orders=completed_orders_count,
             replies=replies,
+            pending_replies=pending_replies,
             spent=Decimal(spent),
             hours_worked=hours_worked,
         )
