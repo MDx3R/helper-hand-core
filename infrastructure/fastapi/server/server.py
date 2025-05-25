@@ -62,6 +62,7 @@ class FastAPIServer:
         self._register_user_routers()
         self._register_order_routers()
         self._register_reply_routers()
+        self._register_metrics_routers()
         # Корректный вывод путей маршрутов
         route_paths = [
             getattr(route, "path", None)
