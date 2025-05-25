@@ -2,21 +2,35 @@ from contextlib import asynccontextmanager
 from functools import wraps
 import inspect
 from typing import Awaitable, Callable, List
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 
 class FastAPIServer:
+    """
+    Обертка сервера FastAPI.
+    Обрабатывает регистрацию маршрутов, middleware и события жизненного цикла.
+    """
+
+    ADMIN_BASE = "admin"
+    CONTRACTOR_BASE = "contractor"
+    CONTRACTEE_BASE = "contractee"
+    USERS_BASE = "users"
+    ORDERS_BASE = "orders"
+    REPLIES_BASE = "replies"
+    METRICS_BASE = "metrics"
+
     def __init__(self):
         self._startup_handlers: List[Callable[[], Awaitable[None]]] = []
         self._shutdown_handlers: List[Callable[[], Awaitable[None]]] = []
         self.app = FastAPI(lifespan=self._lifespan)
 
-    # TODO: Добавить приоритет
     def on_start_up(self, func: Callable, **kwargs):
+        """Регистрирует функцию для выполнения при запуске приложения."""
         self._startup_handlers.append(self._wrap(func, **kwargs))
 
     def on_tear_down(self, func: Callable, **kwargs):
+        """Регистрирует функцию для выполнения при завершении работы приложения."""
         self._shutdown_handlers.append(self._wrap(func, **kwargs))
 
     def _wrap(self, func: Callable, **kwargs) -> Callable[[], Awaitable[None]]:
@@ -43,29 +57,35 @@ class FastAPIServer:
                     print(f"Error in shutdown handler {handler.__name__}: {e}")
 
     def setup_routes(self):
+        """Регистрирует все API-маршруты."""
         self._register_auth_routers()
         self._register_user_routers()
         self._register_order_routers()
         self._register_reply_routers()
-        print("Registered routes:", [route.path for route in self.app.routes])
+        # Корректный вывод путей маршрутов
+        route_paths = [
+            getattr(route, "path", None)
+            for route in self.app.routes
+            if hasattr(route, "path")
+        ]
+        print("Registered routes:", route_paths)
         print("Done")
 
     def include_middlewares(self):
-        from presentation.middleware.auth_middleware import (
-            AuthMiddleware,
-        )
+        """Регистрирует все middleware."""
+        from presentation.middleware.auth_middleware import AuthMiddleware
 
         self.app.add_middleware(AuthMiddleware)
-        self.include_cors_middleware()
-        self.include_exception_handlers()
+        self._include_cors_middleware()
 
     def include_exception_handlers(self):
+        """Регистрирует все обработчики исключений."""
         pass
 
-    def include_cors_middleware(self):
+    def _include_cors_middleware(self):
         self.app.add_middleware(
             CORSMiddleware,
-            allow_origins=["*"],  # TODO: Добавить в Config
+            allow_origins=["*"],  # TODO: Добавь Config
             allow_credentials=True,
             allow_methods=["*"],
             allow_headers=["*"],
@@ -74,34 +94,31 @@ class FastAPIServer:
     def _register_auth_routers(self):
         from presentation.controllers.auth.auth import router as auth_router
 
-        self.app.include_router(auth_router, prefix="/auth", tags=["Auth"])
+        self._include_router(auth_router, "/auth", "Auth")
 
     def _register_user_routers(self):
         from presentation.controllers.user.user_controller import (
             router as user_router,
-            contractor_router as contractor_router,
-            contractee_router as contractee_router,
-            admin_router as admin_router,
-        )
-
-        self.app.include_router(
-            user_router,
-            prefix="/users",
-            tags=["Users"],
-        )
-
-        self.app.include_router(
             contractor_router,
-            prefix="/contractor/users",
-            tags=["Contractor's Users"],
-        )
-        self.app.include_router(
             contractee_router,
-            prefix="/contractee/users",
-            tags=["Contractee's Users"],
+            admin_router,
         )
-        self.app.include_router(
-            admin_router, prefix="/admin/users", tags=["Admin's Users"]
+
+        self._include_router(user_router, f"/{self.USERS_BASE}", "Users")
+        self._include_router(
+            contractor_router,
+            f"/{self.CONTRACTOR_BASE}/{self.USERS_BASE}",
+            "Contractor's Users",
+        )
+        self._include_router(
+            contractee_router,
+            f"/{self.CONTRACTEE_BASE}/{self.USERS_BASE}",
+            "Contractee's Users",
+        )
+        self._include_router(
+            admin_router,
+            f"/{self.ADMIN_BASE}/{self.USERS_BASE}",
+            "Admin's Users",
         )
 
     def _register_order_routers(self):
@@ -112,25 +129,21 @@ class FastAPIServer:
             admin_router,
         )
 
-        self.app.include_router(
-            guest_router,
-            prefix="/orders",
-            tags=["Orders"],
-        )
-        self.app.include_router(
+        self._include_router(guest_router, f"/{self.ORDERS_BASE}", "Orders")
+        self._include_router(
             contractor_router,
-            prefix="/contractor/orders",
-            tags=["Contractor's Orders"],
+            f"/{self.CONTRACTOR_BASE}/{self.ORDERS_BASE}",
+            "Contractor's Orders",
         )
-        self.app.include_router(
+        self._include_router(
             contractee_router,
-            prefix="/contractee/orders",
-            tags=["Contractee's Orders"],
+            f"/{self.CONTRACTEE_BASE}/{self.ORDERS_BASE}",
+            "Contractee's Orders",
         )
-        self.app.include_router(
+        self._include_router(
             admin_router,
-            prefix="/admin/orders",
-            tags=["Admin's Orders"],
+            f"/{self.ADMIN_BASE}/{self.ORDERS_BASE}",
+            "Admin's Orders",
         )
 
     def _register_reply_routers(self):
@@ -141,13 +154,41 @@ class FastAPIServer:
             contractor_reply_router,
         )
 
-        self.app.include_router(
+        self._include_router(
             contractor_reply_router,
-            prefix="/contractor/replies",
-            tags=["Contractor's Replies"],
+            f"/{self.CONTRACTOR_BASE}/{self.REPLIES_BASE}",
+            "Contractor's Replies",
         )
-        self.app.include_router(
+        self._include_router(
             contractee_reply_router,
-            prefix="/contractee/replies",
-            tags=["Contractee's Replies"],
+            f"/{self.CONTRACTEE_BASE}/{self.REPLIES_BASE}",
+            "Contractee's Replies",
         )
+
+    def _register_metrics_routers(self):
+        from presentation.controllers.metrics.metrics_controller import (
+            app_router,
+            contractor_router,
+            contractee_router,
+            admin_router,
+        )
+
+        self._include_router(app_router, f"/{self.METRICS_BASE}", "Orders")
+        self._include_router(
+            contractor_router,
+            f"/{self.CONTRACTOR_BASE}/{self.METRICS_BASE}",
+            "Contractor's Metrics",
+        )
+        self._include_router(
+            contractee_router,
+            f"/{self.CONTRACTEE_BASE}/{self.METRICS_BASE}",
+            "Contractee's Metrics",
+        )
+        self._include_router(
+            admin_router,
+            f"/{self.ADMIN_BASE}/{self.METRICS_BASE}",
+            "Admin's Metrics",
+        )
+
+    def _include_router(self, router: APIRouter, prefix: str, tag: str):
+        self.app.include_router(router, prefix=prefix, tags=[tag])
