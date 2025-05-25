@@ -1,5 +1,5 @@
 from application.dto.metrics.contractor_metrics import ContractorMetrics
-from application.external.metrics.metrics_service import MetricsRepository
+from application.external.metrics.metrics_repository import MetricsRepository
 
 
 class GetContractorMetricsUseCase:

@@ -1,5 +1,5 @@
 from application.dto.metrics.admin_metrics import AdminMetrics
-from application.external.metrics.metrics_service import MetricsRepository
+from application.external.metrics.metrics_repository import MetricsRepository
 
 
 class GetAdminMetricsUseCase:
