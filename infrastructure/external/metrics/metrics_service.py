@@ -4,7 +4,7 @@ from application.dto.metrics.admin_metrics import AdminMetrics
 from application.dto.metrics.app_metrics import AppMetrics
 from application.dto.metrics.contractee_metrics import ContracteeMetrics
 from application.dto.metrics.contractor_metrics import ContractorMetrics
-from application.external.metrics.metrics_service import MetricsRepository
+from application.external.metrics.metrics_repository import MetricsRepository
 from domain.entities.order.enums import OrderStatusEnum
 from domain.entities.reply.enums import ReplyStatusEnum
 from infrastructure.database.models import (
