@@ -146,38 +146,38 @@ class AdminUserManagementServiceImpl(AdminUserManagementService):
 
     async def approve_user(self, request: ApproveUserDTO) -> UserOutputDTO:
         user = await self.approve_user_use_case.execute(request)
-        await self.notification_service.send_registration_approved_notification(
-            RegistrationApprovedNotificationDTO(
-                receiver_id=user.user_id, executor_id=request.context.user_id
-            )
-        )
+        # await self.notification_service.send_registration_approved_notification(
+        #     RegistrationApprovedNotificationDTO(
+        #         receiver_id=user.user_id, executor_id=request.context.user_id
+        #     )
+        # )
         return user
 
     async def disapprove_registration(
         self, request: DisapproveUserDTO
     ) -> UserOutputDTO:
         user = await self.disapprove_user_use_case.execute(request)
-        await self.notification_service.send_registration_disapproved_notification(
-            RegistrationDisapprovedNotificationDTO(
-                receiver_id=user.user_id, executor_id=request.context.user_id
-            )
-        )
+        # await self.notification_service.send_registration_disapproved_notification(
+        #     RegistrationDisapprovedNotificationDTO(
+        #         receiver_id=user.user_id, executor_id=request.context.user_id
+        #     )
+        # )
         return user
 
     async def drop_user(self, request: DropUserDTO) -> UserOutputDTO:
         user = await self.drop_user_use_case.execute(request)
-        await self.notification_service.send_user_dropped_notification(
-            UserDroppedNotificationDTO(
-                receiver_id=user.user_id, executor_id=request.context.user_id
-            )
-        )
+        # await self.notification_service.send_user_dropped_notification(
+        #     UserDroppedNotificationDTO(
+        #         receiver_id=user.user_id, executor_id=request.context.user_id
+        #     )
+        # )
         return user
 
     async def ban_user(self, request: BanUserDTO) -> UserOutputDTO:
         user = await self.ban_user_use_case.execute(request)
-        await self.notification_service.send_user_banned_notification(
-            UserBannedNotificationDTO(
-                receiver_id=user.user_id, executor_id=request.context.user_id
-            )
-        )
+        # await self.notification_service.send_user_banned_notification(
+        #     UserBannedNotificationDTO(
+        #         receiver_id=user.user_id, executor_id=request.context.user_id
+        #     )
+        # )
         return user

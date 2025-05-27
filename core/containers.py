@@ -30,6 +30,7 @@ from application.services.reply.contractor_reply_service import (
     ContractorReplyQueryServiceImpl,
 )
 from application.services.user.admin_user_service import (
+    AdminUserManagementServiceImpl,
     AdminUserQueryServiceImpl,
 )
 from application.services.user.contractee_user_service import (
@@ -134,6 +135,13 @@ from application.usecases.reply.contractor.list_order_replies_use_case import (
     ListDetailRepliesForContractorUseCase,
     ListOrderRepliesForContractorUseCase,
 )
+from application.usecases.user.admin.chage_user_status_use_case import (
+    ApproveUserUseCase,
+    BanUserUseCase,
+    ChangeUserStatusUseCase,
+    DisapproveUserUseCase,
+    DropUserUseCase,
+)
 from application.usecases.user.admin.get_pending_user_use_case import (
     ListPendingUsersUseCase,
 )
@@ -153,6 +161,7 @@ from application.usecases.user.user_query_use_case import (
     GetProfileForUserUseCase,
 )
 from core.config import Config
+from domain.services.user.admin_user_service import AdminUserManagementService
 from infrastructure.database.database import (
     Database,
 )
@@ -389,6 +398,21 @@ class Container(containers.DeclarativeContainer):
     list_pending_users_use_case = providers.Singleton(
         ListPendingUsersUseCase, user_query_repository
     )
+    change_user_status_use_case = providers.Singleton(
+        ChangeUserStatusUseCase, user_query_repository, user_command_repository
+    )
+    approve_user_use_case = providers.Singleton(
+        ApproveUserUseCase, change_user_status_use_case
+    )
+    disapprove_user_use_case = providers.Singleton(
+        DisapproveUserUseCase, change_user_status_use_case
+    )
+    drop_user_use_case = providers.Singleton(
+        DropUserUseCase, change_user_status_use_case
+    )
+    ban_user_use_case = providers.Singleton(
+        BanUserUseCase, change_user_status_use_case
+    )
 
     # --- Orders ---
     get_order_for_admin_use_case = providers.Singleton(
@@ -572,6 +596,14 @@ class Container(containers.DeclarativeContainer):
         get_user_use_case=get_user_for_admin_use_case,
         list_pending_users_use_case=list_pending_users_use_case,
         get_profile_use_case=get_profile_for_admin_use_case,
+    )
+    admin_user_managment_service = providers.Singleton(
+        AdminUserManagementServiceImpl,
+        approve_user_use_case=approve_user_use_case,
+        disapprove_user_use_case=disapprove_user_use_case,
+        drop_user_use_case=drop_user_use_case,
+        ban_user_use_case=ban_user_use_case,
+        notification_service=None,  # TODO: inject service
     )
     contractor_user_query_service = providers.Singleton(
         ContractorUserQueryServiceImpl,

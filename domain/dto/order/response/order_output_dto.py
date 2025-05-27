@@ -20,6 +20,7 @@ class OrderOutputDTO(OrderBaseDTO):
 class OrderDetailOutputDTO(OrderDetailBaseDTO):
     detail_id: int
     order_id: int
+    fee: int
 
     @property
     def start_date(self):

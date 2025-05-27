@@ -10,6 +10,10 @@ from domain.dto.user.internal.user_context_dto import (
     PaginatedDTO,
     UserContextDTO,
 )
+from domain.dto.user.internal.user_managment_dto import (
+    ApproveUserDTO,
+    DisapproveUserDTO,
+)
 from domain.dto.user.internal.user_query_dto import GetUserDTO
 from domain.dto.user.response.admin.admin_output_dto import (
     CompleteAdminOutputDTO,
@@ -21,7 +25,10 @@ from domain.dto.user.response.contractor.contractor_output_dto import (
     CompleteContractorOutputDTO,
 )
 from domain.dto.user.response.user_output_dto import UserOutputDTO
-from domain.services.user.admin_user_service import AdminUserQueryService
+from domain.services.user.admin_user_service import (
+    AdminUserManagementService,
+    AdminUserQueryService,
+)
 from domain.services.user.contractee_user_service import (
     ContracteeUserQueryService,
 )
@@ -161,16 +168,30 @@ def admin_user_query_service_factory(
     return service
 
 
+@inject
+def admin_user_managment_service_factory(
+    service: AdminUserManagementService = Depends(
+        Provide[Container.admin_user_managment_service]
+    ),
+):
+    return service
+
+
 @cbv(admin_router)
 class AdminUserController:
-    service: AdminUserQueryService = Depends(admin_user_query_service_factory)
+    query_service: AdminUserQueryService = Depends(
+        admin_user_query_service_factory
+    )
+    command_service: AdminUserManagementService = Depends(
+        admin_user_query_service_factory
+    )
 
     @admin_router.get(
         "/me",
         response_model=CompleteAdminOutputDTO,
     )
     async def get_me(self, user: UserContextDTO = Depends(require_admin)):
-        return await self.service.get_profile(user)
+        return await self.query_service.get_profile(user)
 
     @admin_router.get(
         "/pending",
@@ -181,7 +202,7 @@ class AdminUserController:
         params: PaginationDTO = Depends(),
         user: UserContextDTO = Depends(require_admin),
     ):
-        return await self.service.get_pending_users(
+        return await self.query_service.get_pending_users(
             PaginatedDTO(
                 last_id=params.last_id, size=params.size, context=user
             )
@@ -195,7 +216,29 @@ class AdminUserController:
         self, user_id: int, user: UserContextDTO = Depends(require_admin)
     ):
         return or_404(
-            await self.service.get_user(
+            await self.query_service.get_user(
                 GetUserDTO(user_id=user_id, context=user)
             )
+        )
+
+    @admin_router.get(
+        "/{user_id}/approve",
+        response_model=UserOutputDTO,
+    )
+    async def approve_user(
+        self, user_id: int, user: UserContextDTO = Depends(require_admin)
+    ):
+        return await self.command_service.approve_user(
+            ApproveUserDTO(user_id=user_id, context=user)
+        )
+
+    @admin_router.get(
+        "/{user_id}/disapprove",
+        response_model=UserOutputDTO,
+    )
+    async def disapprove_user(
+        self, user_id: int, user: UserContextDTO = Depends(require_admin)
+    ):
+        return await self.command_service.disapprove_user(
+            DisapproveUserDTO(user_id=user_id, context=user)
         )

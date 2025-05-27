@@ -154,6 +154,7 @@ class CreateReplyUseCase:
             ContracteeReplyFilterDTO(
                 contractee_id=contractee.contractee_id,
                 status=ReplyStatusEnum.accepted,
+                dropped=False,
                 date=date,
             )
         )

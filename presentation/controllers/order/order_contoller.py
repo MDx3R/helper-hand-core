@@ -128,7 +128,7 @@ class ContractorUserController:
     async def list_orders(
         self,
         params: PaginationDTO = Depends(),
-        user: UserContextDTO = Depends(require_admin),
+        user: UserContextDTO = Depends(require_contractor),
     ):
         return await self.query_service.get_orders(
             PaginatedDTO(
