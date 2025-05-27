@@ -153,7 +153,7 @@ class AdminUserManagementServiceImpl(AdminUserManagementService):
         # )
         return user
 
-    async def disapprove_registration(
+    async def disapprove_user(
         self, request: DisapproveUserDTO
     ) -> UserOutputDTO:
         user = await self.disapprove_user_use_case.execute(request)

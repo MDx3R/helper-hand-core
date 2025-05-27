@@ -183,7 +183,7 @@ class AdminUserController:
         admin_user_query_service_factory
     )
     command_service: AdminUserManagementService = Depends(
-        admin_user_query_service_factory
+        admin_user_managment_service_factory
     )
 
     @admin_router.get(
