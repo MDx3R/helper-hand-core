@@ -15,3 +15,4 @@ class DropReplyDTO(InternalDTO):
     order_id: Optional[int] = None
     detail_id: Optional[int] = None
     date: Optional[datetime.date] = None
+    status: Optional[ReplyStatusEnum] = None

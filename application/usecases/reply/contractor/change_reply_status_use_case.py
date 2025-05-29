@@ -120,6 +120,7 @@ class ApproveReplyUseCase:
             DropReplyDTO(
                 contractee_id=contractee_id,
                 date=date,
+                status=ReplyStatusEnum.created,
             )
         )
 
@@ -137,7 +138,7 @@ class ApproveReplyUseCase:
     async def _drop_unapproved_replies_for_detail(self, detail: OrderDetail):
         await self.reply_command_repository.drop_replies(
             DropReplyDTO(
-                detail_id=detail.detail_id,
+                detail_id=detail.detail_id, status=ReplyStatusEnum.created
             )
         )
 
@@ -149,7 +150,7 @@ class ApproveReplyUseCase:
         )
         await self.reply_command_repository.drop_replies(
             DropReplyDTO(
-                order_id=order.order_id,
+                order_id=order.order_id, status=ReplyStatusEnum.created
             )
         )
 
