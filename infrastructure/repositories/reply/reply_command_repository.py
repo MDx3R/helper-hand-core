@@ -52,6 +52,8 @@ class ReplyCommandRepositoryImpl(ReplyCommandRepository):
             subquery = subquery.where(
                 ReplyBase.contractee_id == query.contractee_id
             )
+        if query.status:
+            subquery = subquery.where(ReplyBase.status == query.status)
 
         if query.date or query.order_id:
             subquery = subquery.join(
