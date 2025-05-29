@@ -33,19 +33,6 @@ class OrderDetailCommandRepositoryImpl(OrderDetailCommandRepository):
     async def create_details(
         self, details: List[OrderDetail]
     ) -> List[OrderDetail]:
-        query = (
-            insert(OrderDetailBase)
-            .values(
-                [
-                    {
-                        k: v
-                        for k, v in detail.get_fields().items()
-                        if k != "detail_id"
-                    }
-                    for detail in details
-                ]
-            )
-            .returning(OrderDetailBase)
-        )
-        results = await self.query_executor.execute_scalar_many(query)
-        return [OrderDetailMapper.to_model(base) for base in results]
+        bases = [OrderDetailMapper.to_base(i) for i in details]
+        await self.query_executor.add_all(bases)
+        return [OrderDetailMapper.to_model(base) for base in bases]

@@ -199,4 +199,12 @@ class QueryExecutor:
     ) -> None:
         async with self.transaction_manager.get_session() as session:
             session.add(model)
-            await session.flush()
+            await session.flush()  # TODO: flush on auto_commit = false / commit on true - из transaction manager: auto_commit = false при shared session, true иначе
+
+    async def add_all(
+        self,
+        models: Sequence[Base],
+    ) -> None:
+        async with self.transaction_manager.get_session() as session:
+            session.add_all(models)
+            await session.flush()  # TODO: flush on auto_commit = false / commit on true - из transaction manager: auto_commit = false при shared session, true иначе
