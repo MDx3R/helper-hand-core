@@ -1,8 +1,10 @@
 from domain.exceptions.base import ServiceException
 
+
 class NotFoundException(ServiceException):
     """Объект не найден"""
-    def __init__(self, entity_id: int = None):
+
+    def __init__(self, entity_id: int | str | None = None):
         self.entity_id = entity_id
 
         if entity_id is None:

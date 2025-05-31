@@ -39,6 +39,7 @@ from application.services.user.contractee_user_service import (
 from application.services.user.contractor_user_service import (
     ContractorUserQueryServiceImpl,
 )
+from application.services.user_photo_service import PhotoServiceImpl
 from application.usecases.auth.login_use_case import LoginUseCase
 from application.usecases.auth.create_user_use_case import (
     CreateContracteeUseCase,
@@ -157,6 +158,11 @@ from application.usecases.user.contractor.get_user_use_case import (
     GetProfileForContractorUseCase,
     GetUserForContractorUseCase,
 )
+from application.usecases.user.user_photo_use_case import (
+    GetPhotoUseCase,
+    RemovePhotoUseCase,
+    UploadPhotoUseCase,
+)
 from application.usecases.user.user_query_use_case import (
     GetProfileForUserUseCase,
 )
@@ -183,6 +189,9 @@ from infrastructure.repositories.order.order_command_repository import (
 )
 from infrastructure.repositories.order.order_query_repository import (
     OrderQueryRepositoryImpl,
+)
+from infrastructure.repositories.photos.local_photo_storage import (
+    LocalPhotoStorage,
 )
 from infrastructure.repositories.reply.composite_reply_query_repository import (
     CompositeReplyQueryRepositoryImpl,
@@ -238,6 +247,8 @@ class Container(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(
         packages=["presentation.controllers", "run"],
     )
+
+    # TODO: Resources
 
     # ---------------------- Config ----------------------
     config = providers.Singleton(Config.load)
@@ -329,6 +340,8 @@ class Container(containers.DeclarativeContainer):
     metrics_repository = providers.Singleton(
         MetricsRepositoryImpl, query_executor
     )
+    # --- Photo Storage ---
+    photo_storage = providers.Singleton(LocalPhotoStorage)
 
     # ---------------------- Auth ----------------------
     token_black_list = providers.Singleton(JWTTokenBlacklist)
@@ -580,6 +593,25 @@ class Container(containers.DeclarativeContainer):
         GetContractorMetricsUseCase, metrics_repository
     )
 
+    # --- Photo ---
+    get_photo_use_case = providers.Singleton(
+        GetPhotoUseCase,
+        photo_storage=photo_storage,
+        user_query_repository=user_query_repository,
+    )
+    upload_photo_use_case = providers.Singleton(
+        UploadPhotoUseCase,
+        photo_storage=photo_storage,
+        user_query_repository=user_query_repository,
+        user_command_repository=user_command_repository,
+    )
+    remove_photo_use_case = providers.Singleton(
+        RemovePhotoUseCase,
+        photo_storage=photo_storage,
+        user_query_repository=user_query_repository,
+        user_command_repository=user_command_repository,
+    )
+
     # ---------------------- Services (Facades) ----------------------
 
     # --- Auth ---
@@ -702,4 +734,11 @@ class Container(containers.DeclarativeContainer):
         get_admin_metrics_use_case=get_admin_metrics_use_case,
         get_contractee_metrics_use_case=get_contractee_metrics_use_case,
         get_contractor_metrics_use_case=get_contractor_metrics_use_case,
+    )
+
+    photo_service = providers.Singleton(
+        PhotoServiceImpl,
+        get_photo_use_case=get_photo_use_case,
+        upload_photo_use_case=upload_photo_use_case,
+        remove_photo_use_case=remove_photo_use_case,
     )

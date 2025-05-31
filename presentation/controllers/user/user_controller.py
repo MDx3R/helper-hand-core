@@ -1,5 +1,14 @@
-from typing import List, Optional
-from fastapi import APIRouter, Depends, Query
+from typing import BinaryIO, List, Optional
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    HTTPException,
+    Query,
+    Response,
+    UploadFile,
+)
+from fastapi.responses import StreamingResponse
 from application.usecases.user.user_query_use_case import (
     GetProfileForUserUseCase,
 )
@@ -37,6 +46,7 @@ from domain.services.user.contractor_user_service import (
 )
 from fastapi_utils.cbv import cbv
 
+from domain.services.user_photo_service import PhotoService
 from presentation.controllers.permissions import (
     authenticated,
     is_admin,

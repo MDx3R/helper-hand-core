@@ -104,6 +104,16 @@ class UserDomainService:
     def is_allowed_to_register(cls, user: User) -> bool:
         return cls.is_dropped(user) or cls.is_disapproved(user)
 
+    @classmethod
+    def get_avatar_photo_id(cls, user: User) -> str | None:
+        return user.photos[0] if user.photos else None
+
+    @classmethod
+    def is_allowed_to_upload_photo(cls, user: User, number: int = 1) -> bool:
+        return (cls.is_registered(user) or cls.is_pending(user)) and len(
+            user.photos
+        ) + number <= 3
+
 
 class AdminDomainService:
     @staticmethod

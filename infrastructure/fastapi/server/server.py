@@ -19,6 +19,7 @@ class FastAPIServer:
     ORDERS_BASE = "orders"
     REPLIES_BASE = "replies"
     METRICS_BASE = "metrics"
+    PHOTOS_BASE = "photos"
 
     def __init__(self):
         self._startup_handlers: List[Callable[[], Awaitable[None]]] = []
@@ -63,7 +64,7 @@ class FastAPIServer:
         self._register_order_routers()
         self._register_reply_routers()
         self._register_metrics_routers()
-        # Корректный вывод путей маршрутов
+        self._register_photos_routers()
         route_paths = [
             getattr(route, "path", None)
             for route in self.app.routes
@@ -190,6 +191,11 @@ class FastAPIServer:
             f"/{self.ADMIN_BASE}/{self.METRICS_BASE}",
             "Admin's Metrics",
         )
+
+    def _register_photos_routers(self):
+        from presentation.controllers.photo_controller import router
+
+        self._include_router(router, f"/{self.PHOTOS_BASE}", "Photos")
 
     def _include_router(self, router: APIRouter, prefix: str, tag: str):
         self.app.include_router(router, prefix=prefix, tags=[tag])
