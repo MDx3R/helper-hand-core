@@ -23,6 +23,7 @@ from application.usecases.user.admin.get_user_use_case import (
     GetProfileForAdminUseCase,
     GetUserForAdminUseCase,
 )
+from application.usecases.user.update_user_use_case import UpdateAdminUseCase
 from domain.dto.order.internal.order_managment_dto import DisapproveOrderDTO
 from domain.dto.user.internal.user_context_dto import (
     PaginatedDTO,
@@ -35,6 +36,7 @@ from domain.dto.user.internal.user_managment_dto import (
     DropUserDTO,
 )
 from domain.dto.user.internal.user_query_dto import GetUserDTO
+from domain.dto.user.request.admin.create_admin_dto import UpdateAdminDTO
 from domain.dto.user.response.admin.admin_output_dto import (
     AdminOutputDTO,
     CompleteAdminOutputDTO,
@@ -63,10 +65,12 @@ class AdminUserQueryServiceImpl(BaseUserQueryService, AdminUserQueryService):
         get_user_use_case: GetUserForAdminUseCase,
         list_pending_users_use_case: ListPendingUsersUseCase,
         get_profile_use_case: GetProfileForAdminUseCase,
+        update_admin_use_case: UpdateAdminUseCase,
     ):
         super().__init__(get_user_use_case)
         self.list_pending_users_use_case = list_pending_users_use_case
         self.get_profile_use_case = get_profile_use_case
+        self.update_admin_use_case = update_admin_use_case
 
     async def get_profile(
         self, context: UserContextDTO
@@ -77,6 +81,9 @@ class AdminUserQueryServiceImpl(BaseUserQueryService, AdminUserQueryService):
         self, query: PaginatedDTO
     ) -> List[UserOutputDTO]:
         return await self.list_pending_users_use_case.execute(query)
+
+    async def update_profile(self, query: UpdateAdminDTO) -> AdminOutputDTO:
+        return await self.update_admin_use_case.execute(query)
 
 
 class MockAdminUserQueryService(AdminUserQueryService):

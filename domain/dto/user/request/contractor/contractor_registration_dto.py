@@ -20,3 +20,7 @@ class ResetContractorDTO(WithUserContextDTO):
 
 class CreateContractorDTO(BaseCreateUserDTO):
     user: ContractorInputDTO
+
+
+class UpdateContractorDTO(WithUserContextDTO):
+    user: ContractorInputDTO

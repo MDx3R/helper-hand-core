@@ -13,7 +13,9 @@ from domain.dto.user.internal.user_managment_dto import (
 )
 
 from domain.dto.user.internal.user_query_dto import GetUserDTO
+from domain.dto.user.request.admin.create_admin_dto import UpdateAdminDTO
 from domain.dto.user.response.admin.admin_output_dto import (
+    AdminOutputDTO,
     CompleteAdminOutputDTO,
 )
 from domain.dto.user.response.contractee.contractee_output_dto import (
@@ -47,6 +49,10 @@ class AdminUserQueryService(ABC):
     async def get_pending_users(
         self, query: PaginatedDTO
     ) -> List[UserOutputDTO]:
+        pass
+
+    @abstractmethod
+    async def update_profile(self, query: UpdateAdminDTO) -> AdminOutputDTO:
         pass
 
 

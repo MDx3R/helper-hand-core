@@ -26,7 +26,7 @@ class OrderCommandRepositoryImpl(OrderCommandRepository):
         stmt = (
             update(OrderBase)
             .where(OrderBase.order_id == order.order_id)
-            .values(order.get_fields())
+            .values(OrderMapper.to_base(order).get_fields(ignore=True))
         )
         await self.executor.execute(stmt)
         return order

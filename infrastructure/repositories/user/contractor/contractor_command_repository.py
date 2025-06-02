@@ -27,7 +27,9 @@ class ContractorCommandRepositoryImpl(ContractorCommandRepository):
             update(UserBase)
             .where(UserBase.user_id == contractor.user_id)
             .values(
-                ContractorMapper.to_user_base(contractor).get_fields(),
+                ContractorMapper.to_user_base(contractor).get_fields(
+                    ignore=True
+                ),
             )
         )
         await self.executor.execute(stmt)
@@ -35,7 +37,9 @@ class ContractorCommandRepositoryImpl(ContractorCommandRepository):
             update(ContractorBase)
             .where(ContractorBase.contractor_id == contractor.contractor_id)
             .values(
-                ContractorMapper.to_role_base(contractor).get_fields(),
+                ContractorMapper.to_role_base(contractor).get_fields(
+                    ignore=True
+                ),
             )
         )
         await self.executor.execute(stmt)

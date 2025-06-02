@@ -28,10 +28,12 @@ class Base(DeclarativeBase):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    def get_fields(self) -> dict[str, Any]:
+    def get_fields(self, ignore=False) -> dict[str, Any]:
         return {
             column: getattr(self, column)
             for column in self._get_column_names()
+            if not ignore
+            or (ignore and column not in ["created_at", "updated_at"])
         }
 
     @classmethod

@@ -158,6 +158,11 @@ from application.usecases.user.contractor.get_user_use_case import (
     GetProfileForContractorUseCase,
     GetUserForContractorUseCase,
 )
+from application.usecases.user.update_user_use_case import (
+    UpdateAdminUseCase,
+    UpdateContracteeUseCase,
+    UpdateContractorUseCase,
+)
 from application.usecases.user.user_photo_use_case import (
     GetPhotoUseCase,
     RemovePhotoUseCase,
@@ -427,6 +432,22 @@ class Container(containers.DeclarativeContainer):
         BanUserUseCase, change_user_status_use_case
     )
 
+    update_contractor_use_case = providers.Singleton(
+        UpdateContractorUseCase,
+        contractor_query_repository=contractor_query_repository,
+        contractor_command_repository=contractor_command_repository,
+    )
+    update_contractee_use_case = providers.Singleton(
+        UpdateContracteeUseCase,
+        contractee_query_repository=contractee_query_repository,
+        contractee_command_repository=contractee_command_repository,
+    )
+    update_admin_use_case = providers.Singleton(
+        UpdateAdminUseCase,
+        admin_query_repository=admin_query_repository,
+        admin_command_repository=admin_command_repository,
+    )
+
     # --- Orders ---
     get_order_for_admin_use_case = providers.Singleton(
         GetOrderForAdminUseCase, composite_order_query_repository
@@ -628,6 +649,7 @@ class Container(containers.DeclarativeContainer):
         get_user_use_case=get_user_for_admin_use_case,
         list_pending_users_use_case=list_pending_users_use_case,
         get_profile_use_case=get_profile_for_admin_use_case,
+        update_admin_use_case=update_admin_use_case,
     )
     admin_user_managment_service = providers.Singleton(
         AdminUserManagementServiceImpl,
@@ -641,11 +663,13 @@ class Container(containers.DeclarativeContainer):
         ContractorUserQueryServiceImpl,
         get_user_use_case=get_user_for_contractor_use_case,
         get_profile_use_case=get_profile_for_contractor_use_case,
+        update_contractor_use_case=update_contractor_use_case,
     )
     contractee_user_query_service = providers.Singleton(
         ContracteeUserQueryServiceImpl,
         get_user_use_case=get_user_for_contractee_use_case,
         get_profile_use_case=get_profile_for_contractee_use_case,
+        update_contractee_use_case=update_contractee_use_case,
     )
 
     # --- Orders ---

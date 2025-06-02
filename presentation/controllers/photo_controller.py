@@ -21,7 +21,7 @@ from presentation.controllers.permissions import (
 )
 
 
-router = APIRouter(dependencies=[Depends(authenticated)])
+router = APIRouter()
 
 
 @inject

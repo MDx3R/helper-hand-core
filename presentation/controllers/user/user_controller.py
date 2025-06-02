@@ -24,14 +24,29 @@ from domain.dto.user.internal.user_managment_dto import (
     DisapproveUserDTO,
 )
 from domain.dto.user.internal.user_query_dto import GetUserDTO
+from domain.dto.user.request.admin.create_admin_dto import (
+    AdminInputDTO,
+    UpdateAdminDTO,
+)
+from domain.dto.user.request.contractee.contractee_registration_dto import (
+    ContracteeInputDTO,
+    UpdateContracteeDTO,
+)
+from domain.dto.user.request.contractor.contractor_registration_dto import (
+    ContractorInputDTO,
+    UpdateContractorDTO,
+)
 from domain.dto.user.response.admin.admin_output_dto import (
+    AdminOutputDTO,
     CompleteAdminOutputDTO,
 )
 from domain.dto.user.response.contractee.contractee_output_dto import (
     CompleteContracteeOutputDTO,
+    ContracteeOutputDTO,
 )
 from domain.dto.user.response.contractor.contractor_output_dto import (
     CompleteContractorOutputDTO,
+    ContractorOutputDTO,
 )
 from domain.dto.user.response.user_output_dto import UserOutputDTO
 from domain.services.user.admin_user_service import (
@@ -111,6 +126,22 @@ class ContracteeUserController:
     async def get_me(self, user: UserContextDTO = Depends(require_contractee)):
         return await self.service.get_profile(user)
 
+    @contractee_router.patch(
+        "/me",
+        response_model=ContracteeOutputDTO,
+    )
+    async def update_profile(
+        self,
+        request: ContracteeInputDTO,
+        user: UserContextDTO = Depends(require_contractee),
+    ):
+        return await self.service.update_profile(
+            UpdateContracteeDTO(
+                user=request,
+                context=user,
+            )
+        )
+
     @contractee_router.get(
         "/{user_id}",
         # response_model=UserOutputDTO, # TODO: Правильный тип
@@ -164,6 +195,22 @@ class ContractorUserController:
             )
         )
 
+    @contractor_router.patch(
+        "/me",
+        response_model=ContractorOutputDTO,
+    )
+    async def update_profile(
+        self,
+        request: ContractorInputDTO,
+        user: UserContextDTO = Depends(require_contractor),
+    ):
+        return await self.service.update_profile(
+            UpdateContractorDTO(
+                user=request,
+                context=user,
+            )
+        )
+
 
 # Контроллер для администраторов
 admin_router = APIRouter(dependencies=[Depends(is_admin)])
@@ -202,6 +249,22 @@ class AdminUserController:
     )
     async def get_me(self, user: UserContextDTO = Depends(require_admin)):
         return await self.query_service.get_profile(user)
+
+    @admin_router.patch(
+        "/me",
+        response_model=AdminOutputDTO,
+    )
+    async def update_profile(
+        self,
+        request: AdminInputDTO,
+        user: UserContextDTO = Depends(require_admin),
+    ):
+        return await self.query_service.update_profile(
+            UpdateAdminDTO(
+                user=request,
+                context=user,
+            )
+        )
 
     @admin_router.get(
         "/pending",

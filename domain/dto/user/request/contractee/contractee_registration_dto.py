@@ -27,3 +27,7 @@ class ResetContracteeDTO(WithUserContextDTO):
 
 class CreateContracteeDTO(BaseCreateUserDTO):
     user: ContracteeInputDTO
+
+
+class UpdateContracteeDTO(WithUserContextDTO):
+    user: ContracteeInputDTO

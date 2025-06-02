@@ -27,7 +27,7 @@ class AdminCommandRepositoryImpl(AdminCommandRepository):
             update(UserBase)
             .where(UserBase.user_id == admin.user_id)
             .values(
-                AdminMapper.to_user_base(admin).get_fields(),
+                AdminMapper.to_user_base(admin).get_fields(ignore=True),
             )
         )
         await self.executor.execute(stmt)
@@ -35,7 +35,7 @@ class AdminCommandRepositoryImpl(AdminCommandRepository):
             update(AdminBase)
             .where(AdminBase.admin_id == admin.user_id)
             .values(
-                AdminMapper.to_role_base(admin).get_fields(),
+                AdminMapper.to_role_base(admin).get_fields(ignore=True),
             )
         )
         await self.executor.execute(stmt)
