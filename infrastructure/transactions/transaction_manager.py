@@ -4,15 +4,15 @@ from contextvars import ContextVar
 
 import psycopg2
 import sqlalchemy.exc
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import sessionmaker
-
 from application.transactions import TransactionManager
 from domain.exceptions import ApplicationException, RepositoryException
 from domain.exceptions.repository import (
     DuplicateEntryException,
     IntegrityException,
 )
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import sessionmaker
+
 from infrastructure.exceptions.database import (
     DatabaseUnavailableException,
     InvalidDataException,

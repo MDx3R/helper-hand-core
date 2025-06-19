@@ -3,7 +3,10 @@ from uuid import UUID, uuid4
 from jose import ExpiredSignatureError, jwt, JWTError
 from application.external.blacklist import TokenBlacklist
 from application.transactions import transactional
-from application.usecases.auth.login_use_case import LoginUseCase
+from application.usecases.auth.login_use_case import (
+    LoginUseCase,
+    LogoutUseCase,
+)
 from application.usecases.auth.register_user_use_case import (
     RegisterContracteeUseCase,
     RegisterContractorUseCase,
@@ -117,7 +120,7 @@ class JWTTokenService(TokenService):
         refresh_token = await self.query_repository.get_token(
             TokenSignature(token=token)
         )
-        if not refresh_token:
+        if not refresh_token or refresh_token.revoked:
             raise InvalidCredentialsException
 
         # TODO: Получать актуальный контекст?
@@ -239,15 +242,20 @@ class UserAuthServiceImpl(UserAuthService):
     def __init__(
         self,
         login_use_case: LoginUseCase,
+        logout_use_case: LogoutUseCase,
         register_contractor_use_case: RegisterContractorUseCase,
         register_contractee_use_case: RegisterContracteeUseCase,
     ):
         self.login_use_case = login_use_case
+        self.logout_use_case = logout_use_case
         self.register_contractor_use_case = register_contractor_use_case
         self.register_contractee_use_case = register_contractee_use_case
 
     async def login(self, request: LoginUserDTO) -> AuthOutputDTO:  # TODO: DTO
         return await self.login_use_case.execute(request)
+
+    async def logout(self, access_token: str) -> None:
+        await self.logout_use_case.execute(access_token)
 
     async def register_contractor(
         self, request: RegisterContractorDTO

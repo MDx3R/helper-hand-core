@@ -123,7 +123,7 @@ def require_roles(*allowed_roles: RoleEnum) -> Callable:
     return checker
 
 
-authenticated = get_current_user
+authenticated = get_current_user_from_access_token
 unauthenticated = require_guest
 is_admin = has_role(RoleEnum.admin)
 is_contractee = has_role(RoleEnum.contractee)

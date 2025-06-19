@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field, fields
-from datetime import date
+from datetime import date, datetime
 from typing import Any, Generic, List, Optional, Self, Type, TypeVar
 
 from domain.entities.enums import CitizenshipEnum, GenderEnum, PositionEnum
@@ -13,6 +13,9 @@ from domain.entities.user.credentials import (
 )
 from domain.entities.user.enums import RoleEnum, UserStatusEnum
 from domain.entities.user.user import User
+from domain.entities.order.order import Order
+from domain.entities.order.detail import OrderDetail
+from domain.entities.reply.reply import Reply
 from tests.data_generators import (
     AdminData,
     ContracteeData,
@@ -20,7 +23,12 @@ from tests.data_generators import (
     TelegramCredentialsData,
     UserData,
     WebCredentialsData,
+    OrderData,
+    OrderDetailData,
+    ReplyData,
 )
+from domain.entities.order.enums import OrderStatusEnum
+from domain.entities.reply.enums import ReplyStatusEnum
 
 
 T = TypeVar("T")
@@ -182,3 +190,141 @@ class TelegramCredentialsBuilder(BaseTelegramCredentialsBuilder):
 class WebCredentialsBuilder(BaseWebCredentialsBuilder):
     def build(self) -> WebCredentials:
         return WebCredentials(**asdict(self._creds))
+
+
+class BaseOrderBuilder(BaseBuilder[T]):
+    def __init__(self, data: OrderData):
+        self._order = data
+
+    def with_order_id(self, order_id: int) -> Self:
+        self._order.order_id = order_id
+        return self
+
+    def with_contractor_id(self, contractor_id: int) -> Self:
+        self._order.contractor_id = contractor_id
+        return self
+
+    def with_about(self, about: str) -> Self:
+        self._order.about = about
+        return self
+
+    def with_address(self, address: str) -> Self:
+        self._order.address = address
+        return self
+
+    def with_admin_id(self, admin_id: int | None) -> Self:
+        self._order.admin_id = admin_id
+        return self
+
+    def with_status(self, status: OrderStatusEnum) -> Self:
+        self._order.status = status
+        return self
+
+    def with_created_at(self, created_at: datetime) -> Self:
+        self._order.created_at = created_at
+        return self
+
+    def with_updated_at(self, updated_at: datetime) -> Self:
+        self._order.updated_at = updated_at
+        return self
+
+
+class OrderBuilder(BaseOrderBuilder):
+    def build(self) -> Order:
+        return Order(**asdict(self._order))
+
+
+class BaseOrderDetailBuilder(BaseBuilder[T]):
+    def __init__(self, data: OrderDetailData):
+        self._detail = data
+
+    def with_detail_id(self, detail_id: int) -> Self:
+        self._detail.detail_id = detail_id
+        return self
+
+    def with_order_id(self, order_id: int) -> Self:
+        self._detail.order_id = order_id
+        return self
+
+    def with_date(self, date_: date) -> Self:
+        self._detail.date = date_
+        return self
+
+    def with_start_at(self, start_at: Any) -> Self:
+        self._detail.start_at = start_at
+        return self
+
+    def with_end_at(self, end_at: Any) -> Self:
+        self._detail.end_at = end_at
+        return self
+
+    def with_position(self, position: PositionEnum) -> Self:
+        self._detail.position = position
+        return self
+
+    def with_count(self, count: int) -> Self:
+        self._detail.count = count
+        return self
+
+    def with_wager(self, wager: int) -> Self:
+        self._detail.wager = wager
+        return self
+
+    def with_fee(self, fee: int) -> Self:
+        self._detail.fee = fee
+        return self
+
+    def with_gender(self, gender: GenderEnum | None) -> Self:
+        self._detail.gender = gender
+        return self
+
+    def with_created_at(self, created_at: datetime) -> Self:
+        self._detail.created_at = created_at
+        return self
+
+    def with_updated_at(self, updated_at: datetime) -> Self:
+        self._detail.updated_at = updated_at
+        return self
+
+
+class OrderDetailBuilder(BaseOrderDetailBuilder):
+    def build(self) -> OrderDetail:
+        return OrderDetail(**asdict(self._detail))
+
+
+class BaseReplyBuilder(BaseBuilder[T]):
+    def __init__(self, data: ReplyData):
+        self._reply = data
+
+    def with_contractee_id(self, contractee_id: int) -> Self:
+        self._reply.contractee_id = contractee_id
+        return self
+
+    def with_detail_id(self, detail_id: int) -> Self:
+        self._reply.detail_id = detail_id
+        return self
+
+    def with_wager(self, wager: int) -> Self:
+        self._reply.wager = wager
+        return self
+
+    def with_status(self, status: ReplyStatusEnum) -> Self:
+        self._reply.status = status
+        return self
+
+    def with_paid(self, paid: datetime | None) -> Self:
+        self._reply.paid = paid
+        return self
+
+    def with_created_at(self, created_at: datetime) -> Self:
+        self._reply.created_at = created_at
+        return self
+
+    def with_updated_at(self, updated_at: datetime) -> Self:
+        self._reply.updated_at = updated_at
+        return self
+
+
+class ReplyBuilder(BaseReplyBuilder):
+    def build(self) -> Reply:
+        return Reply(**asdict(self._reply))

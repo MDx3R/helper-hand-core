@@ -118,6 +118,15 @@ class TestTransactionManagerImpl:
         assert await self._is_user_saved(contractor)
 
     @pytest.mark.asyncio(loop_scope="session")
+    async def test_transaction_without_transaction_manager(self):
+        contractor = self._get_user()
+        result = await self._create_user(contractor)
+
+        assert result is not None
+        assert result.name == contractor.name
+        assert await self._is_user_saved(contractor)
+
+    @pytest.mark.asyncio(loop_scope="session")
     async def test_transaction_rollback(self):
         contractor = self._get_user()
         with pytest.raises(ValueError, match="Test rollback"):

@@ -1,9 +1,11 @@
 from typing import List
+from uuid import UUID
 
 from sqlalchemy import Select, select
 
 from domain.dto.token import TokenFilter, TokenSignature
-from domain.entities.token.token import Token
+from domain.entities.token.enums import TokenTypeEnum
+from domain.entities.token.token import Token, TokenPair
 from domain.repositories.token.token_query_repository import (
     TokenQueryRepository,
 )
@@ -30,6 +32,29 @@ class TokenQueryRepositoryImpl(TokenQueryRepository):
 
         results = await self.executor.execute_scalar_many(stmt)
         return [TokenMapper.to_model(token) for token in results]
+
+    async def get_token_pair_by_session(
+        self, session_id: UUID
+    ) -> TokenPair | None:
+        tokens = await self.get_tokens(TokenFilter(session_id=session_id))
+        if not tokens:
+            return None
+        access_token = None
+        refresh_token = None
+        for token in tokens:
+            if token.type == TokenTypeEnum.access:
+                access_token = token
+            elif token.type == TokenTypeEnum.refresh:
+                refresh_token = token
+
+        if not (access_token and refresh_token):
+            return None
+
+        return TokenPair(
+            session_id=session_id,
+            access_token=access_token,
+            refresh_token=refresh_token,
+        )
 
     def apply_signature(
         self, stmt: Select, signature: TokenSignature

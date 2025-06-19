@@ -18,7 +18,11 @@ from domain.dto.user.response.user_output_dto import AuthOutputDTO
 
 class UserAuthService(ABC):
     @abstractmethod
-    async def login(self, request: LoginUserDTO) -> AuthOutputDTO:  # TODO: DTO
+    async def login(self, request: LoginUserDTO) -> AuthOutputDTO:
+        pass
+
+    @abstractmethod
+    async def logout(self, access_token: str) -> None:
         pass
 
     @abstractmethod

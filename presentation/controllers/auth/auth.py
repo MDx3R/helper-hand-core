@@ -64,6 +64,16 @@ class AuthController:
             LoginUserDTO(email=form_data.username, password=form_data.password)
         )
 
+    @router.post(
+        "/logout",
+        dependencies=[Depends(authenticated)],
+    )
+    async def logout(
+        self,
+        token: str = Depends(oauth2_scheme),
+    ):
+        return await self.auth_service.logout(token)
+
     @router.post("/register/contractee", dependencies=[Depends(require_guest)])
     async def register_contractee(
         self,

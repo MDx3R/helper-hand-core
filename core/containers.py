@@ -40,7 +40,10 @@ from application.services.user.contractor_user_service import (
     ContractorUserQueryServiceImpl,
 )
 from application.services.user_photo_service import PhotoServiceImpl
-from application.usecases.auth.login_use_case import LoginUseCase
+from application.usecases.auth.login_use_case import (
+    LoginUseCase,
+    LogoutUseCase,
+)
 from application.usecases.auth.create_user_use_case import (
     CreateContracteeUseCase,
     CreateContractorUseCase,
@@ -386,6 +389,13 @@ class Container(containers.DeclarativeContainer):
     login_use_case = providers.Singleton(
         LoginUseCase, token_service, password_hasher, user_query_repository
     )
+    logout_use_case = providers.Singleton(
+        LogoutUseCase,
+        token_query_repository=token_query_repository,
+        token_command_repository=token_command_repository,
+        token_blacklist=token_black_list,
+        token_service=token_service,
+    )
 
     # --- Profile & Role UseCases ---
     get_profile_for_user_use_case = providers.Singleton(
@@ -639,6 +649,7 @@ class Container(containers.DeclarativeContainer):
     auth_service = providers.Singleton(
         UserAuthServiceImpl,
         login_use_case=login_use_case,
+        logout_use_case=logout_use_case,
         register_contractor_use_case=register_contractor_use_case,
         register_contractee_use_case=register_contractee_use_case,
     )

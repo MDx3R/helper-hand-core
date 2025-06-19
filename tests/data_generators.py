@@ -217,7 +217,7 @@ class WebCredentialsDataGenerator(DataGenerator):
 
 class OrderDataGenerator(DataGenerator):
     @staticmethod
-    def _generate() -> OrderData:
+    def generate() -> OrderData:
         return OrderData(
             order_id=DataGenerator.get_id(),
             contractor_id=DataGenerator.get_id(),
@@ -232,7 +232,7 @@ class OrderDataGenerator(DataGenerator):
 
 class OrderDetailDataGenerator(DataGenerator):
     @staticmethod
-    def _generate() -> OrderDetailData:
+    def generate() -> OrderDetailData:
         wager = fake.random_int(min=100, max=1000)
         return OrderDetailData(
             detail_id=DataGenerator.get_id(),
@@ -252,7 +252,7 @@ class OrderDetailDataGenerator(DataGenerator):
 
 class ReplyDataGenerator(DataGenerator):
     @staticmethod
-    def _generate() -> ReplyData:
+    def generate() -> ReplyData:
         return ReplyData(
             contractee_id=DataGenerator.get_id(),
             detail_id=DataGenerator.get_id(),

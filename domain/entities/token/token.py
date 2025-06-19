@@ -15,3 +15,9 @@ class Token(ApplicationModel):
     type: TokenTypeEnum
     revoked: bool = False
     expires_at: datetime
+
+
+class TokenPair(ApplicationModel):
+    session_id: UUID
+    access_token: Token
+    refresh_token: Token
