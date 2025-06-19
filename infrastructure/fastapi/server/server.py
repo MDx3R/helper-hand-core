@@ -5,6 +5,10 @@ from typing import Awaitable, Callable, List
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from presentation.middleware.error_handling_middleware import (
+    ErrorHandlingMiddleware,
+)
+
 
 class FastAPIServer:
     """
@@ -82,7 +86,7 @@ class FastAPIServer:
 
     def include_exception_handlers(self):
         """Регистрирует все обработчики исключений."""
-        pass
+        self.app.add_middleware(ErrorHandlingMiddleware)
 
     def _include_cors_middleware(self):
         self.app.add_middleware(

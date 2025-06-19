@@ -1,3 +1,4 @@
+import logging
 from dependency_injector import containers, providers
 from application.external.metrics.metrics_repository import MetricsRepository
 from application.external.password_hasher import BcryptPasswordHasher
@@ -175,6 +176,7 @@ from application.usecases.user.user_query_use_case import (
     GetProfileForUserUseCase,
 )
 from core.config import Config
+from core.providers import configure_logger
 from domain.services.user.admin_user_service import AdminUserManagementService
 from infrastructure.database.database import (
     Database,
@@ -253,7 +255,11 @@ from infrastructure.transactions.transaction_manager import (
 
 class Container(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(
-        packages=["presentation.controllers", "run"],
+        packages=[
+            "presentation.controllers",
+            "presentation.middleware",
+            "run",
+        ],
     )
 
     # TODO: Resources
@@ -262,6 +268,7 @@ class Container(containers.DeclarativeContainer):
     config = providers.Singleton(Config.load)
     auth_config = config.provided.auth
     db_config = config.provided.db
+    logger = providers.Singleton(configure_logger)
 
     # ---------------------- Database ----------------------
     database = providers.Singleton(Database, config=db_config)
