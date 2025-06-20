@@ -40,8 +40,8 @@ import { ProfileView } from "./views/ProfileView.js";
 import { CreateOrderView } from "./views/CreateOrderView.js";
 import { PhotoService } from "./dao/PhotoService.js";
 
-localStorage.removeItem("accessToken");
-localStorage.removeItem("refreshToken");
+// localStorage.removeItem("accessToken");
+// localStorage.removeItem("refreshToken");
 
 const baseURL = "http://127.0.0.1:80/api";
 const accessToken = localStorage.getItem("accessToken");
@@ -106,6 +106,7 @@ let router = new Router();
 
 let onAuth = async () => {
   let user = await userService.getMe();
+  localStorage.setItem("role", user.role);
   routeTo = "#";
   startApp(user.role);
 };
@@ -220,5 +221,5 @@ function getRole() {
 }
 
 window.onload = () => {
-  startApp("guest");
+  startApp(getRole());
 };
