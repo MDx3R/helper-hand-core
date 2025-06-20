@@ -17,6 +17,7 @@ class FastAPIServer:
     Обрабатывает регистрацию маршрутов, middleware и события жизненного цикла.
     """
 
+    PREFIX = "api"
     ADMIN_BASE = "admin"
     CONTRACTOR_BASE = "contractor"
     CONTRACTEE_BASE = "contractee"
@@ -103,7 +104,7 @@ class FastAPIServer:
     def _register_auth_routers(self):
         from presentation.controllers.auth.auth import router as auth_router
 
-        self._include_router(auth_router, "/auth", "Auth")
+        self._include_router(auth_router, "auth", "Auth")
 
     def _register_user_routers(self):
         from presentation.controllers.user.user_controller import (
@@ -113,20 +114,20 @@ class FastAPIServer:
             admin_router,
         )
 
-        self._include_router(user_router, f"/{self.USERS_BASE}", "Users")
+        self._include_router(user_router, f"{self.USERS_BASE}", "Users")
         self._include_router(
             contractor_router,
-            f"/{self.CONTRACTOR_BASE}/{self.USERS_BASE}",
+            f"{self.CONTRACTOR_BASE}/{self.USERS_BASE}",
             "Contractor's Users",
         )
         self._include_router(
             contractee_router,
-            f"/{self.CONTRACTEE_BASE}/{self.USERS_BASE}",
+            f"{self.CONTRACTEE_BASE}/{self.USERS_BASE}",
             "Contractee's Users",
         )
         self._include_router(
             admin_router,
-            f"/{self.ADMIN_BASE}/{self.USERS_BASE}",
+            f"{self.ADMIN_BASE}/{self.USERS_BASE}",
             "Admin's Users",
         )
 
@@ -138,20 +139,20 @@ class FastAPIServer:
             admin_router,
         )
 
-        self._include_router(guest_router, f"/{self.ORDERS_BASE}", "Orders")
+        self._include_router(guest_router, f"{self.ORDERS_BASE}", "Orders")
         self._include_router(
             contractor_router,
-            f"/{self.CONTRACTOR_BASE}/{self.ORDERS_BASE}",
+            f"{self.CONTRACTOR_BASE}/{self.ORDERS_BASE}",
             "Contractor's Orders",
         )
         self._include_router(
             contractee_router,
-            f"/{self.CONTRACTEE_BASE}/{self.ORDERS_BASE}",
+            f"{self.CONTRACTEE_BASE}/{self.ORDERS_BASE}",
             "Contractee's Orders",
         )
         self._include_router(
             admin_router,
-            f"/{self.ADMIN_BASE}/{self.ORDERS_BASE}",
+            f"{self.ADMIN_BASE}/{self.ORDERS_BASE}",
             "Admin's Orders",
         )
 
@@ -165,12 +166,12 @@ class FastAPIServer:
 
         self._include_router(
             contractor_reply_router,
-            f"/{self.CONTRACTOR_BASE}/{self.REPLIES_BASE}",
+            f"{self.CONTRACTOR_BASE}/{self.REPLIES_BASE}",
             "Contractor's Replies",
         )
         self._include_router(
             contractee_reply_router,
-            f"/{self.CONTRACTEE_BASE}/{self.REPLIES_BASE}",
+            f"{self.CONTRACTEE_BASE}/{self.REPLIES_BASE}",
             "Contractee's Replies",
         )
 
@@ -182,27 +183,28 @@ class FastAPIServer:
             admin_router,
         )
 
-        self._include_router(app_router, f"/{self.METRICS_BASE}", "Orders")
+        self._include_router(app_router, f"{self.METRICS_BASE}", "Orders")
         self._include_router(
             contractor_router,
-            f"/{self.CONTRACTOR_BASE}/{self.METRICS_BASE}",
+            f"{self.CONTRACTOR_BASE}/{self.METRICS_BASE}",
             "Contractor's Metrics",
         )
         self._include_router(
             contractee_router,
-            f"/{self.CONTRACTEE_BASE}/{self.METRICS_BASE}",
+            f"{self.CONTRACTEE_BASE}/{self.METRICS_BASE}",
             "Contractee's Metrics",
         )
         self._include_router(
             admin_router,
-            f"/{self.ADMIN_BASE}/{self.METRICS_BASE}",
+            f"{self.ADMIN_BASE}/{self.METRICS_BASE}",
             "Admin's Metrics",
         )
 
     def _register_photos_routers(self):
         from presentation.controllers.photo_controller import router
 
-        self._include_router(router, f"/{self.PHOTOS_BASE}", "Photos")
+        self._include_router(router, f"{self.PHOTOS_BASE}", "Photos")
 
     def _include_router(self, router: APIRouter, prefix: str, tag: str):
+        prefix = f"/{self.PREFIX}/{prefix}" if self.PREFIX else f"/{prefix}"
         self.app.include_router(router, prefix=prefix, tags=[tag])
