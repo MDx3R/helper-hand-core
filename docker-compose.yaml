@@ -8,11 +8,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "80:80"
-      - "443:443"
     networks:
       - backend-network
     volumes:
-      - ./uploads:/uploads
+      - upload-volume:/uploads
     depends_on:
       backend-service:
         condition: service_started
@@ -30,7 +29,7 @@ services:
       postgres-service:
         condition: service_healthy
     volumes:
-      - ./uploads:/uploads
+      - upload-volume:/uploads
       - ./config:/config
     networks:
       - backend-network
@@ -54,6 +53,7 @@ services:
 
 volumes:
   postgres-volume:
+  upload-volume:
 
 networks:
   backend-network:
