@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from presentation.middleware.error_handling_middleware import (
     ErrorHandlingMiddleware,
 )
+from presentation.middleware.logging_middleware import LoggingMiddleware
 
 
 class FastAPIServer:
@@ -81,12 +82,14 @@ class FastAPIServer:
         """Регистрирует все middleware."""
         from presentation.middleware.auth_middleware import AuthMiddleware
 
-        self.app.add_middleware(AuthMiddleware)
         self._include_cors_middleware()
+        self.app.add_middleware(LoggingMiddleware)
+        self.app.add_middleware(ErrorHandlingMiddleware)
+        self.app.add_middleware(AuthMiddleware)
 
     def include_exception_handlers(self):
         """Регистрирует все обработчики исключений."""
-        self.app.add_middleware(ErrorHandlingMiddleware)
+        pass
 
     def _include_cors_middleware(self):
         self.app.add_middleware(
