@@ -1,5 +1,6 @@
 import asyncio
 from application.usecases.auth.create_user_use_case import CreateAdminUseCase
+from domain.dto.user.internal.user_filter_dto import UserFilterDTO
 from domain.dto.user.request.admin.create_admin_dto import (
     AdminInputDTO,
     CreateAdminDTO,
@@ -15,6 +16,12 @@ from infrastructure.database.models import Base
 async def main():
     app = App()
     await app.database.create_database(Base.metadata)
+
+    repo = app.container.user_query_repository()
+
+    if await repo.exists_by_query(UserFilterDTO(phone_number="+79002977098")):
+        print("Admin user already exists, skipping creation.")
+        return
 
     use_case = CreateAdminUseCase(
         admin_command_repository=app.container.admin_command_repository(),

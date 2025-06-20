@@ -8,8 +8,8 @@ from domain.entities.enums import GenderEnum, PositionEnum
 
 
 class OrderBaseDTO(ApplicationDTO):
-    about: str = Field(..., min_length=10, max_length=1000)
-    address: str = Field(..., min_length=5, max_length=255)
+    about: str = Field(..., min_length=1, max_length=1000)
+    address: str = Field(..., min_length=1, max_length=255)
 
 
 class OrderDetailBaseDTO(ApplicationDTO):

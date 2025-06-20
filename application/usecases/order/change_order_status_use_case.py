@@ -53,7 +53,6 @@ class BaseApproveOrderUseCase:
 
         # Можно установить admin_id явно,
         # так как при вызове use case заказ или не имеет куратора, или имеет такого же
-        print(request.context.user_id)
         order.admin_id = request.context.user_id
         order.status = status
         order = await self._save_order(order)
@@ -81,7 +80,6 @@ class BaseApproveOrderUseCase:
             )
 
     async def _save_order(self, order: Order) -> Order:
-        print(order)
         return await self.command_repository.update_order(order)
 
 

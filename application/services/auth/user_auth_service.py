@@ -168,7 +168,6 @@ class JWTTokenService(TokenService):
         except ExpiredSignatureError as e:
             raise CredentialsExpiredException from e
         except JWTError as e:
-            print(e)
             raise InvalidCredentialsException from e
 
     def _generate_session_id(self) -> UUID:

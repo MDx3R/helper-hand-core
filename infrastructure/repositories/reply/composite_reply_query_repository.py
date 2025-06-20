@@ -98,7 +98,6 @@ class CompositeReplyQueryRepositoryImpl(CompositeReplyQueryRepository):
         row = await self.executor.execute_one(statement)
         if not row:
             return None
-        print(row)
         return UnmappedReply(row)
 
     async def _execute_many(self, statement: Select) -> List[UnmappedReply]:

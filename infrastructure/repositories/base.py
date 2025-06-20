@@ -188,7 +188,6 @@ class QueryExecutor:
         self,
         statement: Select[O] | Insert[O] | Update[O] | Delete[O],
     ) -> Result[O]:
-        # print(str(statement), str(statement.compile().params))
         async with self.transaction_manager.get_session() as session:
             result = await session.execute(statement)
             return result

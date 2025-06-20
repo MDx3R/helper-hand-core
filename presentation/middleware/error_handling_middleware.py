@@ -56,7 +56,7 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
             return response
         except (RequestValidationError, ValidationError) as validation_exc:
-            self.logger.warning(f"Validation error: {validation_exc}")
+            self.logger.info(f"Validation error: {validation_exc}")
             return JSONResponse(
                 status_code=422,
                 content={
